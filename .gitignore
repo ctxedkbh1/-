@@ -10,6 +10,19 @@ dist/
 *.zip
 *.exe
 
+# 虚拟环境
+.venv/
+venv/
+env/
+
+# 环境变量与密钥（绝不上传）
+.env
+.env.*
+
+# IDE
+.idea/
+.vscode/
+
 # 运行时数据（含用户论文、证据、API Key）
 paper_project/
 
