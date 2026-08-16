@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# 构建产物
+build/
+dist/
+*.spec
+*.zip
+*.exe
+
+# 运行时数据（含用户论文、证据、API Key）
+paper_project/
+
+# 开发工具
+.opencode/
+
+# 临时
+*.tmp
