@@ -126,7 +126,7 @@ Windows 桌面论文智能研究与写作助手：选题 → 权威资料检索 
 ### 方式一：下载 EXE（推荐，小白可用）
 
 1. 打开 [Releases 页面](https://github.com/ctxedkbh1/paper-assistant/releases)
-2. 下载最新版的 `论文助手_vX.Y.Z.exe`（单文件版）或 `论文助手_vX.Y.Z.zip`（绿色版，解压即用）
+2. 下载最新版的 `PaperAssistant-vX.Y.Z-windows-x64.exe`（单文件版，推荐）或 `PaperAssistant-vX.Y.Z-windows-x64.zip`（绿色版，解压即用）
 3. 双击运行，**首次启动需要 10~30 秒**（PyInstaller 解压运行环境），请耐心等待
 
 > 若 Windows SmartScreen 提示"已保护你的电脑"，点"更多信息 → 仍要运行"即可（未签名软件的正常提示）。
