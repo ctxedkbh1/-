@@ -80,7 +80,9 @@ class OpenAICompatibleProvider(LLMProvider):
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
         payload = {"model": self.model_id, "messages": messages,
-                   "temperature": temperature, "max_tokens": max_tokens}
+                   "max_tokens": max_tokens}
+        if temperature is not None:
+            payload["temperature"] = temperature
         if json_mode:
             payload["response_format"] = {"type": "json_object"}
         try:
@@ -125,7 +127,9 @@ class ClaudeProvider(LLMProvider):
             else:
                 claude_msgs.append({"role": role, "content": content})
         payload = {"model": self.model_id, "max_tokens": max(64, int(max_tokens)),
-                   "temperature": temperature, "messages": claude_msgs}
+                   "messages": claude_msgs}
+        if temperature is not None:
+            payload["temperature"] = temperature
         if system.strip():
             payload["system"] = system.strip()
         try:
@@ -163,9 +167,10 @@ class GeminiProvider(LLMProvider):
             else:
                 role = "model" if m.get("role") == "assistant" else "user"
                 contents.append({"role": role, "parts": [{"text": text}]})
-        payload = {"contents": contents,
-                   "generationConfig": {"temperature": temperature,
-                                        "maxOutputTokens": max(64, int(max_tokens))}}
+        generation_config = {"maxOutputTokens": max(64, int(max_tokens))}
+        if temperature is not None:
+            generation_config["temperature"] = temperature
+        payload = {"contents": contents, "generationConfig": generation_config}
         if system.strip():
             payload["systemInstruction"] = {"parts": [{"text": system.strip()}]}
         headers = {"Content-Type": "application/json", "x-goog-api-key": self.api_key}
@@ -195,150 +200,6 @@ def build_provider(model_cfg):
     return OpenAICompatibleProvider(model_cfg)
 
 
-class ModelRouter:
-    """模型路由：按任务选择模型、失败自动切换备用模型、成本统计。"""
+from core.ai.router import ModelRouter
 
-    def __init__(self, config):
-        self.cfg = config
-        self.task_overrides = {}
-        self.usage = {"calls": 0, "tokens": 0, "cost": 0.0}
-        self._usage_file = os.path.join(os.path.dirname(config.path), "api_usage.json")
-        self.load_usage()
-
-    def load_usage(self):
-        try:
-            if os.path.exists(self._usage_file):
-                with open(self._usage_file, encoding="utf-8") as f:
-                    d = json.load(f)
-                    if isinstance(d, dict):
-                        self.usage.update(d)
-        except Exception:
-            pass
-
-    def save_usage(self):
-        try:
-            with open(self._usage_file, "w", encoding="utf-8") as f:
-                json.dump(self.usage, f, ensure_ascii=False, indent=2)
-        except Exception:
-            pass
-
-    def reset_usage(self):
-        self.usage = {"calls": 0, "tokens": 0, "cost": 0.0}
-        self.save_usage()
-
-    def _refresh(self):
-        try:
-            self.cfg.data = self.cfg._load()
-            self.cfg._migrate()
-        except Exception:
-            pass
-
-    def limits(self):
-        self._refresh()
-        lim = self.cfg.data.get("cost_limits") or {}
-        return {"max_api_calls": int(lim.get("max_api_calls") or 0),
-                "max_tokens": int(lim.get("max_tokens") or 0),
-                "max_budget": float(lim.get("max_budget") or 0)}
-
-    def limits_reached(self):
-        lim = self.limits()
-        if lim["max_api_calls"] > 0 and self.usage["calls"] >= lim["max_api_calls"]:
-            return f"已达到单次最大 API 调用次数（{lim['max_api_calls']}）"
-        if lim["max_tokens"] > 0 and self.usage["tokens"] >= lim["max_tokens"]:
-            return f"已达到单次最大 Token 数（{lim['max_tokens']}）"
-        if lim["max_budget"] > 0 and self.usage["cost"] >= lim["max_budget"]:
-            return f"已达到单次最大预算（{lim['max_budget']} 元，按估算）"
-        return None
-
-    def enabled_models(self):
-        self._refresh()
-        return [(k, v) for k, v in self.cfg.data.get("models", {}).items()
-                if v.get("enabled")]
-
-    def task_model(self, task):
-        if self.task_overrides.get(task):
-            return self.task_overrides[task]
-        return self.cfg.data.get("tasks", {}).get(task) or "auto"
-
-    def _score(self, key, model, task):
-        caps = TASK_CAPS.get(task, [])
-        model_caps = model.get("capabilities") or []
-        score = 0
-        for c in caps:
-            if c in model_caps:
-                score += 2
-        if model.get("api_key") or model.get("env_key"):
-            score += 1
-        if task == "generation" and "中文能力" in model_caps:
-            score += 1
-        return score
-
-    def _auto_pick(self, task):
-        best, best_score = None, -1
-        for key, model in self.enabled_models():
-            s = self._score(key, model, task)
-            if s > best_score:
-                best, best_score = key, s
-        return best
-
-    def _candidates(self, task):
-        assigned = self.task_model(task)
-        ordered = []
-        if assigned and assigned != "auto":
-            ordered.append(assigned)
-        elif assigned == "auto":
-            auto = self._auto_pick(task)
-            if auto:
-                ordered.append(auto)
-        for key, _ in self.enabled_models():
-            if key not in ordered:
-                ordered.append(key)
-        return ordered
-
-    def chat(self, task, messages, temperature=0.7, json_mode=False,
-             max_tokens=8000, timeout=600):
-        self._refresh()
-        limit_hit = self.limits_reached()
-        if limit_hit:
-            raise DeepseekError(limit_hit)
-        candidates = self._candidates(task)
-        if not candidates:
-            raise DeepseekError("没有可用的已启用模型，请先在【AI 模型管理】中配置并启用模型。")
-        errors = []
-        for key in candidates:
-            model = self.cfg.data.get("models", {}).get(key)
-            if not model:
-                continue
-            provider = build_provider(model)
-            try:
-                text = provider.chat(messages, temperature=temperature,
-                                     json_mode=json_mode, max_tokens=max_tokens,
-                                     timeout=timeout)
-                if not text or not text.strip():
-                    raise LLMError(f"{model.get('name')}: 返回内容为空")
-                self._account(model, text)
-                log.get().info("模型调用成功 task=%s model=%s", task, model.get("name"))
-                return text, key
-            except LLMError as e:
-                errors.append(f"{model.get('name')}({key}): {e}")
-                log.get().warning("模型调用失败，切换备用模型: %s", e)
-                continue
-        raise DeepseekError("所有已启用模型均调用失败：" + "；".join(errors))
-
-    def _account(self, model, output_text):
-        est_tokens = max(1, int(len(output_text) * 0.7))
-        self.usage["calls"] += 1
-        self.usage["tokens"] += est_tokens
-        price = float(model.get("price") or 0)
-        if price > 0:
-            self.usage["cost"] += round(est_tokens / 1_000_000 * price, 6)
-        self.save_usage()
-
-    def health_check(self, model_key):
-        self._refresh()
-        model = self.cfg.data.get("models", {}).get(model_key)
-        if not model:
-            return {"ok": False, "latency": None, "message": "模型不存在"}
-        return build_provider(model).health_check()
-
-# 版本: v1.5.2 (2026-08-16) 更新: 401错误信息友好化提示
+# 版本: v2.0.1 (2026-08-17) 更新: Provider Adapter 与动态路由兼容入口

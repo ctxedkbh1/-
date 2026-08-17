@@ -34,6 +34,11 @@ def set_task_models(overrides):
     get_router().task_overrides = dict(overrides or {})
 
 
+def clear_task_models():
+    """Clear per-run model overrides so later manual requests use saved defaults."""
+    get_router().task_overrides = {}
+
+
 def limits_reached():
     return get_router().limits_reached()
 
@@ -64,4 +69,4 @@ def extract_json(text):
             pass
     return None
 
-# 版本: v1.5.0 (2026-08-16) 更新: 多模型供应商系统
+# 版本: v2.0.1 (2026-08-17) 更新: AIService 兼容入口与覆盖清理

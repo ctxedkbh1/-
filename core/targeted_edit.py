@@ -30,7 +30,7 @@ def edit_region(full_text, region_text, instruction, info, section_title=""):
                 f"【修改要求】{instruction}")
     resp = deepseek.chat([{"role": "system", "content": WRITER_SYSTEM + "\n\n" + EDIT_RULES},
                           {"role": "user", "content": user_msg}],
-                         temperature=0.6, max_tokens=8000, task="polish")
+                         temperature=0.6, max_tokens=8000, task="quick_edit")
     new_region = (resp or "").strip()
     if not new_region:
         raise deepseek.DeepseekError("定向修改未返回内容")

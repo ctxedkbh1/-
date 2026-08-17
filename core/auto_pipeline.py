@@ -87,8 +87,6 @@ class AutoPipelineEngine(QObject):
         self.ai_limit = self._limit("ai_risk_limit", cfg.get_int("ai_risk_limit", 20), 100)
         self.repeat_limit = self._limit("repeat_risk_limit", cfg.get_int("repeat_risk_limit", 20), 100)
         self.max_rounds = self._rounds_limit(cfg.get_int("max_optimization_rounds", 5))
-        from core import deepseek
-        deepseek.set_task_models(self.input.get("task_models") or {})
 
     def _limit(self, key, fallback, cap):
         v = self.input.get(key, fallback)
@@ -163,6 +161,9 @@ class AutoPipelineEngine(QObject):
                 raise PipelineError(f"{dict(STAGE_LABELS)[key]} 失败：{e}")
 
     def run(self):
+        from core import deepseek
+
+        deepseek.set_task_models(self.input.get("task_models") or {})
         try:
             self._execute()
         except PipelineCancelled:
@@ -173,6 +174,8 @@ class AutoPipelineEngine(QObject):
             log.get().exception("全自动流程失败")
             self.checkpoint.add_log(f"流程中止：{e}", "ERROR")
             self.failed.emit(str(e))
+        finally:
+            deepseek.clear_task_models()
 
     # ---------- 流程 ----------
 
@@ -482,8 +485,12 @@ class AutoPipelineEngine(QObject):
 
     def _step_references(self):
         analysis = self.checkpoint.get("analysis") or {}
-        if analysis.get("unused"):
-            self.log(f"参考文献检查：{len(analysis['unused'])} 条证据未在正文使用（将保留并在报告中提示）。", "WARN")
+        unused = analysis.get("unused_reference_ids") or analysis.get("unused") or []
+        unresolved = analysis.get("unresolved_references") or []
+        if unresolved:
+            self.log(f"参考文献检查发现 {len(unresolved)} 条证据缺少真实 Reference ID 映射。", "WARN")
+        elif unused:
+            self.log(f"参考文献检查：{len(unused)} 条文献未在正文使用（将保留并在报告中提示）。", "WARN")
         else:
             self.log("参考文献检查通过：所有证据均被正文使用，正文引用与参考文献一一对应。")
 

@@ -42,7 +42,7 @@ def _generate_abstract(project, full_text):
     user_msg = (f"论文题目：{project.info().get('topic')}\n\n论文全文：\n\n{full_text[:12000]}")
     resp = deepseek.chat([{"role": "system", "content": WRITER_SYSTEM},
                           {"role": "user", "content": user_msg + ABSTRACT_JSON_SPEC}],
-                         temperature=0.4, json_mode=True, task="generation")
+                         temperature=0.4, json_mode=True, task="summary")
     data = deepseek.extract_json(resp) or {}
     if not data.get("abstract"):
         raise deepseek.DeepseekError("摘要生成失败")
@@ -66,9 +66,33 @@ def assemble_markdown(project, store, analysis, skip_abstract=False):
     if meta.get("keywords"):
         lines += ["**关键词**：" + "；".join(meta["keywords"]), ""]
     lines += [_replace_citations(full_text, analysis.get("mapping", {})), "", "## 参考文献", ""]
+    reference_store = None
+    citation_map = None
+    try:
+        from core.references.citations import CitationMap
+        from core.references.store import ReferenceStore
+
+        reference_store = ReferenceStore()
+        citation_map = CitationMap()
+    except (OSError, ValueError) as exc:
+        log.get().warning("ReferenceStore 加载失败，使用旧证据格式: %s", exc)
     for i, eid in enumerate(analysis.get("refs", []), 1):
         e = store.get(eid)
-        lines.append(f"[{i}] {store.to_reference(e) if e else '（记录缺失，请检查）'}")
+        rendered = ""
+        if e and reference_store and citation_map:
+            reference_id = citation_map.reference_for(eid, store)
+            reference = reference_store.get(reference_id) if reference_id else None
+            if reference:
+                from core.references.domain import CitationStyle
+                from core.references.styles import format_reference
+
+                style_name = str(project.get("citation_style") or CitationStyle.GB_T_7714.value)
+                try:
+                    style = CitationStyle(style_name)
+                except ValueError:
+                    style = CitationStyle.GB_T_7714
+                rendered = format_reference(reference, style)
+        lines.append(f"[{i}] {rendered or (store.to_reference(e) if e else '（记录缺失，请检查）')}")
     return "\n".join(lines)
 
 
@@ -113,4 +137,4 @@ def export_files(project, store, analysis, ai_issues, chapter_count, total_words
     log.get().info("导出完成 md=%s docx=%s report=%s", md_path, docx_path, report_path)
     return {"md": md_path, "docx": docx_path, "report": report_path}
 
-# 版本: v1.8.0 (2026-08-16) 更新: 自定义输出文件夹
+# 版本: v2.0.1 (2026-08-17) 更新: 摘要模型路由与真实 Reference 导出

@@ -13,7 +13,7 @@ def generate_plan(info):
         "并给出可能使用的权威资料来源、需要检索的数据与学术论文方向。")
     resp = deepseek.chat([{"role": "system", "content": WRITER_SYSTEM},
                           {"role": "user", "content": user_msg + RESEARCH_JSON_SPEC}],
-                         temperature=0.3, json_mode=True, task="analysis")
+                         temperature=0.3, json_mode=True, task="search")
     data = deepseek.extract_json(resp)
     if not data or not isinstance(data.get("keywords"), list) or not data["keywords"]:
         raise deepseek.DeepseekError("AI 返回格式异常，请重试。")
@@ -41,4 +41,4 @@ def plan_markdown(info, plan):
     lines += [f"- {x}" for x in plan.get("paper_needs", [])] or ["- （未列出）"]
     return "\n".join(lines)
 
-# 版本: v1.5.0 (2026-08-16) 更新: 多模型供应商系统
+# 版本: v2.0.1 (2026-08-17) 更新: 联网检索模型任务路由

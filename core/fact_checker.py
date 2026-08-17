@@ -15,7 +15,7 @@ def analyze(text, store):
     valid = {e["id"] for e in store.all()}
     unresolved = sorted({x for x in cited if x not in valid})
     unused = [e["id"] for e in store.all() if e["id"] not in refs]
-    return {
+    result = {
         "mapping": mapping,
         "refs": refs,
         "unresolved": unresolved,
@@ -23,6 +23,23 @@ def analyze(text, store):
         "citation_count": len(cited),
         "bidirectional_ok": not unresolved and not unused,
     }
+    try:
+        from core.references.citations import CitationMap
+        from core.references.store import ReferenceStore
+
+        reference_store = ReferenceStore()
+        if reference_store.all():
+            reference_analysis = CitationMap().analyze(text, store, reference_store)
+            result.update({
+                "reference_ids": list(reference_analysis.reference_ids),
+                "unresolved_references": list(reference_analysis.unresolved_references),
+                "unused_reference_ids": list(reference_analysis.unused_references),
+                "citation_map_ok": reference_analysis.ok,
+            })
+            result["bidirectional_ok"] = result["bidirectional_ok"] and reference_analysis.ok
+    except (OSError, ValueError, KeyError) as exc:
+        log.get().warning("Reference Citation Mapping 检查失败: %s", exc)
+    return result
 
 
 def ai_fact_check(text, store):
@@ -78,6 +95,8 @@ def build_report(project, store, analysis, ai_issues, chapter_count, total_words
         lines.append(f"  - 【问题】正文引用了证据表中不存在的编号：{analysis['unresolved']}")
     if analysis.get("unused"):
         lines.append(f"  - 【提示】证据表中未在正文使用的证据：{analysis['unused']}")
+    if analysis.get("unresolved_references"):
+        lines.append(f"  - 【问题】证据缺少真实 Reference ID 映射：{analysis['unresolved_references']}")
     lines += ["", "## 四、事实核查"]
     lines.append(f"- 事实核查：{'通过' if analysis.get('bidirectional_ok') and not ai_issues else '存在问题'}")
     lines.append("- 存在待核实内容：")
@@ -116,4 +135,4 @@ def _now():
     import datetime
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-# 版本: v1.5.0 (2026-08-16) 更新: 多模型供应商系统
+# 版本: v2.0.1 (2026-08-17) 更新: Reference ID 引用映射检查
