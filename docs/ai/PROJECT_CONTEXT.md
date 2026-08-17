@@ -2,7 +2,7 @@
 
 ## 项目名称
 - 产品名：**论文助手**（窗口标题：论文智能研究与写作助手）
-- 仓库名：`paper-assistant`（GitHub 不支持中文仓库名，见 KNOWN_ISSUES.md）
+- 仓库名：`paper-workbench`（GitHub 不支持中文仓库名，见 KNOWN_ISSUES.md）
 
 ## 项目用途
 Windows 桌面论文写作辅助工具：选题 → 权威资料检索 → 证据库 → AI 大纲 → 分章节写作 → 事实核查 → 多格式导出，全流程可视化引导。
@@ -51,7 +51,7 @@ AI 辅助写作 + 资料整理 + 文档生成工具，不代替用户思考，�
 
 ## 项目目录
 - 源码根目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`
-- GitHub：https://github.com/ctxedkbh1/paper-assistant
+- GitHub：https://github.com/ctxedkbh1/paper-workbench
 - 运行数据目录（仓库外，禁止上传）：默认 `<app目录>\paper_project\` 或 `~\paper_project\`，可用环境变量 `PAPER_PROJECT_DIR` 覆盖。内含 config.json（API Key）、project.json、evidence.json、auto_checkpoint.json、chapters/、logs/、output/ 等。
 
 ## 重要文件

@@ -24,7 +24,7 @@ v2.0.1（2026-08-17）
 - 日期：2026-08-17
 - Tag：v2.0.1（指向最新基线提交）
 - 本地备份：`C:\Users\Administrator\Documents\Default Project\backup\project-baseline-2026-08-17-v2.0.1\`
-- GitHub：https://github.com/ctxedkbh1/paper-assistant（公开，main 分支）
+- GitHub：https://github.com/ctxedkbh1/paper-workbench（公开，main 分支）
 
 ## 技术栈
 Python 3.10+ / PySide6 / requests / python-docx / python-pptx / reportlab / PyInstaller。Windows 10/11 x64。无数据库（本地 JSON + Markdown）。

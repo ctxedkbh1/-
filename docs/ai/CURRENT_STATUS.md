@@ -10,7 +10,7 @@ v2.0.1（2026-08-17，Windows 打包脚本修复）
 
 ## 最近完成
 1. 高级模式工作台（六阶段流程化指导）——v2.0.0 核心功能
-2. GitHub 公开发布：仓库 paper-assistant、Release v2.0.0（EXE + ZIP 两个安装包）、README/CHANGELOG/LICENSE 文档体系
+2. GitHub 公开发布：仓库 paper-workbench、Release v2.0.0（EXE + ZIP 两个安装包）、README/CHANGELOG/LICENSE 文档体系
 3. 建立 AI 项目知识库 docs/ai/（本目录）
 4. 修复 Windows 批处理 LF 行尾与 UTF-8 连续中文 echo 解析问题；v2.0.1 改为桌面完整版目录 + 分享 ZIP
 

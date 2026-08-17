@@ -37,7 +37,7 @@
 ### 5. GitHub 不支持中文仓库名与 Release 附件名
 - 问题：中文名会被剥除，仓库名曾变成 "-"，附件名变成 "_v2.0.0.exe"
 - 原因：GitHub 平台限制（名称仅允许 ASCII 字母数字及 . _ -）
-- 解决方案：仓库名 paper-assistant；附件名 PaperAssistant-vX.Y.Z-windows-x64.*；中文品牌放在仓库描述、Release 标题、附件 label（均支持中文）
+- 解决方案：仓库名 paper-workbench；附件名 PaperAssistant-vX.Y.Z-windows-x64.*；中文品牌放在仓库描述、Release 标题、附件 label（均支持中文）
 - 状态：已解决（2026-08-16）
 
 ### 6. Windows PowerShell 命令行传中文给 git/gh 会被编码损坏
