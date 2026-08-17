@@ -29,6 +29,10 @@
 - **敏感信息**：paper_project/config.json 含 API Key，已被 .gitignore 忽略；任何提交前自查不要带入 .env、密钥、个人数据
 - **禁止 push --force**（分支）；移动标签需用户明确同意
 - **打包**：发版用 build.bat（需 Python 3.10+ 环境），产物复制到桌面
+- **日志受众必须分离**：根目录 CHANGELOG.md 与 GitHub Release 给客户看，只写用户可感知的新增/改进/修复；docs/ai/CHANGELOG.md 与 CURRENT_STATUS.md 给用户和开发 AI 看，记录文件、机制、迁移、测试和未完成事项
+- **桌面不留多版本**：桌面只保留固定名称的完整版目录、EXE、ZIP，每次更新直接覆盖；带版本号的下载文件只存在 GitHub Release
+- **旧源码归档**：只保存到 `Default Project\backup\releases\vX.Y.Z\`，不得堆在桌面
+- **发布流程**：每个正式版本的 GitHub Release 至少提供版本化 EXE 与 ZIP 两个资产；详细清单见 RELEASE_PROCESS.md
 
 ## 修改前检查协议（用户要求）
 1. 读 CURRENT_STATUS.md → ARCHITECTURE.md → FEATURES.md → 相关源码
