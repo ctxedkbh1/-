@@ -62,6 +62,7 @@ for key in ("info", "topic", "outline_read", "queries", "openalex", "crossref",
     cp.mark_done(key, "预置完成（模拟断点恢复场景）")
 
 from core.auto_pipeline import AutoPipelineEngine
+from core.auto_pipeline import PipelineError
 
 results = {}
 engine = AutoPipelineEngine(win)
@@ -99,6 +100,29 @@ cp2 = AutoCheckpoint()
 assert cp2.has_unfinished() is False and cp2.data.get("finished") is True
 print("断点状态检查通过")
 
+
+class EmptyStore:
+    def all(self):
+        return []
+
+
+class EmptyCheckpoint:
+    def set(self, *_args):
+        return None
+
+
+empty_engine = AutoPipelineEngine.__new__(AutoPipelineEngine)
+empty_engine.store = EmptyStore()
+empty_engine.checkpoint = EmptyCheckpoint()
+empty_engine.log = lambda *_args: None
+try:
+    empty_engine._step_evidence()
+except PipelineError as exc:
+    assert "未获得任何资料或文献" in str(exc)
+else:
+    raise AssertionError("证据库为空时必须停止全自动写作")
+print("空资料安全停止检查通过")
+
 print("\n=== 离线端到端全自动流水线测试通过 ===")
 
-# 版本: v1.5.0 (2026-08-16) 更新: 多模型供应商系统
+# 版本: v2.1.2 (2026-08-18) 更新: 空资料安全停止回归测试

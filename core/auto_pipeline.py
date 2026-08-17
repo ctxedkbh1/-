@@ -371,7 +371,12 @@ class AutoPipelineEngine(QObject):
         n = len(self.store.all())
         self.checkpoint.set("evidence_total", n)
         if n == 0:
-            self.log("证据库为空：正文将按规范标注“暂无足够可靠资料支持该观点”，不会编造任何内容。", "WARN")
+            message = (
+                "检索结束后仍未获得任何资料或文献，已停止生成论文。"
+                "请稍后重试，或先在资料检索/参考文献中心补充可核验资料。"
+            )
+            self.log(message, "ERROR")
+            raise PipelineError(message)
         else:
             self.log(f"证据库共 {n} 条，全部可追溯编号。")
 
@@ -788,4 +793,4 @@ class AutoPipelineEngine(QObject):
             "detection_source": detector.source_label(detection) if detection else "",
         }
 
-# 版本: v1.8.0 (2026-08-16) 更新: 自定义输出文件夹
+# 版本: v2.1.2 (2026-08-18) 更新: 空资料安全停止

@@ -3,10 +3,10 @@
 > 本文件是项目状态的**单一事实来源**。每次改动代码后必须同步更新本文件。
 
 ## 当前版本
-v2.1.1（2026-08-18）
+v2.1.2（2026-08-18）
 
 ## 当前开发阶段
-v2.1.1 已完成本地发布门、桌面构建并发布 GitHub Tag/Release；GitHub Actions workflow 仍因 OAuth scope 尚未写入远程。
+v2.1.2 已完成 OpenAlex 限流修复、空资料安全停止、测试和桌面构建；GitHub Release 待上传，GitHub Actions workflow 仍因 OAuth scope 尚未写入远程。
 
 ## 最近完成
 1. 高级模式工作台（六阶段流程化指导）——v2.0.0 核心功能
@@ -15,10 +15,10 @@ v2.1.1 已完成本地发布门、桌面构建并发布 GitHub Tag/Release；Git
 4. 修复 Windows 批处理、用户数据迁移和 Release 资产格式；桌面固定名称覆盖，GitHub 提供版本化 EXE + ZIP
 
 ## 当前正在处理
-AI 模型中心核心、参考文献核心、官方集成层、启用复选框、凭据判断、Emoji UI、发布脚本、最终打包和 v2.1.1 Release 均已验证；待完成项只有远程 workflow 权限。
+OpenAlex 限流恢复、空资料安全停止、AI 模型中心、参考文献中心、发布脚本和 v2.1.2 桌面构建均已验证；待完成项是上传 v2.1.2 Release 和远程 workflow 权限。
 
 ## 下一步
-下一步：用户重新授权 GitHub OAuth `workflow` scope 后，将本地 `.github/workflows/release.yml` 写入远程；后续每个 bug/功能/UI 改动按本文件发布规则递增版本。
+下一步：完成 v2.1.2 GitHub Release 上传；用户重新授权 GitHub OAuth `workflow` scope 后，将本地 `.github/workflows/release.yml` 写入远程。
 
 ## 当前已知 Bug
 无未修复的致命或功能性 Bug。已知限制见 KNOWN_ISSUES.md（均属设计限制或外部环境问题）。
@@ -30,7 +30,7 @@ AI 模型中心核心、参考文献核心、官方集成层、启用复选框�
 
 ## 最后一次正常运行状态
 - 桌面仅保留固定名称的完整版目录、单文件 EXE 和分享 ZIP；旧版本源码归档到 backup/releases
-- 2026-08-18 使用 CRLF 批处理重新打包 v2.1.1；源码和两个 EXE 的 `--selfcheck` 均通过
+- 2026-08-18 使用 CRLF 批处理重新打包 v2.1.2；源码和两个 EXE 的 `--selfcheck` 均通过
 - 完整版目录 EXE、桌面单文件 EXE 与分享 ZIP 均已构建；ZIP 结构和私人文件扫描通过
 - GitHub main 分支与 Release 均已验证正常
 

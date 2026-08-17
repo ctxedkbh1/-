@@ -2,7 +2,7 @@ import os
 import sys
 
 APP_NAME = "论文智能研究与写作助手"
-VERSION = "2.1.1"
+VERSION = "2.1.2"
 RELEASE_DATE = "2026-08-18"
 
 
@@ -88,4 +88,4 @@ def ensure_all_dirs():
     subdir("logs")
     subdir("cache")
 
-# 版本: v2.1.1 (2026-08-18) 更新: 正式版本发布
+# 版本: v2.1.2 (2026-08-18) 更新: 正式版本发布

@@ -20,7 +20,7 @@
 Windows 桌面论文智能研究与写作助手（品牌名：论文助手）。选题 → 权威资料检索 → 证据库 → AI 大纲 → 分章节写作 → 事实核查 → 多格式导出。**防编造是最高优先级设计**：AI 只能引用检索到的真实证据。
 
 ## 当前版本
-v2.1.1（2026-08-18）
+v2.1.2（2026-08-18）
 
 ## 当前Baseline
 - 日期：2026-08-17
@@ -32,7 +32,7 @@ v2.1.1（2026-08-18）
 Python 3.10+ / PySide6 / requests / python-docx / python-pptx / reportlab / PyInstaller。Windows 10/11 x64。无数据库（本地 JSON + Markdown）。
 
 ## 当前状态
-维护中：v2.1.1 已通过发布门、完成完整版/单文件 EXE/分享 ZIP 构建并发布 GitHub Release。AI 模型中心、参考文献中心、启用复选框、凭据判断和 Emoji UI 已实现。源码目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`。
+维护中：v2.1.2 已通过 OpenAlex 限流、空资料安全停止和完整发布门测试，完成完整版/单文件 EXE/分享 ZIP 构建；GitHub Release 正在上传。源码目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`。
 
 ## 已完成
 - 三种模式：普通 8 步 / 全自动 21 步（断点恢复）/ 高级工作台 6 阶段
@@ -43,7 +43,7 @@ Python 3.10+ / PySide6 / requests / python-docx / python-pptx / reportlab / PyIn
 - 导出：DOCX/PPTX/PDF/TXT/MD/HTML 6 格式 + 验证重生成；自定义输出目录
 - 历史记录、断点恢复、日志脱敏、响应式 UI/DPI
 - 工程：--selfcheck、离线测试、build.bat 完整版目录与单文件 EXE、build_share.bat 分享 ZIP 打包
-- GitHub 发布：公开仓库 + Release v2.1.1（EXE + ZIP）+ README/CHANGELOG/LICENSE + docs/ai 知识库
+- GitHub 发布：公开仓库 + Release v2.1.2（待上传，EXE + ZIP）+ README/CHANGELOG/LICENSE + docs/ai 知识库
 
 ## 正在开发
 无（封存状态）。
@@ -87,7 +87,7 @@ OpenAlex / Crossref（公开学术 API）；政府官网与通用网页（公开
 - output\：论文.docx/.md/.pdf/.pptx/.html/.txt、资料核验报告.md、论文质量报告.md、全自动运行日志.md
 
 ## 最近修改
-2026-08-18：完成 v2.1.1 模型启用交互、启动 Key 判断、凭据解析、Emoji UI、桌面双入口打包和详细发布日志；workflow 受 OAuth scope 限制未远程写入。
+2026-08-18：完成 v2.1.2 OpenAlex 限流恢复、空资料安全停止、回归测试、桌面双入口打包和详细发布日志；workflow 受 OAuth scope 限制未远程写入。
 
 ## 修改原因
 用户要求项目封存：建立任何 AI 都能读取的项目知识库，防止未来因上下文不足而误改代码。
@@ -95,13 +95,13 @@ OpenAlex / Crossref（公开学术 API）；政府官网与通用网页（公开
 ## 测试状态
 - python main.py --selfcheck：打包前已通过
 - tests/ 4 个离线测试：打包前已通过
-- v2.1.1 完整版目录 EXE 与桌面单文件 EXE：`--selfcheck` 返回 0；分享 ZIP 无私人数据
+- v2.1.2 完整版目录 EXE 与桌面单文件 EXE：`--selfcheck` 返回 0；分享 ZIP 无私人数据
 - 本次交接包含模型中心、凭据判断、UI 和构建脚本更新
 
 ## 不要修改的内容
 - 防编造机制（evidence/writer/naturalizer/fact_checker 约束逻辑）
 - core/paths.py 版本定义（改版本号按 DEVELOPMENT_RULES.md 流程）
-- 用户已部署的 v2.1.1 成品（改代码≠改已发布包，发新包需按版本流程）
+- 用户已部署的 v2.1.2 成品（改代码≠改已发布包，发新包需按版本流程）
 - 不得 push --force 分支；移动正式版本标签需用户同意
 
 ## 当前开发规则

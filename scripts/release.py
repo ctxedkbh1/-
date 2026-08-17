@@ -155,6 +155,7 @@ def verify() -> None:
     scan_secrets()
     commands = [
         (sys.executable, "tests/dev_ai_center_test.py"),
+        (sys.executable, "tests/dev_openalex_test.py"),
         (sys.executable, "tests/dev_reference_center_test.py"),
         (sys.executable, "tests/dev_integrations_test.py"),
         (sys.executable, "tests/dev_sett_test.py"),
@@ -210,4 +211,4 @@ if __name__ == "__main__":
         print(f"RELEASE BLOCKED: {exc}", file=sys.stderr)
         raise SystemExit(2) from None
 
-# 版本: v2.0.1 (2026-08-17) 更新: 受控语义版本与 GitHub 发布流程
+# 版本: v2.1.2 (2026-08-18) 更新: OpenAlex 与空资料回归发布门
