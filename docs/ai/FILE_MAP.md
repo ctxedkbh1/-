@@ -7,8 +7,8 @@
 |---|---|
 | main.py | 程序入口；--selfcheck 无界面自检；UI 检查；浅色主题 |
 | requirements.txt | 依赖：PySide6/requests/python-docx/python-pptx/reportlab/pyinstaller |
-| build.bat | 一键打包（装依赖→自检→PyInstaller→复制桌面，自动带版本号文件名） |
-| build_share.bat | 打包分享版（zip 绿色版） |
+| build.bat | 完整版打包（装依赖→自检→PyInstaller onedir→复制整个目录到桌面） |
+| build_share.bat | 分享版打包（PyInstaller onedir → ZIP → 复制桌面） |
 | .gitignore | 忽略 __pycache__/build/dist/.venv/.env/paper_project 等 |
 | config/manager.py | API Key 配置（环境变量优先于 config.json；默认 DeepSeek deepseek-chat） |
 
