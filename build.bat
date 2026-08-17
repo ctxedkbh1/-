@@ -55,8 +55,7 @@ if errorlevel 1 (
 
 echo.
 echo [5/5] 复制完整版文件夹到桌面...
-set "DESKTOP_FULL=%USERPROFILE%\Desktop\%FULLNAME%"
-del /Q "%USERPROFILE%\Desktop\论文智能研究与写作助手_v%APPVER%.exe" >nul 2>&1
+set "DESKTOP_FULL=%USERPROFILE%\Desktop\论文智能研究与写作助手_完整版"
 powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\deploy_full_version.ps1" ^
     -SourceDir "dist\%FULLNAME%" -DestinationDir "%DESKTOP_FULL%" ^
     -DesktopDir "%USERPROFILE%\Desktop"

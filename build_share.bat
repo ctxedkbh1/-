@@ -61,11 +61,11 @@ if errorlevel 1 (
     powershell -NoProfile -Command "Compress-Archive -Path 'dist\论文智能研究与写作助手_v%APPVER%' -DestinationPath '论文助手_v%APPVER%.zip' -Force"
 )
 del /Q "%USERPROFILE%\Desktop\论文助手.zip" >nul 2>&1
-copy /Y "论文助手_v%APPVER%.zip" "%USERPROFILE%\Desktop\" >nul
+copy /Y "论文助手_v%APPVER%.zip" "%USERPROFILE%\Desktop\论文助手.zip" >nul
 if errorlevel 1 (
     echo [警告] 复制到桌面失败，ZIP 位于项目目录。
 ) else (
-    echo [完成] 分享包: %USERPROFILE%\Desktop\论文助手_v%APPVER%.zip
+    echo [完成] 分享包: %USERPROFILE%\Desktop\论文助手.zip
 )
 
 echo.
