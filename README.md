@@ -8,7 +8,7 @@ Windows 桌面论文智能研究与写作助手：选题 → 权威资料检索 
 | 当前版本 | v2.0.1（2026-08-17） |
 | 平台 | Windows 10/11 x64 |
 | 许可证 | MIT |
-| 最新下载 | [Releases 页面](https://github.com/ctxedkbh1/paper-assistant/releases) |
+| 最新下载 | [Releases 页面](https://github.com/ctxedkbh1/paper-workbench/releases) |
 
 ---
 
@@ -125,7 +125,7 @@ Windows 桌面论文智能研究与写作助手：选题 → 权威资料检索 
 
 ### 方式一：下载完整版 ZIP（推荐，小白可用）
 
-1. 打开 [Releases 页面](https://github.com/ctxedkbh1/paper-assistant/releases)
+1. 打开 [Releases 页面](https://github.com/ctxedkbh1/paper-workbench/releases)
 2. 下载最新版的 `PaperAssistant-vX.Y.Z-windows-x64.zip`
 3. 解压整个 ZIP，保留 EXE 与 `_internal` 文件夹，双击文件夹内的 EXE 运行
 
@@ -135,8 +135,8 @@ Windows 桌面论文智能研究与写作助手：选题 → 权威资料检索 
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/ctxedkbh1/paper-assistant.git
-cd paper-assistant
+git clone https://github.com/ctxedkbh1/paper-workbench.git
+cd paper-workbench
 
 # 2. 安装依赖
 pip install -r requirements.txt
@@ -300,7 +300,7 @@ Key 无效或已过期。检查是否有多余空格、是否已充值/账户正
 
 ## 更新计划
 
-暂无具体排期。需求与问题请提交 [Issues](https://github.com/ctxedkbh1/paper-assistant/issues)，欢迎讨论。
+暂无具体排期。需求与问题请提交 [Issues](https://github.com/ctxedkbh1/paper-workbench/issues)，欢迎讨论。
 
 ## 贡献说明
 
