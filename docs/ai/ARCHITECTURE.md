@@ -102,4 +102,4 @@ AI Provider 层（core/llm.py + core/deepseek.py + core/model_presets.py）
 - `core/references/` 已提供 ReferenceStore、RIS/BibTeX/CSL JSON、本地文件、CitationMap 和样式入口。
 - `sources/zotero.py` 支持官方 Local/Web 增量读取；`sources/notebook.py` 支持本地文件和 Notebook Enterprise 官方写入。
 - `gui/model_center.py`、`gui/reference_center.py`、`gui/about_dialog.py` 已接入主窗口；全自动/高级模型选择已使用稳定 ModelRef。
-- 尚未发布 v2.1.0；当前版本源仍为 v2.0.1。
+- v2.1.0 发布候选；版本源已更新，Tag/Release 需在最终发布门通过后创建。

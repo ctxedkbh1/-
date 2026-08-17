@@ -20,7 +20,7 @@
 Windows 桌面论文智能研究与写作助手（品牌名：论文助手）。选题 → 权威资料检索 → 证据库 → AI 大纲 → 分章节写作 → 事实核查 → 多格式导出。**防编造是最高优先级设计**：AI 只能引用检索到的真实证据。
 
 ## 当前版本
-v2.0.1（2026-08-17）
+v2.1.0（2026-08-18）
 
 ## 当前Baseline
 - 日期：2026-08-17
@@ -32,7 +32,7 @@ v2.0.1（2026-08-17）
 Python 3.10+ / PySide6 / requests / python-docx / python-pptx / reportlab / PyInstaller。Windows 10/11 x64。无数据库（本地 JSON + Markdown）。
 
 ## 当前状态
-维护中：v2.0.1 已发布（GitHub Release 提供 EXE + ZIP）；动态 AI 模型中心已按用户要求暂停，尚未修改业务代码。源码目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`。
+维护中：v2.1.0 为发布候选（v2.0.1 稳定 Release 保留）；AI 模型中心、参考文献中心和 UI 已实现并通过首轮测试，等待最终发布门。源码目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`。
 
 ## 已完成
 - 三种模式：普通 8 步 / 全自动 21 步（断点恢复）/ 高级工作台 6 阶段
@@ -87,7 +87,7 @@ OpenAlex / Crossref（公开学术 API）；政府官网与通用网页（公开
 - output\：论文.docx/.md/.pdf/.pptx/.html/.txt、资料核验报告.md、论文质量报告.md、全自动运行日志.md
 
 ## 最近修改
-2026-08-17：修复 Windows 批处理 CRLF 与 cmd.exe UTF-8 解析问题，重新打包并实际启动验证 v2.0.1；动态 AI 模型中心仅完成扫描与方案设计。
+2026-08-18：完成 v2.1.0 AI 模型中心、参考文献中心、官方资料接入、统一主题、发布脚本和测试门；尚未创建 v2.1.0 Tag/Release。
 
 ## 修改原因
 用户要求项目封存：建立任何 AI 都能读取的项目知识库，防止未来因上下文不足而误改代码。
