@@ -14,6 +14,7 @@ from core import log, paths
 from core.checkpoint import AutoCheckpoint
 from core.evidence import EvidenceStore
 from core.project import Project
+from gui.about_dialog import AboutDialog
 from gui.advanced_workspace import AdvancedWorkspacePage
 from gui.auto_mode_page import AutoModePage
 from gui.pages.export_page import ExportPage
@@ -26,37 +27,8 @@ from gui.pages.outline_page import OutlinePage
 from gui.pages.research_page import ResearchPage
 from gui.pages.search_page import SearchPage
 from gui.pages.writing_page import WritingPage
-
-QSS = """
-QMainWindow { background: #f5f6f8; }
-QWidget { color: #1d2939; font-size: 13px; }
-QListWidget#sidebar { background: #2b3a4a; color: #e6e9ef; border: none; font-size: 14px; }
-QListWidget#sidebar::item { height: 42px; padding-left: 14px; border: none; }
-QListWidget#sidebar::item:selected { background: #3d8bff; color: white; }
-QLabel#appTitle { font-size: 24px; font-weight: bold; color: #1d2939; }
-QLabel#pageTitle { font-size: 18px; font-weight: bold; color: #1d2939; padding-bottom: 6px; }
-QPushButton { min-height: 30px; padding: 4px 14px; background: white; border: 1px solid #d0d5dd;
-              border-radius: 4px; color: #1d2939; }
-QPushButton:hover { border-color: #3d8bff; }
-QPushButton:disabled { color: #98a2b3; background: #f2f4f7; }
-QPushButton#primary { background: #3d8bff; color: white; border: none; }
-QPushButton#primary:hover { background: #2e7bf0; }
-QPushButton#modeButton { font-size: 15px; font-weight: bold; padding: 20px 24px;
-                         background: white; border: 1px solid #d0d5dd; border-radius: 8px; }
-QPushButton#modeButton:hover { border: 2px solid #3d8bff; color: #2e7bf0; }
-QPushButton#modeButton:disabled { color: #98a2b3; }
-QTableWidget, QTreeWidget, QTextBrowser, QPlainTextEdit, QListWidget, QLineEdit, QSpinBox,
-QComboBox { background: white; border: 1px solid #d0d5dd; border-radius: 4px; color: #1d2939; }
-QTableWidget { alternate-background-color: #f2f4f7; }
-QHeaderView::section { background: #f2f4f7; color: #1d2939; border: none;
-                       padding: 6px; font-weight: bold; }
-QGroupBox { font-weight: bold; color: #1d2939; }
-QTabWidget::pane { border: 1px solid #d0d5dd; background: white; }
-QTabBar::tab { background: #e9edf2; color: #1d2939; padding: 8px 16px; border: 1px solid #d0d5dd;
-               border-bottom: none; }
-QTabBar::tab:selected { background: white; color: #1d2939; font-weight: bold; }
-QCheckBox { color: #1d2939; }
-"""
+from gui.reference_center import ReferenceCenterPage
+from gui.theme import APP_QSS
 
 
 class SettingsDialog(QDialog):
@@ -79,7 +51,7 @@ class SettingsDialog(QDialog):
         self.model_status.setWordWrap(True)
         api_lay.addWidget(self.model_status)
         btn_row = QHBoxLayout()
-        self.btn_manage = QPushButton("AI 模型管理（供应商/任务模型/方案/成本/检测服务）")
+        self.btn_manage = QPushButton("进入 AI 模型中心")
         self.btn_manage.setMinimumHeight(34)
         btn_row.addWidget(self.btn_manage)
         api_lay.addLayout(btn_row)
@@ -163,14 +135,20 @@ class SettingsDialog(QDialog):
             self._update_exp_path()
 
     def _refresh_status(self):
-        enabled = self.cfg.enabled_model_keys()
-        names = [self.cfg.models()[k].get("name", k) for k in enabled]
-        self.model_status.setText("已启用模型：" + ("、".join(names) if names else "（无）") +
-                                  f"　|　启用数量 {len(enabled)}/{len(self.cfg.models())}")
+        from gui.model_options import enabled_model_options
+
+        options = enabled_model_options(self.cfg)
+        names = [label for _reference, label in options]
+        provider_count = sum(1 for item in self.cfg.ai_providers().values() if item.get("enabled"))
+        self.model_status.setText(
+            "已启用模型：" + ("、".join(names[:5]) if names else "（无）") +
+            ("…" if len(names) > 5 else "") +
+            f"　|　Provider {provider_count} 个，模型 {len(names)} 个"
+        )
 
     def _open_manager(self):
-        from gui.model_manager import ModelManagerDialog
-        ModelManagerDialog(self, self.cfg).exec()
+        from gui.model_center import AIModelCenterDialog
+        AIModelCenterDialog(self, self.cfg).exec()
         self._refresh_status()
 
     def _save(self):
@@ -190,7 +168,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("论文智能研究与写作助手")
         self.setMinimumSize(900, 650)
-        self.setStyleSheet(QSS)
+        self.setStyleSheet(APP_QSS)
 
         self.config = ConfigManager()
         self.project = Project()
@@ -209,14 +187,14 @@ class MainWindow(QMainWindow):
         self.sidebar.addItems(["首页", "全自动模式", "高级模式", "论文历史",
                                "1 论文信息", "2 选题解析 / 检索方案", "3 资料检索",
                                "4 证据库", "5 AI 大纲", "6 分章节写作",
-                               "7 事实核查", "8 最终输出"])
+                               "7 事实核查", "8 最终输出", "参考文献中心"])
 
         self.stack = QStackedWidget()
         self.pages = [
             HomePage(self), AutoModePage(self), AdvancedWorkspacePage(self),
             HistoryPage(self), InfoPage(self), ResearchPage(self), SearchPage(self),
             EvidencePage(self), OutlinePage(self), WritingPage(self),
-            FactCheckPage(self), ExportPage(self),
+            FactCheckPage(self), ExportPage(self), ReferenceCenterPage(self),
         ]
         for p in self.pages:
             self.stack.addWidget(p)
@@ -237,6 +215,11 @@ class MainWindow(QMainWindow):
         self.toggle_sidebar_action.setShortcut(QKeySequence("Ctrl+B"))
         self.toggle_sidebar_action.triggered.connect(self.toggle_sidebar)
         view_menu.addAction(self.toggle_sidebar_action)
+
+        help_menu = self.menuBar().addMenu("帮助")
+        about_action = QAction("关于论文助手", self)
+        about_action.triggered.connect(lambda: AboutDialog(self).exec())
+        help_menu.addAction(about_action)
 
         self._user_sidebar_pref = None
         self._auto_hidden = False
@@ -400,4 +383,4 @@ class MainWindow(QMainWindow):
         SettingsDialog(self, self.config).exec()
         self.refresh()
 
-# 版本: v2.0.0 (2026-08-16) 更新: 高级模式工作台
+# 版本: v2.0.1 (2026-08-17) 更新: AI 模型中心、参考文献中心与 About

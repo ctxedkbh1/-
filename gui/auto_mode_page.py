@@ -107,8 +107,12 @@ class AutoModePage(QWidget):
         self.f_m_ana = QComboBox()
         self.f_m_pol = QComboBox()
         self.f_m_chk = QComboBox()
+        self.f_m_search = QComboBox()
+        self.f_m_summary = QComboBox()
         self.f_plan = QComboBox()
         mform.addRow("论文生成", self.f_m_gen)
+        mform.addRow("联网检索", self.f_m_search)
+        mform.addRow("资料摘要", self.f_m_summary)
         mform.addRow("结构分析", self.f_m_ana)
         mform.addRow("文本优化", self.f_m_pol)
         mform.addRow("最终检查", self.f_m_chk)
@@ -332,19 +336,13 @@ class AutoModePage(QWidget):
 
     def _reload_model_combos(self):
         cfg = self.mw.config
-        combos = {"generation": self.f_m_gen, "analysis": self.f_m_ana,
+        from gui.model_options import populate_model_combo
+
+        combos = {"generation": self.f_m_gen, "search": self.f_m_search,
+                  "summary": self.f_m_summary, "analysis": self.f_m_ana,
                   "polish": self.f_m_pol, "check": self.f_m_chk}
         for key, combo in combos.items():
-            combo.blockSignals(True)
-            combo.clear()
-            combo.addItem("自动选择", "auto")
-            for k, m in cfg.models().items():
-                if m.get("enabled"):
-                    combo.addItem(m.get("name", k), k)
-            cur = cfg.task_model(key)
-            idx = combo.findData(cur)
-            combo.setCurrentIndex(idx if idx >= 0 else 0)
-            combo.blockSignals(False)
+            populate_model_combo(combo, cfg, key)
         self.f_plan.blockSignals(True)
         self.f_plan.clear()
         self.f_plan.addItem("（不使用方案）", None)
@@ -358,16 +356,20 @@ class AutoModePage(QWidget):
         if not name:
             return
         plan = self.mw.config.plans().get(name) or {}
-        mapping = {"generation": self.f_m_gen, "analysis": self.f_m_ana,
+        from gui.model_options import normalize_model_choice
+
+        mapping = {"generation": self.f_m_gen, "search": self.f_m_search,
+                   "summary": self.f_m_summary, "analysis": self.f_m_ana,
                    "polish": self.f_m_pol, "check": self.f_m_chk}
         for key, combo in mapping.items():
-            idx = combo.findData(plan.get(key) or "auto")
+            idx = combo.findData(normalize_model_choice(self.mw.config, plan.get(key) or "auto"))
             if idx >= 0:
                 combo.setCurrentIndex(idx)
 
     def _task_models(self):
         return {k: c.currentData() for k, c in
-                (("generation", self.f_m_gen), ("analysis", self.f_m_ana),
+                (("generation", self.f_m_gen), ("search", self.f_m_search),
+                 ("summary", self.f_m_summary), ("analysis", self.f_m_ana),
                  ("polish", self.f_m_pol), ("check", self.f_m_chk))
                 if c.currentData() != "auto"}
 

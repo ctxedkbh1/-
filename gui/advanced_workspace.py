@@ -122,6 +122,18 @@ class AdvancedWorkspacePage(QWidget):
         self.save_state_label.setText("● 已保存")
         msg_info(self, "已保存全部高级模式设置。")
 
+    def _advanced_run(self, func, *args):
+        """Run an AI operation with the advanced-mode fallback model."""
+        from core import deepseek
+
+        reference = str(self.mw.config.ai_task_model("advanced") or "auto")
+        if reference == "auto":
+            return func(*args)
+        tasks = ("generation", "analysis", "polish", "check", "search", "summary", "quick_edit")
+        overrides = {task: reference for task in tasks}
+        with deepseek.get_router().service.override_models(overrides):
+            return func(*args)
+
     def _build_scroll_page(self, content):
         wrapper = QWidget()
         outer = QVBoxLayout(wrapper)
@@ -252,7 +264,8 @@ class AdvancedWorkspacePage(QWidget):
         if not self._save_info():
             return
         self.gen_status.setText("生成状态：正在生成研究方案……")
-        self._worker = Worker(research_mod.generate_plan, self.mw.project.info())
+        self._worker = Worker(self._advanced_run, research_mod.generate_plan,
+                              self.mw.project.info())
         self._worker.done.connect(self._on_plan_done)
         self._worker.failed.connect(lambda m: (self.gen_status.setText("生成状态：失败"),
                                                msg_err(self, m, "生成失败", retry=True)))
@@ -272,7 +285,7 @@ class AdvancedWorkspacePage(QWidget):
                 return
         self.gen_status.setText("生成状态：正在生成论文结构……")
         from core import outline as outline_mod
-        self._worker = Worker(outline_mod.generate_outline,
+        self._worker = Worker(self._advanced_run, outline_mod.generate_outline,
                               self.mw.project.info(), self.mw.evidence)
         self._worker.done.connect(self._on_outline_done)
         self._worker.failed.connect(lambda m: (self.gen_status.setText("生成状态：失败"),
@@ -295,7 +308,7 @@ class AdvancedWorkspacePage(QWidget):
             return
         self.btn_write.setEnabled(False)
         self.gen_status.setText("生成状态：正在逐章生成正文……")
-        self._worker = Worker(self._write_all, sections)
+        self._worker = Worker(self._advanced_run, self._write_all, sections)
         self._worker.done.connect(self._on_chapters_done)
         self._worker.failed.connect(lambda m: (self.btn_write.setEnabled(True),
                                                self.gen_status.setText("生成状态：失败"),
@@ -345,8 +358,10 @@ class AdvancedWorkspacePage(QWidget):
         box = QGroupBox("任务级模型选择（自动选择 = 系统按能力路由，失败自动切换备用）")
         form = QFormLayout(box)
         self.adv_model_combos = {}
-        for key, label in (("generation", "论文生成"), ("analysis", "结构分析"),
-                           ("polish", "文本优化"), ("check", "最终检查")):
+        for key, label in (("generation", "论文生成"), ("polish", "论文润色"),
+                           ("search", "联网检索"), ("summary", "资料摘要"),
+                           ("quick_edit", "快速修改"), ("analysis", "结构分析"),
+                           ("check", "最终检查"), ("advanced", "高级模式总默认")):
             combo = QComboBox()
             self.adv_model_combos[key] = combo
             form.addRow(label, combo)
@@ -370,30 +385,24 @@ class AdvancedWorkspacePage(QWidget):
 
     def _load_ai_combos(self):
         cfg = self.mw.config
+        from gui.model_options import populate_model_combo
+
         for key, combo in self.adv_model_combos.items():
-            combo.blockSignals(True)
-            combo.clear()
-            combo.addItem("自动选择", "auto")
-            for k, m in cfg.models().items():
-                if m.get("enabled"):
-                    combo.addItem(m.get("name", k), k)
-            cur = cfg.task_model(key)
-            idx = combo.findData(cur)
-            combo.setCurrentIndex(idx if idx >= 0 else 0)
-            combo.blockSignals(False)
-        enabled = cfg.enabled_model_keys()
+            populate_model_combo(combo, cfg, key)
+        from gui.model_options import enabled_model_options
+        enabled = enabled_model_options(cfg)
         self.model_status.setText("已启用模型：" +
-                                  ("、".join(cfg.models()[k].get("name", k) for k in enabled)
+                                  ("、".join(label for _ref, label in enabled)
                                    if enabled else "（无）"))
 
     def _save_ai_combos(self):
         for key, combo in self.adv_model_combos.items():
-            self.mw.config.set_task_model(key, combo.currentData() or "auto")
+            self.mw.config.set_ai_task_model(key, combo.currentData() or "auto")
         self._load_ai_combos()
 
     def on_open_manager(self):
-        from gui.model_manager import ModelManagerDialog
-        ModelManagerDialog(self, self.mw.config).exec()
+        from gui.model_center import AIModelCenterDialog
+        AIModelCenterDialog(self, self.mw.config).exec()
         self._load_ai_combos()
 
     def on_test_model(self):
@@ -883,7 +892,7 @@ class AdvancedWorkspacePage(QWidget):
             return
         from core.targeted_edit import ai_parse_format
         self.fm_parse_status.setText("正在解析……")
-        self._worker = Worker(ai_parse_format, text)
+        self._worker = Worker(self._advanced_run, ai_parse_format, text)
         self._worker.done.connect(self._on_ai_format_parsed)
         self._worker.failed.connect(lambda m: (self.fm_parse_status.setText("解析失败"),
                                                msg_err(self, m)))
@@ -1102,7 +1111,8 @@ class AdvancedWorkspacePage(QWidget):
         outline = self.mw.project.outline() or {}
         sections = outline.get("sections") or []
         title = sections[idx - 1].get("title", "") if idx <= len(sections) else ""
-        self._worker = Worker(edit_region, original, region, instruction.strip(),
+        self._worker = Worker(self._advanced_run, edit_region,
+                              original, region, instruction.strip(),
                               self.mw.project.info(), title)
         self._worker.done.connect(
             lambda new_text: self._preview_result(idx, original, region, new_text,
@@ -1210,7 +1220,7 @@ class AdvancedWorkspacePage(QWidget):
             msg_info(self, "队列为空或已全部执行。")
             return
         self.edit_status.setText("正在执行批量修改队列……")
-        self._worker = Worker(self._run_queue, queue)
+        self._worker = Worker(self._advanced_run, self._run_queue, queue)
         self._worker.done.connect(lambda r: self._on_queue_done(queue, r))
         self._worker.failed.connect(lambda m: (self.edit_status.setText("队列执行失败"),
                                                msg_err(self, m, "执行失败", retry=True)))
@@ -1288,7 +1298,7 @@ class AdvancedWorkspacePage(QWidget):
 
     def on_quality_check(self):
         self.quality_view.setPlainText("正在检查……")
-        self._worker = Worker(self._run_quality)
+        self._worker = Worker(self._advanced_run, self._run_quality)
         self._worker.done.connect(lambda r: self.quality_view.setPlainText(r))
         self._worker.failed.connect(lambda m: msg_err(self, m))
         self._worker.start()
@@ -1343,8 +1353,13 @@ class AdvancedWorkspacePage(QWidget):
         if not text.strip():
             msg_warn(self, "第 1 章尚未生成。")
             return
-        self._worker = Worker(naturalizer.naturalize_chapter, text, self.mw.project.info(),
-                              sections[0].get("title", "") if sections else "")
+        self._worker = Worker(
+            self._advanced_run,
+            naturalizer.naturalize_chapter,
+            text,
+            self.mw.project.info(),
+            sections[0].get("title", "") if sections else "",
+        )
         self._worker.done.connect(lambda new: self._on_naturalized(idx, text, new))
         self._worker.failed.connect(lambda m: msg_err(self, m, "改写失败", retry=True))
         self._worker.start()
@@ -1589,7 +1604,8 @@ class AdvancedWorkspacePage(QWidget):
             self.mw.config.set("export_choice", self.exp_choice.currentData())
             self.mw.config.set("export_custom_path", getattr(self, "_custom_dir", ""))
         self.exp_status.setText("正在导出……")
-        self._worker = Worker(self._do_export_advanced, formats, base, directory, rename_mode)
+        self._worker = Worker(self._advanced_run, self._do_export_advanced,
+                              formats, base, directory, rename_mode)
         self._worker.done.connect(lambda r: self._on_export_advanced_done(formats, r))
         self._worker.failed.connect(lambda m: (self.exp_status.setText("导出失败"),
                                                msg_err(self, m, "导出失败", retry=True)))
