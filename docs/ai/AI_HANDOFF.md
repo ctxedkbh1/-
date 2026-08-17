@@ -7,6 +7,7 @@
 > 4. docs/ai/FEATURES.md（功能清单）
 > 5. docs/ai/FILE_MAP.md（文件地图）
 > 6. docs/ai/TODO.md、KNOWN_ISSUES.md、DEVELOPMENT_RULES.md
+> 7. docs/ai/RELEASE_PROCESS.md（发版与日志受众规则）
 >
 > 阅读完成后，先向用户输出【项目理解确认】（模板见文末），等待指令，**不要直接修改代码**。
 >
@@ -30,7 +31,7 @@ v2.0.1（2026-08-17）
 Python 3.10+ / PySide6 / requests / python-docx / python-pptx / reportlab / PyInstaller。Windows 10/11 x64。无数据库（本地 JSON + Markdown）。
 
 ## 当前状态
-维护中：v2.0.1 已发布（GitHub Release 提供完整版 ZIP）；动态 AI 模型中心处于只读审计与方案设计阶段，尚未修改业务代码。源码目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`。
+维护中：v2.0.1 已发布（GitHub Release 提供 EXE + ZIP）；动态 AI 模型中心已按用户要求暂停，尚未修改业务代码。源码目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`。
 
 ## 已完成
 - 三种模式：普通 8 步 / 全自动 21 步（断点恢复）/ 高级工作台 6 阶段

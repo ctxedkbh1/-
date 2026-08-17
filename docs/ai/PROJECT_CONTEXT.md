@@ -21,7 +21,7 @@ AI 辅助写作 + 资料整理 + 文档生成工具，不代替用户思考，�
 ## 技术栈
 - 语言：Python 3.10+
 - 界面：PySide6（>=6.8）
-- 打包：PyInstaller（>=6.11；build.bat 生成桌面完整版目录，build_share.bat 生成分享 ZIP）
+- 打包：PyInstaller（>=6.11；桌面固定名称覆盖，GitHub Release 使用版本化 EXE + ZIP）
 - 依赖：requests / python-docx / python-pptx / reportlab（见 requirements.txt）
 
 ## 运行环境
