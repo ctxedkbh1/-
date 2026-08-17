@@ -40,7 +40,7 @@
 ### 工程
 - python main.py --selfcheck 无界面自检
 - tests/ 4 个离线测试
-- build.bat 生成带完整运行环境的桌面“完整版”目录；build_share.bat 生成带版本号的分享 ZIP
+- build.bat 覆盖桌面固定名称的“完整版”目录；build_share.bat 覆盖固定名称的分享 ZIP；GitHub Release 使用版本化 EXE + ZIP
 - 响应式窗口与高 DPI 支持
 
 ## 部分实现

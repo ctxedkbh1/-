@@ -89,3 +89,4 @@
 | CHANGELOG.md | 产品版本更新记录 |
 | LICENSE | MIT |
 | docs/ai/* | AI 知识库（本目录）；AI_HANDOFF.md 为交接入口 |
+| docs/ai/RELEASE_PROCESS.md | 客户/内部日志分层、桌面覆盖、Release 资产与源码归档规则 |
