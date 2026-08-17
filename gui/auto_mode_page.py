@@ -117,7 +117,7 @@ class AutoModePage(QWidget):
         mform.addRow("文本优化", self.f_m_pol)
         mform.addRow("最终检查", self.f_m_chk)
         mform.addRow("模型方案", self.f_plan)
-        mnote = QLabel("模型供应商与 API Key 在首页【设置 → AI 模型管理】中配置。")
+        mnote = QLabel("模型供应商与 API Key 在首页【设置 → AI 模型中心】中配置。")
         mnote.setStyleSheet("color: #667085;")
         mform.addRow("", mnote)
         lay.addWidget(qbox)

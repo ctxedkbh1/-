@@ -106,7 +106,7 @@ class ModelManagerDialog(QDialog):
     def __init__(self, parent, cfg):
         super().__init__(parent)
         self.cfg = cfg
-        self.setWindowTitle("AI 模型管理")
+        self.setWindowTitle("AI 模型中心（旧配置兼容入口）")
         self.setMinimumSize(640, 520)
         self.resize(760, 680)
         outer = QVBoxLayout(self)

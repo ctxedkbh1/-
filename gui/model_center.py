@@ -56,7 +56,13 @@ class AIModelCenterDialog(ModelCenterViewMixin, QDialog):
                 self.provider_list.setCurrentItem(item)
         if self.provider_list.count() and self.provider_list.currentRow() < 0:
             self.provider_list.setCurrentRow(0)
-        pending = not self.config.ai_center().get("migration", {}).get("credentials_migrated")
+        legacy_secrets = bool(str(self.config.get("deepseek_api_key") or "").strip()) or any(
+            str(model.get("api_key") or "").strip()
+            for model in self.config.models().values()
+        )
+        pending = legacy_secrets and not self.config.ai_center().get("migration", {}).get(
+            "credentials_migrated"
+        )
         self.migrate_button.setVisible(pending)
 
     def _provider_changed(self, _current=None, _previous=None):
@@ -194,8 +200,17 @@ class AIModelCenterDialog(ModelCenterViewMixin, QDialog):
     def _health_done(self, result):
         self.test_button.setEnabled(True)
         self.registry.update_health(self._model_ref(), result)
+        provider_record = self.config.ai_providers().get(result.provider_id)
+        if provider_record is not None:
+            provider_record.update({
+                "status": "available" if result.ok else "unavailable",
+                "last_checked": result.checked_at,
+                "last_error": "" if result.ok else result.message,
+            })
+            self.config.save()
         self._load_models()
-        text = f"{result.provider_id} / {result.model_id}\n{result.message}\nLatency: {result.latency_ms} ms"
+        http = f"\nHTTP: {result.http_status}" if result.http_status else ""
+        text = f"{result.provider_id} / {result.model_id}\n{result.message}{http}\nLatency: {result.latency_ms} ms"
         (msg_info if result.ok else msg_err)(self, text, "模型健康检测")
 
     def _toggle_favorite(self):

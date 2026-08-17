@@ -367,7 +367,7 @@ class AdvancedWorkspacePage(QWidget):
             form.addRow(label, combo)
         lay.addWidget(box)
         row = QHBoxLayout()
-        self.btn_mgr = QPushButton("AI 模型管理（供应商/自定义Provider/测试/方案/成本）")
+        self.btn_mgr = QPushButton("AI 模型中心（Provider/模型/测试/默认任务）")
         self.btn_test = QPushButton("测试当前生成模型")
         row.addWidget(self.btn_mgr)
         row.addWidget(self.btn_test)
