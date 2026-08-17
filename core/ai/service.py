@@ -43,11 +43,15 @@ class AIService:
             )
             adapter = build_provider(self._adapter_config(provider, model, api_key))
             try:
+                supported = model.capabilities.supported_parameters
+                json_request = json_mode and (
+                    not supported or "response_format" in supported or "structured_outputs" in supported
+                )
                 text = adapter.chat(
                     messages,
                     temperature=self._temperature(model, temperature),
-                    json_mode=json_mode,
-                    max_tokens=max_tokens,
+                    json_mode=json_request,
+                    max_tokens=self._max_tokens(model, max_tokens),
                     timeout=timeout,
                 )
                 if not text or not text.strip():
@@ -141,6 +145,13 @@ class AIService:
     def _temperature(model: AIModel, value):
         supported = model.capabilities.supported_parameters
         if supported and "temperature" not in supported:
+            return None
+        return value
+
+    @staticmethod
+    def _max_tokens(model: AIModel, value):
+        supported = model.capabilities.supported_parameters
+        if supported and not {"max_tokens", "max_completion_tokens"}.intersection(supported):
             return None
         return value
 

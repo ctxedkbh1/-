@@ -79,10 +79,14 @@ class OpenAICompatibleProvider(LLMProvider):
         headers = {"Content-Type": "application/json"}
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
-        payload = {"model": self.model_id, "messages": messages,
-                   "max_tokens": max_tokens}
+        payload = {"model": self.model_id, "messages": messages}
         if temperature is not None:
             payload["temperature"] = temperature
+        if max_tokens is not None:
+            parameters = self.cfg.get("capabilities") or {}
+            supported = parameters.get("supported_parameters") or []
+            token_key = "max_completion_tokens" if "max_completion_tokens" in supported else "max_tokens"
+            payload[token_key] = max_tokens
         if json_mode:
             payload["response_format"] = {"type": "json_object"}
         try:
@@ -126,8 +130,8 @@ class ClaudeProvider(LLMProvider):
                 system += content + "\n"
             else:
                 claude_msgs.append({"role": role, "content": content})
-        payload = {"model": self.model_id, "max_tokens": max(64, int(max_tokens)),
-                   "messages": claude_msgs}
+        payload = {"model": self.model_id,
+                   "max_tokens": max(64, int(max_tokens or 8000)), "messages": claude_msgs}
         if temperature is not None:
             payload["temperature"] = temperature
         if system.strip():
@@ -167,7 +171,9 @@ class GeminiProvider(LLMProvider):
             else:
                 role = "model" if m.get("role") == "assistant" else "user"
                 contents.append({"role": role, "parts": [{"text": text}]})
-        generation_config = {"maxOutputTokens": max(64, int(max_tokens))}
+        generation_config = {}
+        if max_tokens is not None:
+            generation_config["maxOutputTokens"] = max(64, int(max_tokens))
         if temperature is not None:
             generation_config["temperature"] = temperature
         payload = {"contents": contents, "generationConfig": generation_config}

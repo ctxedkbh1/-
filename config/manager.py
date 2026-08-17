@@ -4,7 +4,7 @@ import os
 from config.ai_schema import (ensure_ai_center, mapped_task_value,
                               remove_legacy_model, sync_legacy_model)
 from core import paths
-from core.model_presets import PRESETS
+from core.model_presets import PROVIDER_PRESETS
 
 
 class ConfigManager:
@@ -30,7 +30,7 @@ class ConfigManager:
             legacy_key = str(self.data.get("deepseek_api_key") or "")
             legacy_base = str(self.data.get("deepseek_base_url") or "")
             legacy_model = str(self.data.get("deepseek_model") or "")
-            for key, preset in PRESETS.items():
+            for key, preset in PROVIDER_PRESETS.items():
                 m = dict(preset)
                 m["enabled"] = key == "deepseek"
                 m["api_key"] = ""
@@ -50,7 +50,7 @@ class ConfigManager:
             self.data.setdefault("quality_provider",
                                  {"type": "internal", "name": "", "url": "", "api_key": ""})
             self.save()
-        for key, preset in PRESETS.items():
+        for key, preset in PROVIDER_PRESETS.items():
             self.data["models"].setdefault(key, {**preset, "enabled": False, "api_key": ""})
         if ensure_ai_center(self.data):
             self.save()

@@ -1,6 +1,6 @@
 ALL_CAPS = ["文本生成", "长文本", "中文能力", "逻辑分析", "润色", "总结", "结构分析"]
 
-PRESETS = {
+LEGACY_PRESETS = {
     "deepseek": {
         "name": "DeepSeek", "type": "openai_compatible",
         "base_url": "https://api.deepseek.com", "env_key": "DEEPSEEK_API_KEY",
@@ -57,4 +57,17 @@ PRESETS = {
     },
 }
 
-# 版本: v1.5.0 (2026-08-16) 更新: 多模型供应商系统
+# New installations get provider connection presets only. Model IDs come from
+# official discovery or an explicit manual model entry.
+PROVIDER_PRESETS = {}
+for _key, _preset in LEGACY_PRESETS.items():
+    _provider = dict(_preset)
+    _provider["model_id"] = ""
+    _provider["price"] = 0
+    _provider["capabilities"] = []
+    PROVIDER_PRESETS[_key] = _provider
+
+# Compatibility name for callers that still need to read historical records.
+PRESETS = LEGACY_PRESETS
+
+# 版本: v2.0.1 (2026-08-17) 更新: 区分 Provider 预设与 Legacy Model 预设
