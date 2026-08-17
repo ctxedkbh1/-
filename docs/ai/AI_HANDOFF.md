@@ -18,19 +18,19 @@
 Windows 桌面论文智能研究与写作助手（品牌名：论文助手）。选题 → 权威资料检索 → 证据库 → AI 大纲 → 分章节写作 → 事实核查 → 多格式导出。**防编造是最高优先级设计**：AI 只能引用检索到的真实证据。
 
 ## 当前版本
-v2.0.0（2026-08-16）
+v2.0.1（2026-08-17）
 
 ## 当前Baseline
-- 日期：2026-08-16
-- Tag：v2.0.0（指向最新基线提交）
-- 本地备份：`C:\Users\Administrator\Documents\Default Project\backup\project-baseline-2026-08-16\`
+- 日期：2026-08-17
+- Tag：v2.0.1（指向最新基线提交）
+- 本地备份：`C:\Users\Administrator\Documents\Default Project\backup\project-baseline-2026-08-17-v2.0.1\`
 - GitHub：https://github.com/ctxedkbh1/paper-assistant（公开，main 分支）
 
 ## 技术栈
 Python 3.10+ / PySide6 / requests / python-docx / python-pptx / reportlab / PyInstaller。Windows 10/11 x64。无数据库（本地 JSON + Markdown）。
 
 ## 当前状态
-项目封存中：v2.0.0 已发布（GitHub Release 含 EXE+ZIP），无新功能开发。源码目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`。
+维护中：v2.0.1 已发布（GitHub Release 提供完整版 ZIP）；动态 AI 模型中心处于只读审计与方案设计阶段，尚未修改业务代码。源码目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`。
 
 ## 已完成
 - 三种模式：普通 8 步 / 全自动 21 步（断点恢复）/ 高级工作台 6 阶段
@@ -40,8 +40,8 @@ Python 3.10+ / PySide6 / requests / python-docx / python-pptx / reportlab / PyIn
 - 质量体系：style_checker/naturalizer/fact_checker（3 轮）/quality_report/targeted_edit/detector
 - 导出：DOCX/PPTX/PDF/TXT/MD/HTML 6 格式 + 验证重生成；自定义输出目录
 - 历史记录、断点恢复、日志脱敏、响应式 UI/DPI
-- 工程：--selfcheck、4 个离线测试、build.bat 一键打包
-- GitHub 发布：公开仓库 + Release v2.0.0 + README/CHANGELOG/LICENSE + docs/ai 知识库
+- 工程：--selfcheck、4 个离线测试、build.bat 完整版目录打包、build_share.bat 分享 ZIP 打包
+- GitHub 发布：公开仓库 + Release v2.0.1 + README/CHANGELOG/LICENSE + docs/ai 知识库
 
 ## 正在开发
 无（封存状态）。
@@ -85,7 +85,7 @@ OpenAlex / Crossref（公开学术 API）；政府官网与通用网页（公开
 - output\：论文.docx/.md/.pdf/.pptx/.html/.txt、资料核验报告.md、论文质量报告.md、全自动运行日志.md
 
 ## 最近修改
-2026-08-16：建立 docs/ai 知识库（本次交接）；此前完成 README 重写、CHANGELOG/LICENSE、Release 附件修复、v2.0.0 标签定位。
+2026-08-17：修复 Windows 批处理 CRLF 与 cmd.exe UTF-8 解析问题，重新打包并实际启动验证 v2.0.1；动态 AI 模型中心仅完成扫描与方案设计。
 
 ## 修改原因
 用户要求项目封存：建立任何 AI 都能读取的项目知识库，防止未来因上下文不足而误改代码。
@@ -93,14 +93,14 @@ OpenAlex / Crossref（公开学术 API）；政府官网与通用网页（公开
 ## 测试状态
 - python main.py --selfcheck：打包前已通过
 - tests/ 4 个离线测试：打包前已通过
-- v2.0.0 EXE：已实际运行部署在用户桌面，正常
+- v2.0.1 完整版目录 EXE 与分享版目录 EXE：已实际启动并显示主窗口，正常
 - 本次交接仅新增文档，未改业务代码
 
 ## 不要修改的内容
 - 防编造机制（evidence/writer/naturalizer/fact_checker 约束逻辑）
 - core/paths.py 版本定义（改版本号按 DEVELOPMENT_RULES.md 流程）
-- 用户已部署的 v2.0.0 成品（改代码≠改已发布包，发新包需用户确认）
-- 不得 push --force 分支；移动 v2.0.0 标签需用户同意
+- 用户已部署的 v2.0.1 成品（改代码≠改已发布包，发新包需用户确认）
+- 不得 push --force 分支；移动正式版本标签需用户同意
 
 ## 当前开发规则
 见 DEVELOPMENT_RULES.md（源码优先、修改前检查协议、修改后验证协议、禁止幻觉协议、中文命令行用文件传递、版本戳约定、同步 CHANGELOG/CURRENT_STATUS）。

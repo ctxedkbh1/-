@@ -21,7 +21,7 @@ AI 辅助写作 + 资料整理 + 文档生成工具，不代替用户思考，�
 ## 技术栈
 - 语言：Python 3.10+
 - 界面：PySide6（>=6.8）
-- 打包：PyInstaller（>=6.11，build.bat 一键打包）
+- 打包：PyInstaller（>=6.11；build.bat 生成桌面完整版目录，build_share.bat 生成分享 ZIP）
 - 依赖：requests / python-docx / python-pptx / reportlab（见 requirements.txt）
 
 ## 运行环境
@@ -47,7 +47,7 @@ AI 辅助写作 + 资料整理 + 文档生成工具，不代替用户思考，�
 三种模式（普通 8 步 / 全自动 21 步 / 高级工作台 6 阶段）、证据库防编造、写作质量检测与自然化修改、事实核查（最多 3 轮）、定向修改、6 格式导出（DOCX/PPTX/PDF/TXT/MD/HTML）、历史记录、断点恢复、自定义输出目录。详见 FEATURES.md。
 
 ## 当前开发阶段
-已发布 v2.0.0（2026-08-16），维护模式，无排期中的新功能。
+已发布 v2.0.1（2026-08-17），维护模式；动态 AI 模型中心处于方案设计阶段，尚未修改业务代码。
 
 ## 项目目录
 - 源码根目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`
@@ -63,5 +63,5 @@ AI 辅助写作 + 资料整理 + 文档生成工具，不代替用户思考，�
 | core/auto_pipeline.py | 全自动模式控制器（21 步、断点恢复） |
 | config/manager.py | API Key 配置管理（环境变量 > config.json） |
 | gui/main_window.py | 主窗口 |
-| build.bat / build_share.bat | 一键打包 |
+| build.bat / build_share.bat | 完整版目录打包 / 分享版 ZIP 打包 |
 | docs/ai/AI_HANDOFF.md | AI 交接入口（新对话先读它） |
