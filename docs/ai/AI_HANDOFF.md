@@ -2,12 +2,13 @@
 
 > **新 AI 必读**：这是项目交接入口。请按顺序阅读：
 > 1. 本文件（先读）
-> 2. docs/ai/CURRENT_STATUS.md（项目状态单一事实来源）
-> 3. docs/ai/ARCHITECTURE.md（架构）
-> 4. docs/ai/FEATURES.md（功能清单）
-> 5. docs/ai/FILE_MAP.md（文件地图）
-> 6. docs/ai/TODO.md、KNOWN_ISSUES.md、DEVELOPMENT_RULES.md
-> 7. docs/ai/RELEASE_PROCESS.md（发版与日志受众规则）
+> 2. docs/ai/CODEX_CONTEXT.md（当前开发上下文）
+> 3. docs/ai/CURRENT_STATUS.md（项目状态单一事实来源）
+> 4. docs/ai/ARCHITECTURE.md（架构）
+> 5. docs/ai/FEATURES.md（功能清单）
+> 6. docs/ai/FILE_MAP.md（文件地图）
+> 7. docs/ai/TODO.md、KNOWN_ISSUES.md、DEVELOPMENT_RULES.md
+> 8. docs/ai/RELEASE_PROCESS.md（发版与日志受众规则）
 >
 > 阅读完成后，先向用户输出【项目理解确认】（模板见文末），等待指令，**不要直接修改代码**。
 >
