@@ -8,9 +8,9 @@
 
 ### Fixed
 
-- 修复 `build.bat` 与 `build_share.bat` 使用 LF 行尾导致 `cmd.exe` 拆乱命令的问题；新增 `.gitattributes` 强制所有批处理使用 CRLF
-- 修复分享版打包标题中的 UTF-8 中文说明被 `cmd.exe` 误解析为命令的问题
-- `build.bat` 改为“完整版”目录打包并将整个运行目录复制到桌面，不再只提供单文件 EXE；`build_share.bat` 继续生成分享 ZIP
+- 修复部分 Windows 环境下打包脚本无法正确执行的问题
+- 修复升级后旧版 API 配置、论文、证据和历史记录可能无法自动保留的问题
+- 修复下载文件格式不统一的问题；本版本同时提供 EXE 和 ZIP
 
 ## [v2.0.0] - 2026-08-16
 
