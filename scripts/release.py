@@ -158,6 +158,8 @@ def verify() -> None:
         (sys.executable, "tests/dev_reference_center_test.py"),
         (sys.executable, "tests/dev_integrations_test.py"),
         (sys.executable, "tests/dev_sett_test.py"),
+        (sys.executable, "tests/dev_release_test.py"),
+        (sys.executable, "tests/dev_visual_test.py"),
         (sys.executable, "main.py", "--selfcheck"),
         (sys.executable, "main.py", "--ui-check"),
     ]
