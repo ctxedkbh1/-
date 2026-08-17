@@ -197,9 +197,26 @@ class AIModelCenterDialog(ModelCenterViewMixin, QDialog):
         self.worker.failed.connect(lambda message: (self.test_button.setEnabled(True), msg_err(self, message)))
         self.worker.start()
 
+    def _test_provider(self):
+        provider_id = self._provider_id()
+        models = self.registry.models(provider_id) if provider_id else []
+        if not models:
+            msg_warn(self, "当前 Provider 没有模型，请先刷新官方列表或手动添加模型。")
+            return
+        self._last_test_reference = models[0].ref.value
+        self.provider_test_button.setEnabled(False)
+        self.worker = Worker(self.service.health_check, self._last_test_reference)
+        self.worker.done.connect(self._provider_health_done)
+        self.worker.failed.connect(lambda message: (self.provider_test_button.setEnabled(True), msg_err(self, message)))
+        self.worker.start()
+
+    def _provider_health_done(self, result):
+        self.provider_test_button.setEnabled(True)
+        self._health_done(result)
+
     def _health_done(self, result):
         self.test_button.setEnabled(True)
-        self.registry.update_health(self._model_ref(), result)
+        self.registry.update_health(getattr(self, "_last_test_reference", self._model_ref()), result)
         provider_record = self.config.ai_providers().get(result.provider_id)
         if provider_record is not None:
             provider_record.update({
