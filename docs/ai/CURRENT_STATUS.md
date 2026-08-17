@@ -6,7 +6,7 @@
 v2.1.1（2026-08-18）
 
 ## 当前开发阶段
-v2.1.1 已完成本地发布门和桌面构建，公开 GitHub Tag/Release 正在上传；GitHub Actions workflow 仍因 OAuth scope 尚未写入远程。
+v2.1.1 已完成本地发布门、桌面构建并发布 GitHub Tag/Release；GitHub Actions workflow 仍因 OAuth scope 尚未写入远程。
 
 ## 最近完成
 1. 高级模式工作台（六阶段流程化指导）——v2.0.0 核心功能
@@ -15,10 +15,10 @@ v2.1.1 已完成本地发布门和桌面构建，公开 GitHub Tag/Release 正�
 4. 修复 Windows 批处理、用户数据迁移和 Release 资产格式；桌面固定名称覆盖，GitHub 提供版本化 EXE + ZIP
 
 ## 当前正在处理
-AI 模型中心核心、参考文献核心、官方集成层、启用复选框、凭据判断、Emoji UI、发布脚本和最终打包均已测试；待完成项是上传 v2.1.1 Release 和远程 workflow 权限。
+AI 模型中心核心、参考文献核心、官方集成层、启用复选框、凭据判断、Emoji UI、发布脚本、最终打包和 v2.1.1 Release 均已验证；待完成项只有远程 workflow 权限。
 
 ## 下一步
-下一步：完成 v2.1.1 GitHub Release 上传；用户重新授权 GitHub OAuth `workflow` scope 后，再将本地 `.github/workflows/release.yml` 写入远程。
+下一步：用户重新授权 GitHub OAuth `workflow` scope 后，将本地 `.github/workflows/release.yml` 写入远程；后续每个 bug/功能/UI 改动按本文件发布规则递增版本。
 
 ## 当前已知 Bug
 无未修复的致命或功能性 Bug。已知限制见 KNOWN_ISSUES.md（均属设计限制或外部环境问题）。

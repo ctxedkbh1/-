@@ -32,7 +32,7 @@ v2.1.1（2026-08-18）
 Python 3.10+ / PySide6 / requests / python-docx / python-pptx / reportlab / PyInstaller。Windows 10/11 x64。无数据库（本地 JSON + Markdown）。
 
 ## 当前状态
-维护中：v2.1.1 已通过发布门并完成完整版/单文件 EXE/分享 ZIP 构建；GitHub Release 正在上传。AI 模型中心、参考文献中心、启用复选框、凭据判断和 Emoji UI 已实现。源码目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`。
+维护中：v2.1.1 已通过发布门、完成完整版/单文件 EXE/分享 ZIP 构建并发布 GitHub Release。AI 模型中心、参考文献中心、启用复选框、凭据判断和 Emoji UI 已实现。源码目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`。
 
 ## 已完成
 - 三种模式：普通 8 步 / 全自动 21 步（断点恢复）/ 高级工作台 6 阶段
@@ -43,7 +43,7 @@ Python 3.10+ / PySide6 / requests / python-docx / python-pptx / reportlab / PyIn
 - 导出：DOCX/PPTX/PDF/TXT/MD/HTML 6 格式 + 验证重生成；自定义输出目录
 - 历史记录、断点恢复、日志脱敏、响应式 UI/DPI
 - 工程：--selfcheck、离线测试、build.bat 完整版目录与单文件 EXE、build_share.bat 分享 ZIP 打包
-- GitHub 发布：公开仓库 + Release v2.1.1（待上传）+ README/CHANGELOG/LICENSE + docs/ai 知识库
+- GitHub 发布：公开仓库 + Release v2.1.1（EXE + ZIP）+ README/CHANGELOG/LICENSE + docs/ai 知识库
 
 ## 正在开发
 无（封存状态）。

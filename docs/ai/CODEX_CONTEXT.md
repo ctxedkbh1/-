@@ -14,12 +14,11 @@ v2.1.1（2026-08-18）
 - 历史记录、断点恢复、完整版本地部署、GitHub Release
 
 ## 当前任务
-Phase 2 完成；v2.1.1 已通过本地发布门并完成桌面构建，正在上传 GitHub Release；Actions 文件仍等待 OAuth `workflow` scope。
+Phase 2 完成；v2.1.1 已通过发布门、完成桌面构建并发布 GitHub Release；Actions 文件仍等待 OAuth `workflow` scope。
 
 ## 下一步
-1. 完成 v2.1.1 GitHub Release 上传并核对 EXE/ZIP 资产
-2. 用户授权 `workflow` scope 后同步 `.github/workflows/release.yml`
-3. 后续每个 bug/功能/UI 改动均按 RELEASE_PROCESS.md 递增版本发布
+1. 用户授权 `workflow` scope 后同步 `.github/workflows/release.yml`
+2. 后续每个 bug/功能/UI 改动均按 RELEASE_PROCESS.md 递增版本发布
 
 ## 重要文件
 - `core/paths.py`：版本唯一来源
