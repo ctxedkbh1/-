@@ -5,7 +5,7 @@ Windows 桌面论文智能研究与写作助手：选题 → 权威资料检索 
 | | |
 |---|---|
 | 项目状态 | 维护中（个人项目，不定期更新） |
-| 当前版本 | v2.0.0（2026-08-16） |
+| 当前版本 | v2.0.1（2026-08-17） |
 | 平台 | Windows 10/11 x64 |
 | 许可证 | MIT |
 | 最新下载 | [Releases 页面](https://github.com/ctxedkbh1/paper-assistant/releases) |
@@ -116,18 +116,18 @@ Windows 桌面论文智能研究与写作助手：选题 → 权威资料检索 
 | | 最低 | 推荐 |
 |---|---|---|
 | 系统 | Windows 10 x64 | Windows 10/11 x64 |
-| 运行 EXE | 无需安装任何环境 | — |
+| 运行完整版 | 无需安装任何环境 | — |
 | 运行源码 | Python 3.10+ | Python 3.10+ |
 | 网络 | 需要联网（AI 接口 + 学术检索） | — |
 | AI 账号 | 至少一个模型供应商的 API Key | DeepSeek（国内可直连，便宜） |
 
 ## 安装方法
 
-### 方式一：下载 EXE（推荐，小白可用）
+### 方式一：下载完整版 ZIP（推荐，小白可用）
 
 1. 打开 [Releases 页面](https://github.com/ctxedkbh1/paper-assistant/releases)
-2. 下载最新版的 `PaperAssistant-vX.Y.Z-windows-x64.exe`（单文件版，推荐）或 `PaperAssistant-vX.Y.Z-windows-x64.zip`（绿色版，解压即用）
-3. 双击运行，**首次启动需要 10~30 秒**（PyInstaller 解压运行环境），请耐心等待
+2. 下载最新版的 `PaperAssistant-vX.Y.Z-windows-x64.zip`
+3. 解压整个 ZIP，保留 EXE 与 `_internal` 文件夹，双击文件夹内的 EXE 运行
 
 > 若 Windows SmartScreen 提示"已保护你的电脑"，点"更多信息 → 仍要运行"即可（未签名软件的正常提示）。
 
@@ -147,10 +147,11 @@ python main.py
 
 ## 启动方法
 
-- **图形界面**：双击 EXE，或源码下执行 `python main.py`
+- **图形界面**：在完整版文件夹内双击 EXE，或源码下执行 `python main.py`
 - **无界面自检**：`python main.py --selfcheck`
 - **离线端到端测试**：`python tests/dev_auto_test.py`（不联网的全自动流水线测试）
-- **一键打包**：双击 `build.bat`（自动装依赖、自检、打包并复制到桌面）
+- **完整版打包**：双击 `build.bat`（自动装依赖、自检，并把包含完整运行环境的文件夹复制到桌面）
+- **分享版打包**：双击 `build_share.bat`（生成可发送给他人的 ZIP）
 
 ## AI 模型配置
 
@@ -244,7 +245,7 @@ PaperAssistant/
 ├── config/manager.py          # API Key 配置（环境变量 > config.json）
 ├── tests/                     # 离线测试
 ├── docs/images/               # 截图（欢迎补充）
-├── build.bat / build_share.bat# 一键打包脚本
+├── build.bat / build_share.bat # 完整版 / 分享版打包脚本
 ├── requirements.txt
 ├── README.md / CHANGELOG.md / LICENSE
 └── .gitignore
@@ -252,8 +253,8 @@ PaperAssistant/
 
 ## 常见问题
 
-**Q：双击 EXE 没反应？**
-首次启动需要 10~30 秒解压运行环境，请稍等。若长时间无窗口，检查任务管理器中进程是否被杀毒软件拦截。
+**Q：为什么不能只复制 EXE？**
+v2.0.1 起默认使用完整版目录模式。EXE 依赖同目录的 `_internal` 文件夹，请保留并复制整个文件夹；对外发送时使用分享版 ZIP。
 
 **Q：没有 API Key 能用吗？**
 不能。AI 写作依赖模型接口，请在设置页配置至少一个供应商的 Key（无 Key 仍可浏览历史与已有项目文件）。
@@ -275,7 +276,6 @@ Key 无效或已过期。检查是否有多余空格、是否已充值/账户正
 
 ## 已知问题
 
-- 首次启动 EXE 较慢（PyInstaller 单文件特性）
 - 政府网页检索成功率受目标站点反爬影响
 - CNKI 受登录/验证码限制，仅支持手动录入与文件导入
 - 长论文全自动模式耗时较长，建议使用断点恢复分次完成
@@ -293,7 +293,7 @@ Key 无效或已过期。检查是否有多余空格、是否已充值/账户正
 
 ## 版本管理
 
-- 当前版本：**v2.0.0**（2026-08-16，高级模式工作台）
+- 当前版本：**v2.0.1**（2026-08-17，Windows 打包脚本修复）
 - 版本号统一定义在 `core/paths.py` 的 `VERSION` / `RELEASE_DATE`，首页与启动日志同步显示
 - 每次更新后，改动文件末尾追加版本戳：`# 版本: vX.Y.Z (日期) 更新: 内容`
 - 更新记录见 [CHANGELOG.md](CHANGELOG.md)
