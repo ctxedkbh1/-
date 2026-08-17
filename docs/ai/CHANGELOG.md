@@ -1,13 +1,27 @@
 # 开发日志（docs/ai/CHANGELOG）
 
 > 本文件记录**开发过程**层面的变更（文档体系、工程操作等）。
-> **产品功能**版本记录以仓库根目录的 CHANGELOG.md 为准（v2.0.1 / v2.0.0 / v1.6.0 / v1.5.0）。
+> **产品功能**版本记录以仓库根目录的 CHANGELOG.md 为准（v2.1.1 / v2.1.0 / v2.0.1 / v2.0.0 / v1.6.0 / v1.5.0）。
+
+## 2026-08-18
+- v2.1.1：将上一轮模型中心修复和本轮启用交互、凭据启动判断、Emoji UI 一并纳入正式版本。
+- 根因：桌面单文件 EXE 未随 v2.1.0 工作区修复重新构建；启动判断只检查旧 `models[*].api_key`，没有通过 AI Provider/Windows Credential Manager 解析实际凭据。
+- 凭据修复：`resolve_api_key()` 现在按环境变量、Provider Credential Manager 引用、旧顶层迁移引用、旧配置字段顺序解析；不记录或输出 Key 内容。
+- UI 修复：Provider 和 Model `QListWidgetItem` 增加可持久化勾选状态；模型停用后从自动路由、任务选项和最新模型候选中排除。
+- UI 改进：模型中心新增 `🔌`、`🟢`、`⚪`、`🧠`、`⭐`、`🔄`、`🧪`、`📚`、`🗑️` 等轻量 Emoji 标识，文字含义仍保留。
+- 构建修复：`build.bat` 同时构建完整版 onedir 和桌面固定名称单文件 EXE；`build_share.bat` 保留完整运行环境 ZIP。
+- 测试证据：AI Center、Reference Center、Integrations、Settings、Release Automation、Visual、`main.py --selfcheck`、`main.py --ui-check` 全部通过；真实 DeepSeek `/models` 返回模型列表。
+- 配置证据：桌面完整版用户数据文件数量和手动模型数量保持不变；分享 ZIP 不包含 `paper_project`、配置、参考文献或 API Key。
+- 发布注意：GitHub Actions workflow 仍受 OAuth `workflow` scope 限制，本版本使用已验证的本地打包资产手动上传 GitHub Release；后续获得 scope 后再同步 workflow。
 
 ## 2026-08-18
 - 完成动态 AI Provider/Model/Discovery/Registry/Cache/AIService 首轮实现。
 - 完成 ReferenceStore、CitationMap、RIS/BibTeX/CSL JSON、本地文件和 Zotero/Notebook 接入层。
 - 完成模型中心、参考文献中心、About、统一 QSS 和 7 档分辨率离屏检查。
 - 完成 AI/引用/集成/设置/发布门测试；workflow 文件仍受 GitHub OAuth workflow scope 限制，待权限恢复后同步。
+- v2.1.0 已创建 Tag、推送 main 并发布 EXE + ZIP Release；workflow 仍待权限恢复后写入远程。
+- 修复模型中心：DeepSeek 模型列表 URL 归一到 `/models`、同名预设导入改为二次确认、模型启用/停用与删除可持久化。
+- 新增本地预设库隐藏/恢复入口；API Key 保存增加 Windows Credential Manager 写入校验和错误提示。
 
 ## 2026-08-17
 - 发布 v2.0.1：修复 build.bat/build_share.bat 的 LF 行尾与 cmd.exe UTF-8 说明行解析问题

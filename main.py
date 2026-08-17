@@ -425,6 +425,25 @@ def main():
 
 
 def _any_model_key(cfg):
+    try:
+        from core.ai.credentials import CredentialError, resolve_api_key
+        from core.ai.domain import AIProvider
+        from core.ai.runtime import credential_store
+        store = credential_store()
+        for provider_id, record in cfg.ai_providers().items():
+            provider = AIProvider.from_dict(provider_id, record)
+            if not provider.enabled:
+                continue
+            legacy = cfg.models().get(provider_id, {})
+            try:
+                if resolve_api_key(provider, store, str(legacy.get("api_key") or "")):
+                    return True
+            except CredentialError:
+                pass
+            if provider.adapter_type.value == "ollama" and "localhost" in provider.base_url:
+                return True
+    except (ImportError, KeyError, TypeError, ValueError):
+        pass
     for key, m in cfg.models().items():
         if not m.get("enabled"):
             continue

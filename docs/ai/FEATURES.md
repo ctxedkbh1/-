@@ -55,10 +55,12 @@
 - **无已排期的开发计划**（README 亦如此表述）。
 - 候选方向（未确认、未排期，仅记录）：补充界面截图（docs/images/）、更多模型/检索源接入、检索稳定性优化、UI 细节优化。任何新功能需用户明确确认后才列入开发。
 
-## v2.1.0 发布候选
+## v2.1.1 已发布
 
 - AI ModelRef 选择实际进入假 HTTP 请求的 `model` 字段
 - 旧配置与双 Key 迁移到系统凭据的回归测试
 - Zotero Local/Web 响应解析、Notebook Enterprise 请求和本地文档导入
 - 引用 E-ID → Reference ID → 导出编号映射
 - 设置/模型中心/参考文献中心/About 离屏构造、窗口尺寸和 UI 检查
+- Provider/Model 启用复选框、模型配置删除、预设导入二次确认和模型中心 Emoji 操作标识
+- Windows Credential Manager 旧顶层凭据解析、桌面单文件 EXE 同步构建和 DeepSeek `/models` 刷新修复

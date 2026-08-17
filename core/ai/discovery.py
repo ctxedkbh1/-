@@ -1,6 +1,6 @@
 import datetime
 from dataclasses import dataclass
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlsplit, urlunsplit
 
 import requests
 
@@ -50,7 +50,7 @@ class ModelDiscovery:
         return data
 
     def _openai_compatible(self, provider: AIProvider, api_key: str) -> list[AIModel]:
-        url = provider.discovery_url or provider.base_url.rstrip("/") + "/models"
+        url = normalize_models_url(provider.discovery_url or provider.base_url)
         headers = {"Accept": "application/json"}
         if api_key:
             headers["Authorization"] = f"Bearer {api_key}"
@@ -200,6 +200,20 @@ def _safe_error(response) -> str:
     except ValueError:
         pass
     return str(response.text or "请求失败")[:300]
+
+
+def normalize_models_url(value: str) -> str:
+    """Treat a provider base URL as a base, not as the completed list endpoint."""
+    raw = str(value or "").strip().rstrip("/")
+    if not raw:
+        return ""
+    parts = urlsplit(raw)
+    path = parts.path.rstrip("/")
+    if path.lower().endswith("/models"):
+        return raw
+    if path in {"", "/"} or path.lower().endswith("/v1"):
+        return urlunsplit((parts.scheme, parts.netloc, path + "/models", parts.query, ""))
+    return raw
 
 
 def _timestamp(value) -> str:

@@ -91,8 +91,15 @@ def resolve_api_key(provider, store: CredentialStore, legacy_key: str = "") -> s
         env_value = os.environ.get(provider.env_key, "").strip()
         if env_value:
             return env_value
-    stored = store.get(provider.credential_ref or f"provider:{provider.provider_id}")
-    return stored or str(legacy_key or "").strip()
+    references = [provider.credential_ref or f"provider:{provider.provider_id}"]
+    legacy_reference = f"legacy:{provider.provider_id}:top-level"
+    if legacy_reference not in references:
+        references.append(legacy_reference)
+    for reference in references:
+        stored = store.get(reference)
+        if stored:
+            return stored
+    return str(legacy_key or "").strip()
 
 
 def migrate_legacy_credentials(config, store: CredentialStore) -> MigrationReport:

@@ -22,6 +22,7 @@
 
 - **防编造机制不可削弱**（详见 ARCHITECTURE.md）：AI 只能引用证据库、自然化修改保护事实/引用、双向引用检查——这些是最高优先级
 - **版本号唯一来源**：core/paths.py 的 VERSION / RELEASE_DATE；发版时同步更新 README（版本行）、CHANGELOG.md、Git Tag、GitHub Release
+- **每次更新都要发版**：任何 Bug 修复、新功能、UI 改进、依赖升级或安全修复都必须递增版本号、更新详细日志、重新打包并上传 GitHub Release；不得把修复留在未发布的桌面产物中
 - **版本戳约定**：每次改动文件末尾追加 `# 版本: vX.Y.Z (日期) 更新: 内容`
 - **Git 提交规范**：feat: / fix: / docs: / refactor: / style: / chore:
 - **中文命令行坑（重要教训）**：Windows PowerShell 向 git/gh 传中文参数会被编码损坏（曾导致 GitHub 仓库名变成 "-"）。凡需要中文的提交信息、API 请求体，一律写进 UTF-8 文件再用 `git commit -F 文件`、`gh api --input 文件` 传递

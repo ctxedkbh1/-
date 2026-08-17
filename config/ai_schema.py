@@ -1,6 +1,7 @@
 def ensure_ai_center(data):
     center = data.get("ai_center")
     if isinstance(center, dict):
+        changed = False
         center.setdefault("schema_version", 1)
         center.setdefault("providers", {})
         center.setdefault("manual_models", {})
@@ -10,7 +11,14 @@ def ensure_ai_center(data):
         center.setdefault("mode_defaults", {})
         center.setdefault("favorites", [])
         center.setdefault("migration", {})
-        return False
+        center.setdefault("hidden_presets", [])
+        for model in center.get("manual_models", {}).values():
+            if isinstance(model, dict) and "enabled" not in model:
+                model["enabled"] = True
+                changed = True
+        changed |= _repair_provider_endpoints(center)
+        changed |= _sync_missing_legacy_records(data, center)
+        return changed
 
     providers = {}
     manual_models = {}
@@ -34,6 +42,7 @@ def ensure_ai_center(data):
         "task_defaults": task_defaults,
         "mode_defaults": {"advanced": "auto"},
         "favorites": [],
+        "hidden_presets": [],
         "migration": {
             "legacy_detected": bool(data.get("models")),
             "credentials_migrated": False,
@@ -113,6 +122,7 @@ def legacy_records(key, model):
         },
         "created_at": "",
         "updated_at": "",
+        "enabled": bool(model.get("enabled", True)),
         "favorite": False,
         "last_checked": "",
         "latency_ms": None,
@@ -121,6 +131,43 @@ def legacy_records(key, model):
         "notes": "由旧模型配置迁移，能力状态未经官方模型接口确认。",
     }
     return provider, manual, reference
+
+
+def _sync_missing_legacy_records(data, center):
+    changed = False
+    providers = center.setdefault("providers", {})
+    legacy_keys = center.setdefault("legacy_model_keys", {})
+    manual_models = center.setdefault("manual_models", {})
+    for key, model in data.get("models", {}).items():
+        if key in providers:
+            if key not in legacy_keys:
+                _provider, manual, reference = legacy_records(key, model)
+                if reference and reference not in manual_models:
+                    manual_models[reference] = manual
+                    legacy_keys[key] = reference
+                    changed = True
+            continue
+        provider, manual, reference = legacy_records(key, model)
+        providers[key] = provider
+        changed = True
+        if reference and reference not in manual_models:
+            manual_models[reference] = manual
+            legacy_keys[key] = reference
+            changed = True
+    return changed
+
+
+def _repair_provider_endpoints(center):
+    changed = False
+    for provider_id, provider in center.get("providers", {}).items():
+        if not isinstance(provider, dict):
+            continue
+        base_url = str(provider.get("base_url") or "").rstrip("/")
+        discovery_url = str(provider.get("discovery_url") or "").rstrip("/")
+        if provider_id == "deepseek" and base_url and discovery_url.lower() == base_url.lower():
+            provider["discovery_url"] = base_url + "/models"
+            changed = True
+    return changed
 
 
 def adapter_type(key, model):

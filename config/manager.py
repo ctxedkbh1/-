@@ -148,13 +148,35 @@ class ConfigManager:
         self.ai_center().setdefault("providers", {}).pop(provider_id, None)
         self.save()
 
-    def save_ai_model(self, reference, record):
-        self.ai_center().setdefault("manual_models", {})[reference] = dict(record)
+    def save_ai_model(self, reference, record, overwrite=False):
+        models = self.ai_center().setdefault("manual_models", {})
+        if reference in models and not overwrite:
+            return False
+        models[reference] = dict(record)
         self.save()
+        return True
 
     def remove_ai_model(self, reference):
-        self.ai_center().setdefault("manual_models", {}).pop(reference, None)
+        center = self.ai_center()
+        center.setdefault("manual_models", {}).pop(reference, None)
+        center["favorites"] = [item for item in center.get("favorites", []) if item != reference]
+        center["task_defaults"] = {
+            task: ("auto" if value == reference else value)
+            for task, value in center.get("task_defaults", {}).items()
+        }
+        center["legacy_model_keys"] = {
+            key: value for key, value in center.get("legacy_model_keys", {}).items()
+            if value != reference
+        }
         self.save()
+
+    def update_ai_model_enabled(self, reference, enabled):
+        model = self.ai_center().setdefault("manual_models", {}).get(reference)
+        if not isinstance(model, dict):
+            return False
+        model["enabled"] = bool(enabled)
+        self.save()
+        return True
 
     def api_key(self):
         m = self.data.get("models", {}).get("deepseek", {})

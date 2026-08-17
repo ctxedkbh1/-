@@ -54,4 +54,16 @@ class ModelCache:
             providers.pop(provider_id)
             self._save()
 
+    def remove_model(self, provider_id: str, model_id: str) -> None:
+        providers = self.data.get("providers", {})
+        record = providers.get(provider_id) if isinstance(providers, dict) else None
+        if not isinstance(record, dict):
+            return
+        models = record.get("models", [])
+        record["models"] = [
+            item for item in models
+            if not isinstance(item, dict) or str(item.get("model_id") or "") != model_id
+        ]
+        self._save()
+
 # 版本: v2.0.1 (2026-08-17) 更新: AI 模型发现缓存

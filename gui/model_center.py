@@ -4,11 +4,13 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QDialog, QHBoxLayout, QLabel, QListWidgetItem,
                                QMessageBox, QPushButton, QSplitter, QVBoxLayout)
 
-from core.ai.credentials import migrate_legacy_credentials, resolve_api_key
+from core.ai.credentials import (CredentialError, migrate_legacy_credentials,
+                                 resolve_api_key)
 from core.ai.discovery import ModelDiscovery
 from core.ai.runtime import ai_service, credential_store, model_registry
 from gui.model_center_view import ModelCenterViewMixin
-from gui.model_center_dialogs import ManualModelDialog, ProviderEditDialog
+from gui.model_center_dialogs import (ManualModelDialog, PresetLibraryDialog,
+                                      ProviderEditDialog)
 from gui.theme import APP_QSS
 from gui.widgets import Worker, msg_err, msg_info, msg_warn
 
@@ -21,6 +23,8 @@ class AIModelCenterDialog(ModelCenterViewMixin, QDialog):
         self.credentials = credential_store()
         self.service = ai_service(config)
         self.worker = None
+        self._loading_providers = False
+        self._loading_models = False
         self.setStyleSheet(APP_QSS)
         self.setWindowTitle("AI 模型中心")
         self.setMinimumSize(880, 620)
@@ -45,15 +49,24 @@ class AIModelCenterDialog(ModelCenterViewMixin, QDialog):
 
     def _load_providers(self):
         selected = self._provider_id()
-        self.provider_list.clear()
-        for provider in self.registry.providers():
-            count = len(self.registry.models(provider.provider_id))
-            state = "已启用" if provider.enabled else "已禁用"
-            item = QListWidgetItem(f"{provider.display_name}\n{state} · {count} models")
-            item.setData(Qt.ItemDataRole.UserRole, provider.provider_id)
-            self.provider_list.addItem(item)
-            if provider.provider_id == selected:
-                self.provider_list.setCurrentItem(item)
+        self._loading_providers = True
+        try:
+            self.provider_list.clear()
+            for provider in self.registry.providers():
+                count = len(self.registry.models(provider.provider_id))
+                state = "已启用" if provider.enabled else "已停用"
+                marker = "🟢" if provider.enabled else "⚪"
+                item = QListWidgetItem(f"{marker} {provider.display_name}\n{state} · {count} 个模型")
+                item.setData(Qt.ItemDataRole.UserRole, provider.provider_id)
+                item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                item.setCheckState(
+                    Qt.CheckState.Checked if provider.enabled else Qt.CheckState.Unchecked
+                )
+                self.provider_list.addItem(item)
+                if provider.provider_id == selected:
+                    self.provider_list.setCurrentItem(item)
+        finally:
+            self._loading_providers = False
         if self.provider_list.count() and self.provider_list.currentRow() < 0:
             self.provider_list.setCurrentRow(0)
         legacy_secrets = bool(str(self.config.get("deepseek_api_key") or "").strip()) or any(
@@ -71,7 +84,10 @@ class AIModelCenterDialog(ModelCenterViewMixin, QDialog):
             return
         provider = self.registry.provider(provider_id)
         self.provider_title.setText(provider.display_name)
-        self.provider_status.setText(provider.status.value.replace("_", " "))
+        key_state = "Key 已保存" if self._provider_key_present(provider) else "Key 未保存"
+        self.provider_status.setText(
+            provider.status.value.replace("_", " ") + " · " + key_state
+        )
         self.last_refresh.setText("最后刷新：" + (self.registry.cache.fetched_at(provider_id) or "—"))
         self._load_models()
 
@@ -89,16 +105,26 @@ class AIModelCenterDialog(ModelCenterViewMixin, QDialog):
                 models.sort(key=lambda model: model.updated_at or model.created_at, reverse=True)
             case "favorite":
                 models.sort(key=lambda model: (not model.favorite, model.display_name.lower()))
-        self.model_list.clear()
-        for model in models:
-            status = model.status.value.replace("_", " ")
-            context = model.capabilities.context_window or "未知"
-            prefix = "[收藏] " if model.favorite else ""
-            item = QListWidgetItem(
-                f"{prefix}{model.display_name}\n{model.model_id} · {status} · Context {context} · {model.source.value}"
-            )
-            item.setData(Qt.ItemDataRole.UserRole, model.ref.value)
-            self.model_list.addItem(item)
+        self._loading_models = True
+        try:
+            self.model_list.clear()
+            for model in models:
+                status = model.status.value.replace("_", " ")
+                context = model.capabilities.context_window or "未知"
+                prefix = "⭐ " if model.favorite else "🧠 "
+                enabled = "已启用" if model.enabled else "已停用"
+                item = QListWidgetItem(
+                    f"{prefix}{model.display_name}\n{model.model_id} · {enabled} · {status} · "
+                    f"Context {context} · {model.source.value}"
+                )
+                item.setData(Qt.ItemDataRole.UserRole, model.ref.value)
+                item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                item.setCheckState(
+                    Qt.CheckState.Checked if model.enabled else Qt.CheckState.Unchecked
+                )
+                self.model_list.addItem(item)
+        finally:
+            self._loading_models = False
         if self.model_list.count():
             self.model_list.setCurrentRow(0)
         else:
@@ -112,6 +138,7 @@ class AIModelCenterDialog(ModelCenterViewMixin, QDialog):
         caps = model.capabilities
         values = [
             f"Model ID：{model.model_id}", f"Provider：{model.provider_id}",
+            f"启用：{'是' if model.enabled else '否'}",
             f"状态：{model.status.value}", f"来源：{model.source.value}",
             f"上下文：{caps.context_window or '未知'}",
             f"Reasoning：{_flag(caps.supports_reasoning)} · Vision：{_flag(caps.supports_vision)} · "
@@ -121,13 +148,44 @@ class AIModelCenterDialog(ModelCenterViewMixin, QDialog):
         if model.notes:
             values.append("备注：" + model.notes)
         self.details.setPlainText("\n".join(values))
+        self.toggle_model_button.setText("⏸️ 停用模型" if model.enabled else "▶️ 启用模型")
+
+    def _provider_item_toggled(self, item):
+        if self._loading_providers or item is None:
+            return
+        provider_id = str(item.data(Qt.ItemDataRole.UserRole) or "")
+        record = self.config.ai_providers().get(provider_id)
+        if not provider_id or not isinstance(record, dict):
+            return
+        enabled = item.checkState() == Qt.CheckState.Checked
+        if bool(record.get("enabled", True)) == enabled:
+            return
+        record["enabled"] = enabled
+        self.config.save()
+        self.registry = model_registry(self.config)
+        self.service = ai_service(self.config)
+        self._load_providers()
+        self._load_models()
+
+    def _model_item_toggled(self, item):
+        if self._loading_models or item is None:
+            return
+        reference = str(item.data(Qt.ItemDataRole.UserRole) or "")
+        if not reference:
+            return
+        model = self.registry.model(reference)
+        enabled = item.checkState() == Qt.CheckState.Checked
+        if model.enabled == enabled:
+            return
+        self.registry.set_model_enabled(reference, enabled)
+        self._load_models()
+        self._load_providers()
 
     def _add_provider(self):
         dialog = ProviderEditDialog(self)
         if dialog.exec() == QDialog.DialogCode.Accepted and dialog.record:
-            self.config.save_ai_provider(dialog.provider_key, dialog.record)
-            if dialog.api_key:
-                self.credentials.set(f"provider:{dialog.provider_key}", dialog.api_key)
+            if not self._save_provider_dialog(dialog, dialog.provider_key):
+                return
             self.registry = model_registry(self.config)
             self.service = ai_service(self.config)
             self._load_providers()
@@ -136,29 +194,112 @@ class AIModelCenterDialog(ModelCenterViewMixin, QDialog):
         provider_id = self._provider_id()
         if not provider_id:
             return
-        dialog = ProviderEditDialog(self, self.registry.provider(provider_id))
+        dialog = ProviderEditDialog(
+            self, self.registry.provider(provider_id), self._provider_key_present(
+                self.registry.provider(provider_id)
+            )
+        )
         if dialog.exec() == QDialog.DialogCode.Accepted and dialog.record:
-            self.config.save_ai_provider(provider_id, dialog.record)
-            if dialog.api_key:
-                self.credentials.set(f"provider:{provider_id}", dialog.api_key)
+            if not self._save_provider_dialog(dialog, provider_id):
+                return
             self.registry = model_registry(self.config)
             self.service = ai_service(self.config)
             self._load_providers()
 
     def _delete_provider(self):
         provider_id = self._provider_id()
-        if provider_id and QMessageBox.question(self, "确认", "删除 Provider 及其手动模型？") == QMessageBox.StandardButton.Yes:
+        if provider_id and QMessageBox.question(
+            self, "二次确认：删除 Provider", "删除 Provider 及其手动模型？"
+        ) == QMessageBox.StandardButton.Yes:
             self.config.remove_ai_provider(provider_id)
-            self.credentials.delete(f"provider:{provider_id}")
+            try:
+                self.credentials.delete(f"provider:{provider_id}")
+            except CredentialError as exc:
+                msg_warn(self, f"Provider 已删除，但凭据清理失败：{exc}")
             self.registry = model_registry(self.config)
             self._load_providers()
 
     def _add_model(self):
         dialog = ManualModelDialog(self.registry.providers(), self)
         if dialog.exec() == QDialog.DialogCode.Accepted and dialog.record:
-            self.config.save_ai_model(dialog.reference, dialog.record)
+            existing = next(
+                (model for model in self.registry.models()
+                 if model.ref.value == dialog.reference),
+                None,
+            )
+            overwrite = existing is not None
+            if overwrite and QMessageBox.question(
+                self,
+                "二次确认：覆盖模型配置",
+                f"{dialog.reference} 已存在。继续将覆盖现有本地配置，旧的显示名、能力和启用状态会被替换。\n\n确定覆盖？",
+            ) != QMessageBox.StandardButton.Yes:
+                return
+            if not self.config.save_ai_model(dialog.reference, dialog.record, overwrite=overwrite):
+                msg_warn(self, "模型配置已存在，未执行覆盖。")
+                return
             self._load_models()
             self._load_providers()
+
+    def _open_preset_library(self):
+        dialog = PresetLibraryDialog(self.config, self)
+        if dialog.exec() == QDialog.DialogCode.Accepted and dialog.selected_preset:
+            self._import_preset(dialog.selected_preset)
+
+    def _import_preset(self, preset_id):
+        from config.ai_schema import legacy_records
+        from core.model_presets import LEGACY_PRESETS
+
+        preset = LEGACY_PRESETS.get(preset_id)
+        if not preset:
+            return
+        provider, record, reference = legacy_records(preset_id, preset)
+        record["source"] = "preset"
+        record["enabled"] = True
+        if preset_id not in self.config.ai_providers():
+            self.config.save_ai_provider(preset_id, provider)
+        else:
+            self.config.save()
+        self.registry = model_registry(self.config)
+        existing = next(
+            (model for model in self.registry.models(preset_id)
+             if model.ref.value == reference),
+            None,
+        )
+        if existing and QMessageBox.question(
+            self,
+            "二次确认：覆盖预设对应模型",
+            f"预设 {preset_id} / {preset.get('model_id', '')} 已有本地配置。\n"
+            "继续会覆盖该模型的显示名、能力和启用状态，不会覆盖 API Key。\n\n确定覆盖？",
+        ) != QMessageBox.StandardButton.Yes:
+            return
+        self.config.save_ai_model(reference, record, overwrite=True)
+        self.registry = model_registry(self.config)
+        self.service = ai_service(self.config)
+        self._load_providers()
+        self._load_models()
+        msg_info(self, f"已导入预设模型：{reference}")
+
+    def _save_provider_dialog(self, dialog, provider_id):
+        reference = f"provider:{provider_id}"
+        try:
+            if dialog.clear_key:
+                self.credentials.delete(reference)
+            if dialog.api_key:
+                self.credentials.set(reference, dialog.api_key)
+                if self.credentials.get(reference) != dialog.api_key:
+                    raise CredentialError("凭据写入后校验失败")
+        except CredentialError as exc:
+            msg_err(self, f"API Key 保存失败：{exc}")
+            return False
+        self.config.save_ai_provider(provider_id, dialog.record)
+        return True
+
+    def _provider_key_present(self, provider):
+        try:
+            legacy = self.config.models().get(provider.provider_id, {})
+            return bool(resolve_api_key(provider, self.credentials, str(legacy.get("api_key") or "")))
+        except CredentialError:
+            return False
 
     def _refresh_models_online(self):
         provider = self.registry.provider(self._provider_id())
@@ -182,6 +323,11 @@ class AIModelCenterDialog(ModelCenterViewMixin, QDialog):
         msg_info(self, f"模型列表已更新，发现 {len(models)} 个模型。")
 
     def _refresh_failed(self, message):
+        provider_id = self._provider_id()
+        if provider_id in self.config.ai_providers():
+            record = self.config.ai_providers()[provider_id]
+            record.update({"status": "unavailable", "last_checked": _now(), "last_error": str(message)})
+            self.config.save()
         self.refresh_button.setEnabled(True)
         self.refresh_button.setText("刷新模型")
         msg_err(self, "模型列表获取失败：" + message)
@@ -236,6 +382,34 @@ class AIModelCenterDialog(ModelCenterViewMixin, QDialog):
             model = self.registry.model(reference)
             self.registry.set_favorite(reference, not model.favorite)
             self._load_models()
+
+    def _toggle_model_enabled(self):
+        reference = self._model_ref()
+        if not reference:
+            msg_warn(self, "请先选择模型。")
+            return
+        model = self.registry.model(reference)
+        self.registry.set_model_enabled(reference, not model.enabled)
+        self._load_models()
+        self._load_providers()
+
+    def _delete_model(self):
+        reference = self._model_ref()
+        if not reference:
+            msg_warn(self, "请先选择模型。")
+            return
+        model = self.registry.model(reference)
+        if QMessageBox.question(
+            self,
+            "二次确认：删除模型配置",
+            f"确定删除 {reference} 的本地模型配置和缓存吗？\n"
+            "官方模型下次刷新可能重新出现；不会删除 Provider 或 API Key。",
+        ) != QMessageBox.StandardButton.Yes:
+            return
+        self.registry.delete_model(reference)
+        self._load_models()
+        self._load_providers()
+        msg_info(self, f"已删除模型配置：{model.display_name}")
 
     def _set_default(self):
         reference = "latest" if self.task_policy.currentData() == "latest" else self._model_ref()

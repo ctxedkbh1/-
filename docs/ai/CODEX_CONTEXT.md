@@ -1,7 +1,7 @@
 # Codex 项目上下文
 
 ## 当前版本
-v2.1.0（2026-08-18）
+v2.1.1（2026-08-18）
 
 ## 当前状态
 - 分支：`feat/dynamic-model-center`
@@ -14,13 +14,12 @@ v2.1.0（2026-08-18）
 - 历史记录、断点恢复、完整版本地部署、GitHub Release
 
 ## 当前任务
-Phase 2 完成：AI 模型中心、参考文献中心与 UI 增量实现；当前准备发布 v2.1.0。
+Phase 2 完成；v2.1.1 已通过本地发布门并完成桌面构建，正在上传 GitHub Release；Actions 文件仍等待 OAuth `workflow` scope。
 
 ## 下一步
-1. 完成全自动/高级工作流的模型选择验证
-2. 完成 Zotero/Notebook UI 流程和引用验证
-3. 完成 UI/高 DPI/真实 Windows QA
-4. 所有发布门通过后升级到 v2.1.0
+1. 完成 v2.1.1 GitHub Release 上传并核对 EXE/ZIP 资产
+2. 用户授权 `workflow` scope 后同步 `.github/workflows/release.yml`
+3. 后续每个 bug/功能/UI 改动均按 RELEASE_PROCESS.md 递增版本发布
 
 ## 重要文件
 - `core/paths.py`：版本唯一来源

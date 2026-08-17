@@ -106,11 +106,15 @@ class AIService:
             ordered.extend(self.registry.latest_models())
         elif selected != "auto":
             try:
-                ordered.append(self.registry.model(selected))
+                selected_model = self.registry.model(selected)
+                if selected_model.enabled:
+                    ordered.append(selected_model)
             except ModelNotFoundError:
                 log.get().warning("任务指定模型不存在 task=%s reference=%s", task, selected)
         for provider in self.registry.providers(enabled_only=True):
             for model in self.registry.models(provider.provider_id):
+                if not model.enabled:
+                    continue
                 if model.ref.value not in {item.ref.value for item in ordered}:
                     ordered.append(model)
         return sorted(

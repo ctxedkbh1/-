@@ -6,6 +6,8 @@ def enabled_model_options(config):
     options = []
     for provider in registry.providers(enabled_only=True):
         for model in registry.models(provider.provider_id):
+            if not model.enabled:
+                continue
             label = f"{provider.display_name} / {model.display_name}"
             options.append((model.ref.value, label))
     return options

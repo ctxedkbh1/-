@@ -31,6 +31,7 @@ class ModelSource(StrEnum):
     OFFICIAL_API = "official_api"
     MANUAL = "manual"
     LEGACY = "legacy"
+    PRESET = "preset"
     CACHE = "cache"
 
 
@@ -151,6 +152,7 @@ class AIModel:
     capabilities: ModelCapabilities = field(default_factory=ModelCapabilities)
     created_at: str = ""
     updated_at: str = ""
+    enabled: bool = True
     favorite: bool = False
     last_checked: str = ""
     latency_ms: int | None = None
@@ -173,6 +175,7 @@ class AIModel:
             capabilities=ModelCapabilities.from_dict(data.get("capabilities")),
             created_at=str(data.get("created_at") or ""),
             updated_at=str(data.get("updated_at") or ""),
+            enabled=bool(data.get("enabled", True)),
             favorite=bool(data.get("favorite", False)),
             last_checked=str(data.get("last_checked") or ""),
             latency_ms=_optional_int(data.get("latency_ms")),

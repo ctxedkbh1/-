@@ -22,6 +22,7 @@ echo.
 echo [1.5/5] 读取版本号...
 for /f "delims=" %%v in ('python -c "from core import paths; print(paths.VERSION)"') do set APPVER=%%v
 echo 当前版本: v%APPVER%
+set "SHARENAME=论文智能研究与写作助手_v%APPVER%"
 
 echo.
 echo [2/5] 安装依赖...
@@ -45,20 +46,21 @@ if errorlevel 1 (
 echo.
 echo [4/5] PyInstaller 打包（目录模式，自带完整运行环境）...
 python -m PyInstaller --noconfirm --clean --onedir --windowed ^
-    --name "论文智能研究与写作助手_v%APPVER%" main.py
+    --collect-submodules keyring.backends ^
+    --name "%SHARENAME%" main.py
 if errorlevel 1 (
     echo [错误] 打包失败。
-    pause
+    if not defined PAPERASSISTANT_NO_PAUSE pause
     exit /b 1
 )
 
 echo.
 echo [5/5] 压缩为分享包并复制到桌面...
 if exist "论文助手_v%APPVER%.zip" del /Q "论文助手_v%APPVER%.zip"
-tar -a -c -f "论文助手_v%APPVER%.zip" -C dist "论文智能研究与写作助手_v%APPVER%"
+tar -a -c -f "论文助手_v%APPVER%.zip" -C dist "%SHARENAME%"
 if errorlevel 1 (
     echo [警告] tar 压缩失败，改用 PowerShell 压缩...
-    powershell -NoProfile -Command "Compress-Archive -Path 'dist\论文智能研究与写作助手_v%APPVER%' -DestinationPath '论文助手_v%APPVER%.zip' -Force"
+    powershell -NoProfile -Command "Compress-Archive -Path 'dist\%SHARENAME%' -DestinationPath '论文助手_v%APPVER%.zip' -Force"
 )
 del /Q "%USERPROFILE%\Desktop\论文助手.zip" >nul 2>&1
 copy /Y "论文助手_v%APPVER%.zip" "%USERPROFILE%\Desktop\论文助手.zip" >nul

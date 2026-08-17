@@ -128,7 +128,7 @@ class ModelRegistry:
         dated = [
             model for model in models
             if model.created_at and model.source.value == "official_api"
-            and model.status.value == "available"
+            and model.status.value == "available" and model.enabled
         ]
         return sorted(dated, key=lambda model: model.created_at, reverse=True)
 
@@ -140,9 +140,28 @@ class ModelRegistry:
             discovered,
             display_name=manual.display_name or discovered.display_name,
             capabilities=manual.capabilities,
+            enabled=manual.enabled,
             favorite=manual.favorite,
             notes=manual.notes or discovered.notes,
         )
+
+    def set_model_enabled(self, reference: str, enabled: bool) -> None:
+        ref = self.resolve_ref(reference)
+        manual = self.config.ai_center().setdefault("manual_models", {})
+        if ref.value in manual and isinstance(manual[ref.value], dict):
+            manual[ref.value]["enabled"] = bool(enabled)
+            self.config.save()
+            return
+        model = self.model(ref)
+        record = model.to_dict()
+        record["source"] = "manual"
+        record["enabled"] = bool(enabled)
+        self.config.save_ai_model(ref.value, record, overwrite=True)
+
+    def delete_model(self, reference: str) -> None:
+        ref = self.resolve_ref(reference)
+        self.config.remove_ai_model(ref.value)
+        self.cache.remove_model(ref.provider_id, ref.model_id)
 
     @staticmethod
     def _search_blob(model: AIModel) -> str:

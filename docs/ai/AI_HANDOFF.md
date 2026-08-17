@@ -20,7 +20,7 @@
 Windows 桌面论文智能研究与写作助手（品牌名：论文助手）。选题 → 权威资料检索 → 证据库 → AI 大纲 → 分章节写作 → 事实核查 → 多格式导出。**防编造是最高优先级设计**：AI 只能引用检索到的真实证据。
 
 ## 当前版本
-v2.1.0（2026-08-18）
+v2.1.1（2026-08-18）
 
 ## 当前Baseline
 - 日期：2026-08-17
@@ -32,7 +32,7 @@ v2.1.0（2026-08-18）
 Python 3.10+ / PySide6 / requests / python-docx / python-pptx / reportlab / PyInstaller。Windows 10/11 x64。无数据库（本地 JSON + Markdown）。
 
 ## 当前状态
-维护中：v2.1.0 为发布候选（v2.0.1 稳定 Release 保留）；AI 模型中心、参考文献中心和 UI 已实现并通过首轮测试，等待最终发布门。源码目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`。
+维护中：v2.1.1 已通过发布门并完成完整版/单文件 EXE/分享 ZIP 构建；GitHub Release 正在上传。AI 模型中心、参考文献中心、启用复选框、凭据判断和 Emoji UI 已实现。源码目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`。
 
 ## 已完成
 - 三种模式：普通 8 步 / 全自动 21 步（断点恢复）/ 高级工作台 6 阶段
@@ -42,8 +42,8 @@ Python 3.10+ / PySide6 / requests / python-docx / python-pptx / reportlab / PyIn
 - 质量体系：style_checker/naturalizer/fact_checker（3 轮）/quality_report/targeted_edit/detector
 - 导出：DOCX/PPTX/PDF/TXT/MD/HTML 6 格式 + 验证重生成；自定义输出目录
 - 历史记录、断点恢复、日志脱敏、响应式 UI/DPI
-- 工程：--selfcheck、4 个离线测试、build.bat 完整版目录打包、build_share.bat 分享 ZIP 打包
-- GitHub 发布：公开仓库 + Release v2.0.1 + README/CHANGELOG/LICENSE + docs/ai 知识库
+- 工程：--selfcheck、离线测试、build.bat 完整版目录与单文件 EXE、build_share.bat 分享 ZIP 打包
+- GitHub 发布：公开仓库 + Release v2.1.1（待上传）+ README/CHANGELOG/LICENSE + docs/ai 知识库
 
 ## 正在开发
 无（封存状态）。
@@ -73,7 +73,7 @@ PySide6 GUI（gui/，三模式+8阶段页+历史+导出+模型管理）
 - 统一 LLMProvider 接口（core/llm.py）
 - OpenAI 兼容：DeepSeek 默认（deepseek-chat, https://api.deepseek.com）、OpenAI、通义千问、Moonshot、智谱、OpenRouter、Ollama、自定义 base_url
 - Anthropic Claude（Messages API）、Google Gemini（generateContent）
-- 环境变量 DEEPSEEK_API_KEY 优先；Key 存 paper_project/config.json，界面掩码、日志脱敏
+- 环境变量 DEEPSEEK_API_KEY 优先；Key 优先存 Windows Credential Manager，旧配置可迁移，日志脱敏
 
 ## 外部服务
 OpenAlex / Crossref（公开学术 API）；政府官网与通用网页（公开搜索引擎，尽力而为）；CNKI（仅手动导入，不绕过登录）。AI 接口按用户配置。**无云同步、无遥测**，唯一出站流量是 AI 接口与检索源。
@@ -87,7 +87,7 @@ OpenAlex / Crossref（公开学术 API）；政府官网与通用网页（公开
 - output\：论文.docx/.md/.pdf/.pptx/.html/.txt、资料核验报告.md、论文质量报告.md、全自动运行日志.md
 
 ## 最近修改
-2026-08-18：完成 v2.1.0 AI 模型中心、参考文献中心、官方资料接入、统一主题、发布脚本和测试门；尚未创建 v2.1.0 Tag/Release。
+2026-08-18：完成 v2.1.1 模型启用交互、启动 Key 判断、凭据解析、Emoji UI、桌面双入口打包和详细发布日志；workflow 受 OAuth scope 限制未远程写入。
 
 ## 修改原因
 用户要求项目封存：建立任何 AI 都能读取的项目知识库，防止未来因上下文不足而误改代码。
@@ -95,13 +95,13 @@ OpenAlex / Crossref（公开学术 API）；政府官网与通用网页（公开
 ## 测试状态
 - python main.py --selfcheck：打包前已通过
 - tests/ 4 个离线测试：打包前已通过
-- v2.0.1 完整版目录 EXE 与分享版目录 EXE：已实际启动并显示主窗口，正常
-- 本次交接仅新增文档，未改业务代码
+- v2.1.1 完整版目录 EXE 与桌面单文件 EXE：`--selfcheck` 返回 0；分享 ZIP 无私人数据
+- 本次交接包含模型中心、凭据判断、UI 和构建脚本更新
 
 ## 不要修改的内容
 - 防编造机制（evidence/writer/naturalizer/fact_checker 约束逻辑）
 - core/paths.py 版本定义（改版本号按 DEVELOPMENT_RULES.md 流程）
-- 用户已部署的 v2.0.1 成品（改代码≠改已发布包，发新包需用户确认）
+- 用户已部署的 v2.1.1 成品（改代码≠改已发布包，发新包需按版本流程）
 - 不得 push --force 分支；移动正式版本标签需用户同意
 
 ## 当前开发规则

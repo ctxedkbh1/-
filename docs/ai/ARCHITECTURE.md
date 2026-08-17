@@ -96,10 +96,10 @@ AI Provider 层（core/llm.py + core/deepseek.py + core/model_presets.py）
 4. 输出前执行引用 ↔ 参考文献双向检查 + 逐句事实核查（最多 3 轮）
 5. 著录信息不全的文献标记“待完善”，不自动猜测补全
 
-## v2.1.0 当前实现状态
+## v2.1.1 当前实现状态
 
 - `core/ai/` 已提供 Provider/Model 数据域、官方发现、缓存、Credential Manager、Registry、AIService；`core/deepseek.py` 保持旧入口兼容。
 - `core/references/` 已提供 ReferenceStore、RIS/BibTeX/CSL JSON、本地文件、CitationMap 和样式入口。
 - `sources/zotero.py` 支持官方 Local/Web 增量读取；`sources/notebook.py` 支持本地文件和 Notebook Enterprise 官方写入。
 - `gui/model_center.py`、`gui/reference_center.py`、`gui/about_dialog.py` 已接入主窗口；全自动/高级模型选择已使用稳定 ModelRef。
-- v2.1.0 发布候选；版本源已更新，Tag/Release 需在最终发布门通过后创建。
+- v2.1.1 已完成本地验证和桌面构建；版本源、客户日志、双入口 EXE 和分享 ZIP 已同步。GitHub Release 上传后再补充远程 Tag/Release 证据；Actions workflow 因 OAuth scope 暂未远程写入。

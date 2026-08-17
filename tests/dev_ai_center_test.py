@@ -84,20 +84,26 @@ def main():
 
         from config.manager import ConfigManager
         from core.ai.cache import ModelCache
-        from core.ai.credentials import MemoryCredentialStore, migrate_legacy_credentials
-        from core.ai.discovery import ModelDiscovery
-        from core.ai.domain import ModelRef, ModelSource, ModelStatus
+        from core.ai.credentials import (MemoryCredentialStore,
+                                         migrate_legacy_credentials,
+                                         resolve_api_key)
+        from core.ai.discovery import ModelDiscovery, normalize_models_url
+        from core.ai.domain import AIProvider, ModelRef, ModelSource, ModelStatus
         from core.ai.registry import ModelRegistry
         from core.ai.service import AIService
 
         ref = ModelRef(provider_id="custom", model_id="future-model-x")
         assert ModelRef.parse(ref.value) == ref
+        assert normalize_models_url("https://api.deepseek.com") == "https://api.deepseek.com/models"
+        assert normalize_models_url("https://api.example.com/v1") == "https://api.example.com/v1/models"
 
         cfg = ConfigManager(config_path)
         center = cfg.ai_center()
         assert center["schema_version"] == 1
         assert center["legacy_model_keys"]["custom"] == "custom::old-model"
         assert cfg.models()["custom"]["api_key"] == "legacy-secret"
+        assert cfg.save_ai_model("custom::old-model", {"model_id": "replacement"}) is False
+        assert cfg.ai_manual_models()["custom::old-model"]["model_id"] == "old-model"
 
         secrets = MemoryCredentialStore()
         report = migrate_legacy_credentials(cfg, secrets)
@@ -105,6 +111,12 @@ def main():
         assert cfg.models()["custom"]["api_key"] == ""
         assert cfg.get("deepseek_api_key") == ""
         assert secrets.get("provider:custom") == "legacy-secret"
+        deepseek_provider = AIProvider.from_dict(
+            "deepseek",
+            {"credential_ref": "provider:deepseek", "base_url": "https://api.deepseek.com"},
+        )
+        secrets.set("legacy:deepseek:top-level", "top-level-secret")
+        assert resolve_api_key(deepseek_provider, secrets) == "top-level-secret"
 
         cache = ModelCache(os.path.join(data_dir, "models_cache.json"))
         registry = ModelRegistry(cfg, cache)
@@ -118,6 +130,10 @@ def main():
         assert model.capabilities.context_window is None
         registry.update_discovered("custom", discovered)
         assert cache.models("custom")[0].model_id == "future-model-x"
+        registry.set_model_enabled(ref.value, False)
+        assert registry.model(ref).enabled is False
+        registry.set_model_enabled(ref.value, True)
+        assert registry.model(ref).enabled is True
 
         cfg.set_ai_task_model("generation", ref.value)
         service = AIService(cfg, registry, secrets)
@@ -137,6 +153,8 @@ def main():
         service.chat("generation", [{"role": "user", "content": "latest"}], max_tokens=8)
         assert FakeAIHandler.requested_models[-1] == "future-model-x"
         assert FakeAIHandler.models_requested == 1
+        registry.delete_model(ref.value)
+        assert all(model.ref.value != ref.value for model in registry.models("custom"))
         print("AI CENTER TEST OK")
     finally:
         server.shutdown()
