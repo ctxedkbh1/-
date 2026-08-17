@@ -5,7 +5,7 @@ cd /d "%~dp0"
 
 echo ==============================================
 echo   论文智能研究与写作助手 - 分享版打包工具
-echo   生成免安装便携包（自带完整 Python 运行环境）
+echo   Portable package - bundled Python runtime
 echo ==============================================
 echo.
 
@@ -14,7 +14,7 @@ python --version >nul 2>&1
 if errorlevel 1 (
     echo [错误] 未检测到 Python。请安装 Python 3.10 及以上版本，
     echo        安装时勾选 "Add python.exe to PATH"。
-    pause
+    if not defined PAPERASSISTANT_NO_PAUSE pause
     exit /b 1
 )
 
@@ -29,7 +29,7 @@ python -m pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/s
 if errorlevel 1 python -m pip install -r requirements.txt
 if errorlevel 1 (
     echo [错误] 依赖安装失败。
-    pause
+    if not defined PAPERASSISTANT_NO_PAUSE pause
     exit /b 1
 )
 
@@ -38,7 +38,7 @@ echo [3/5] 运行自检...
 python main.py --selfcheck
 if errorlevel 1 (
     echo [错误] 自检未通过。
-    pause
+    if not defined PAPERASSISTANT_NO_PAUSE pause
     exit /b 1
 )
 
@@ -74,4 +74,6 @@ echo   1. 把 ZIP 发给对方
 echo   2. 对方解压后，双击文件夹内的 exe 即可
 echo   3. 论文数据自动保存在 exe 同目录的 paper_project 文件夹中
 echo 注意: 请整包发送，不要只发文件夹里的 exe。
-pause
+REM Version: v2.0.1 (2026-08-17) Fix: enforce CRLF for cmd.exe
+if not defined PAPERASSISTANT_NO_PAUSE pause
+exit /b 0
