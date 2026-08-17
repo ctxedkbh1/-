@@ -5,7 +5,7 @@ Windows 桌面论文智能研究与写作助手：选题 → 权威资料检索 
 | | |
 |---|---|
 | 项目状态 | 维护中（个人项目，不定期更新） |
-| 当前版本 | v2.0.1（2026-08-17） |
+| 当前版本 | v2.1.0（2026-08-18） |
 | 平台 | Windows 10/11 x64 |
 | 许可证 | MIT |
 | 最新下载 | [Releases 页面](https://github.com/ctxedkbh1/paper-workbench/releases) |
@@ -50,9 +50,10 @@ Windows 桌面论文智能研究与写作助手：选题 → 权威资料检索 
 - **AI 辅助论文生成**：选题解析 → 资料检索 → 证据库 → 研究方案 → 大纲 → 分章节写作 → 事实核查 → 多格式导出，全流程可视化
 - **三种写作模式**：普通模式（8 步手动控制）、全自动模式（一键生成）、高级模式（流程化工作台）
 - **多模型支持**：OpenAI 兼容接口（DeepSeek / OpenAI / 通义千问 / Moonshot / 智谱 / OpenRouter / Ollama 本地模型 / 自定义）、Anthropic Claude、Google Gemini
-- **模型管理**：模型预设一键切换、健康检查、按任务自动选模型、失败自动切换备用模型、成本控制（调用次数/Token/预算上限）
+- **AI 模型中心**：Provider/Model 分离、官方模型发现与缓存、搜索/筛选/收藏、健康检测、任务默认、手动模型与 OpenAI Compatible Provider
 - **联网学术检索**：OpenAlex、Crossref（外文文献）、政府官网政策文献、通用网页搜索、CNKI 手动录入与 RIS/BibTeX 导入
 - **证据库**：检索结果统一整理为 E001、E002… 编号的证据表，写作时逐条引用
+- **参考文献中心**：独立 Reference ID、DOI/ISBN/PMID/Zotero 去重、RIS/BibTeX/CSL JSON/本地文档导入、引用映射
 - **写作质量检测**：模板化/重复/句式单一/空洞表述自动分析，并给出质量报告
 - **自然化修改**：优化 AI 痕迹与表述，程序强制保护数字、事实、引用编号、参考文献不被改动
 - **定向修改**：对某一章、某一段单独提出修改要求，只改指定位置
@@ -60,6 +61,26 @@ Windows 桌面论文智能研究与写作助手：选题 → 权威资料检索 
 - **历史记录**：每次写作任务自动保存，可随时回到任意历史任务查看或继续
 - **断点恢复**：全自动模式崩溃或关机后，重启可从中断处继续
 - **自定义输出目录**：所有产出文件可指定保存位置
+
+## AI 模型中心
+
+从“设置 → AI 模型中心”进入。Provider 只保存连接信息，模型列表优先从官方接口动态获取并缓存在本地；接口没有提供的能力、上下文或状态显示为“未知”，不会根据 Model ID 猜测。
+
+- 支持 OpenAI、DeepSeek、Anthropic、Google Gemini、Ollama 和 OpenAI Compatible 自定义 Provider
+- 支持刷新模型、搜索、能力筛选、收藏、模型详情、Provider/Model 测试和任务默认
+- API Key 优先使用环境变量或 Windows Credential Manager；旧配置可以在模型中心迁移
+- 普通、全自动、高级、润色、摘要、定向修改请求都会经过统一 AIService
+
+## 参考文献中心
+
+从主侧边栏“参考文献中心”进入。参考文献使用 `ref_###` 标识，旧证据表 `E###` 保持兼容。
+
+- 导入：RIS、BibTeX、CSL JSON、PDF、DOCX、TXT、Markdown
+- 来源：OpenAlex、Crossref、CNKI 导入、Zotero Local/Web API、本地文件
+- 去重优先使用 DOI、ISBN、PMID、Zotero Item Key，再使用标题/作者/年份
+- 正文引用通过 Citation Mapping 映射到真实 Reference ID；缺少真实来源时不会自动补造
+- 预览样式：GB/T 7714、APA、MLA、Chicago、IEEE、Vancouver
+- 个人 NotebookLM 没有通用公开 API，使用合法文件导入；Gemini Notebook Enterprise 使用官方 Preview API
 
 ## 三种写作模式
 
@@ -241,10 +262,13 @@ PaperAssistant/
 ├── gui/                       # PySide6 界面
 │   └── pages/                 # 首页/8个阶段页/全自动/高级工作台/历史/导出/模型管理
 ├── core/                      # 核心逻辑（见架构图）
+│   ├── ai/                    # 动态 Provider/Model/Discovery/AIService
+│   └── references/            # ReferenceStore/CitationMap/导入/样式
 ├── sources/                   # 5 个检索源
-├── config/manager.py          # API Key 配置（环境变量 > config.json）
+├── config/manager.py          # 配置兼容层与迁移
 ├── tests/                     # 离线测试
 ├── docs/images/               # 截图（欢迎补充）
+├── DESIGN.md                 # UI 设计系统
 ├── build.bat / build_share.bat # 完整版 / 分享版打包脚本
 ├── requirements.txt
 ├── README.md / CHANGELOG.md / LICENSE
@@ -293,7 +317,7 @@ Key 无效或已过期。检查是否有多余空格、是否已充值/账户正
 
 ## 版本管理
 
-- 当前版本：**v2.0.1**（2026-08-17，Windows 打包脚本修复）
+- 当前版本：**v2.1.0**（2026-08-18）
 - 版本号统一定义在 `core/paths.py` 的 `VERSION` / `RELEASE_DATE`，首页与启动日志同步显示
 - 每次更新后，改动文件末尾追加版本戳：`# 版本: vX.Y.Z (日期) 更新: 内容`
 - 更新记录见 [CHANGELOG.md](CHANGELOG.md)

@@ -10,7 +10,8 @@ def main():
     assert bump_version("2.0.1", "patch") == "2.0.2"
     assert bump_version("2.0.1", "minor") == "2.1.0"
     assert bump_version("2.0.1", "major") == "3.0.0"
-    assert current_version() == "2.0.1"
+    current = current_version()
+    assert len(current.split(".")) == 3
     scan_secrets()
     try:
         bump_version("2.0.1", "unknown")

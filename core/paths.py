@@ -2,8 +2,8 @@ import os
 import sys
 
 APP_NAME = "论文智能研究与写作助手"
-VERSION = "2.0.1"
-RELEASE_DATE = "2026-08-17"
+VERSION = "2.1.0"
+RELEASE_DATE = "2026-08-18"
 
 
 def frozen() -> bool:
@@ -88,4 +88,4 @@ def ensure_all_dirs():
     subdir("logs")
     subdir("cache")
 
-# 版本: v2.0.1 (2026-08-17) 更新: 修复 Windows 批处理打包脚本
+# 版本: v2.1.0 (2026-08-18) 更新: 正式版本发布
