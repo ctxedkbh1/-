@@ -326,7 +326,7 @@ def apply_light_theme(app):
     pal.setColor(QPalette.ColorRole.PlaceholderText, QColor("#98a2b3"))
     pal.setColor(QPalette.ColorRole.Button, QColor("#ffffff"))
     pal.setColor(QPalette.ColorRole.ButtonText, QColor("#1d2939"))
-    pal.setColor(QPalette.ColorRole.Highlight, QColor("#3d8bff"))
+    pal.setColor(QPalette.ColorRole.Highlight, QColor("#356fd3"))
     pal.setColor(QPalette.ColorRole.HighlightedText, QColor("#ffffff"))
     pal.setColor(QPalette.ColorRole.ToolTipBase, QColor("#ffffff"))
     pal.setColor(QPalette.ColorRole.ToolTipText, QColor("#1d2939"))
