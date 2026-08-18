@@ -93,7 +93,21 @@ jobs:
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
           gh release upload $tag --repo $env:GITHUB_REPOSITORY --clobber `
-            "release_assets\paperassistant-v$env:VERSION-single.exe#论文助手_v$env:VERSION_单文件版" `
-            "release_assets\paperassistant-v$env:VERSION-full.zip#论文助手_v$env:VERSION_完整版"
+            "release_assets\paperassistant-v$env:VERSION-single.exe" `
+            "release_assets\paperassistant-v$env:VERSION-full.zip"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $release = gh api "repos/$env:GITHUB_REPOSITORY/releases/tags/$tag" | ConvertFrom-Json
+          $labels = @{
+            "paperassistant-v$env:VERSION-single.exe" = "论文助手_v$env:VERSION_单文件版"
+            "paperassistant-v$env:VERSION-full.zip" = "论文助手_v$env:VERSION_完整版"
+          }
+          foreach ($asset in $release.assets) {
+            if (-not $labels.ContainsKey($asset.name)) { continue }
+            $payload = @{ name = $asset.name; label = $labels[$asset.name] } | ConvertTo-Json -Compress
+            $payloadPath = Join-Path $env:RUNNER_TEMP ("asset-label-" + $asset.id + ".json")
+            [System.IO.File]::WriteAllText($payloadPath, $payload, [System.Text.UTF8Encoding]::new($false))
+            gh api --method PATCH "repos/$env:GITHUB_REPOSITORY/releases/assets/$($asset.id)" --input $payloadPath | Out-Null
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
 
 # Version: v2.3.0 (2026-08-19) Update: Windows test/package/tag release workflow
