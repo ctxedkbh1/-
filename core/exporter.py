@@ -3,7 +3,8 @@ import os
 import re
 
 from core import deepseek, log, paths
-from core.evidence import canonical_id
+from core.annotations import AnnotationStore
+from core.evidence import CITE_RE, canonical_id
 from core.prompts import ABSTRACT_JSON_SPEC, WRITER_SYSTEM
 
 
@@ -33,9 +34,31 @@ def build_full_text(project):
 
 def _replace_citations(text, mapping):
     def sub(m):
-        cid = canonical_id(int(m.group(1)))
+        cid = canonical_id(f"E{m.group(1)}")
         return f"[{mapping[cid]}]" if cid in mapping else m.group(0)
-    return re.sub(r"\[E(\d+)\]", sub, text or "")
+    return CITE_RE.sub(sub, text or "")
+
+
+def _annotation_appendix(text, store):
+    try:
+        annotations = AnnotationStore()
+        annotations.sync_legacy_evidence(store)
+        records = annotations.used_records(text, include_evidence=False)
+    except Exception as exc:
+        log.get().warning("批注附录生成失败: %s", exc)
+        return []
+    if not records:
+        return []
+    lines = ["", "## 批注说明", ""]
+    for item in records:
+        label = item.get("display_label") or item.get("annotation_id")
+        title = item.get("title") or item.get("body") or "（无标题）"
+        body = item.get("body") or item.get("summary") or ""
+        line = f"- [{label}] {title}"
+        if body and body != title:
+            line += f"：{body}"
+        lines.append(line)
+    return lines
 
 
 def _generate_abstract(project, full_text):
@@ -65,7 +88,9 @@ def assemble_markdown(project, store, analysis, skip_abstract=False):
         lines += [f"**摘要**：{meta['abstract']}", ""]
     if meta.get("keywords"):
         lines += ["**关键词**：" + "；".join(meta["keywords"]), ""]
-    lines += [_replace_citations(full_text, analysis.get("mapping", {})), "", "## 参考文献", ""]
+    lines += [_replace_citations(full_text, analysis.get("mapping", {})), ""]
+    lines += _annotation_appendix(full_text, store)
+    lines += ["", "## 参考文献", ""]
     reference_store = None
     citation_map = None
     try:
@@ -137,4 +162,4 @@ def export_files(project, store, analysis, ai_issues, chapter_count, total_words
     log.get().info("导出完成 md=%s docx=%s report=%s", md_path, docx_path, report_path)
     return {"md": md_path, "docx": docx_path, "report": report_path}
 
-# 版本: v2.0.1 (2026-08-17) 更新: 摘要模型路由与真实 Reference 导出
+# 版本: v2.2.0 (2026-08-18) 更新: 批注附录导出

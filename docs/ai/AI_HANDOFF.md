@@ -20,7 +20,7 @@
 Windows 桌面论文智能研究与写作助手（品牌名：论文助手）。选题 → 权威资料检索 → 证据库 → AI 大纲 → 分章节写作 → 事实核查 → 多格式导出。**防编造是最高优先级设计**：AI 只能引用检索到的真实证据。
 
 ## 当前版本
-v2.1.2（2026-08-18）
+v2.2.0（2026-08-18，源码已更新，尚未发布）
 
 ## 当前Baseline
 - 日期：2026-08-17
@@ -32,21 +32,22 @@ v2.1.2（2026-08-18）
 Python 3.10+ / PySide6 / requests / python-docx / python-pptx / reportlab / PyInstaller。Windows 10/11 x64。无数据库（本地 JSON + Markdown）。
 
 ## 当前状态
-维护中：v2.1.2 已通过 OpenAlex 限流、空资料安全停止和完整发布门测试，完成完整版/单文件 EXE/分享 ZIP 构建并发布 GitHub Release。源码目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`。
+维护中：v2.2.0 批注系统代码、文档、源码回归测试和中文 EXE/ZIP 资产已完成并验证，尚未提交、创建 Tag 或发布 GitHub Release。最新已发布版本仍为 v2.1.2。源码目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`。
 
 ## 已完成
 - 三种模式：普通 8 步 / 全自动 21 步（断点恢复）/ 高级工作台 6 阶段
 - 多模型：OpenAI 兼容（DeepSeek/OpenAI/Qwen/Moonshot/智谱/OpenRouter/Ollama/自定义）+ Claude + Gemini；模型路由/备用切换/成本控制/健康检查/预设
 - 5 个检索源：OpenAlex/Crossref/政府网页/通用搜索/CNKI 手动导入（RIS/BibTeX）
 - 证据库防编造：E001 编号、证据不足强制声明、引用↔参考文献双向检查、自然化修改保护事实
+- 批注系统：独立 AnnotationStore、样式模板、证据批注同步、搜索筛选、批量删除、重新编号、正文跳转和批注表导出
 - 质量体系：style_checker/naturalizer/fact_checker（3 轮）/quality_report/targeted_edit/detector
 - 导出：DOCX/PPTX/PDF/TXT/MD/HTML 6 格式 + 验证重生成；自定义输出目录
 - 历史记录、断点恢复、日志脱敏、响应式 UI/DPI
 - 工程：--selfcheck、离线测试、build.bat 完整版目录与单文件 EXE、build_share.bat 分享 ZIP 打包
-- GitHub 发布：公开仓库 + Release v2.1.2（EXE + ZIP）+ README/CHANGELOG/LICENSE + docs/ai 知识库
+- GitHub 发布：公开仓库 + 最新 Release v2.1.2（EXE + ZIP）+ README/CHANGELOG/LICENSE + docs/ai 知识库
 
 ## 正在开发
-无（封存状态）。
+v2.2.0 已完成开发、源码测试和桌面资产构建，当前正在执行提交与 GitHub 发布。
 
 ## 下一步
 见 TODO.md。P0/P1 均为空或可选；任何任务开始前需用户确认。
@@ -55,7 +56,7 @@ Python 3.10+ / PySide6 / requests / python-docx / python-pptx / reportlab / PyIn
 见 KNOWN_ISSUES.md：EXE 首启慢、政府检索不稳定、CNKI 仅手动导入、长文全自动耗时。均 Open（设计限制），无致命 Bug。
 
 ## 重要文件
-main.py（入口）、core/paths.py（版本号唯一来源）、core/llm.py（AI Provider）、core/auto_pipeline.py（全自动编排）、core/exporter.py（导出）、config/manager.py（配置）、gui/main_window.py（主窗口）、build.bat（打包）。详见 FILE_MAP.md。
+main.py（入口）、core/paths.py（版本号唯一来源）、core/llm.py（AI Provider）、core/annotations.py（批注与样式）、core/auto_pipeline.py（全自动编排）、core/exporter.py（导出）、config/manager.py（配置）、gui/main_window.py（主窗口）、gui/pages/annotation_page.py（批注管理）、build.bat（打包）。详见 FILE_MAP.md。
 
 ## 核心架构
 ```
@@ -82,21 +83,23 @@ OpenAlex / Crossref（公开学术 API）；政府官网与通用网页（公开
 - config.json：模型配置与 API Key（**禁止上传/提交**）
 - project.json：论文信息/大纲/状态
 - evidence.json：证据表（E001 编号）
+- annotations.json：批注记录、显示编号与证据关联
+- annotation_styles.json：批注样式模板
 - auto_checkpoint.json：全自动断点
 - research_plan.md / outline.md / chapters\01.md… / logs\ / cache\
-- output\：论文.docx/.md/.pdf/.pptx/.html/.txt、资料核验报告.md、论文质量报告.md、全自动运行日志.md
+- output\：论文.docx/.md/.pdf/.pptx/.html/.txt、资料核验报告.md、批注表.json/.md、论文质量报告.md、全自动运行日志.md
 
 ## 最近修改
-2026-08-18：完成 v2.1.2 OpenAlex 限流恢复、空资料安全停止、回归测试、桌面双入口打包和详细发布日志；workflow 受 OAuth scope 限制未远程写入。
+2026-08-18：完成 v2.2.0 批注管理系统、旧 E-ID 兼容、批注附录和批注表导出；源码回归通过，桌面构建与正式发布尚未执行。workflow 仍受 OAuth scope 限制未远程写入。
 
 ## 修改原因
 用户要求项目封存：建立任何 AI 都能读取的项目知识库，防止未来因上下文不足而误改代码。
 
 ## 测试状态
 - python main.py --selfcheck：打包前已通过
-- tests/ 4 个离线测试：打包前已通过
+- `tests/dev_annotation_test.py`、`tests/dev_reference_center_test.py`、`tests/dev_auto_test.py`、批注页离屏刷新和语法编译均通过
 - v2.1.2 完整版目录 EXE 与桌面单文件 EXE：`--selfcheck` 返回 0；分享 ZIP 无私人数据
-- 本次交接包含模型中心、凭据判断、UI 和构建脚本更新
+- v2.2.0 中文单文件 EXE 与完整版 ZIP 内 EXE 的 `--selfcheck` 均返回 0；尚未提交或发布
 
 ## 不要修改的内容
 - 防编造机制（evidence/writer/naturalizer/fact_checker 约束逻辑）

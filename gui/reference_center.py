@@ -204,6 +204,10 @@ class ReferenceCenterPage(ReferenceZoteroMixin, ReferenceNotebookMixin, QWidget)
             "reference_id": reference.reference_id,
             "verified": reference.verified,
         })
+        from core.annotations import AnnotationStore
+        annotations = AnnotationStore()
+        annotations.sync_legacy_evidence(self.mw.evidence)
+        self.mw.annotations = annotations
         self.citations.link(evidence_id, reference.reference_id)
         msg_info(self, f"已加入论文证据库：{evidence_id}")
 
@@ -229,4 +233,4 @@ class ReferenceCenterPage(ReferenceZoteroMixin, ReferenceNotebookMixin, QWidget)
         reference_id = str(item.data(Qt.ItemDataRole.UserRole) or "") if item else ""
         return self.store.get(reference_id) if reference_id else None
 
-# 版本: v2.0.1 (2026-08-17) 更新: 参考文献中心与引用检查 UI
+# 版本: v2.2.0 (2026-08-18) 更新: 参考文献证据批注同步

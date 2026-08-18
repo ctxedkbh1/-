@@ -1,5 +1,7 @@
 import re
+from collections import Counter
 
+from core.annotations import annotation_marker_sequence
 from core import deepseek, log
 from core.prompts import WRITER_SYSTEM
 
@@ -44,10 +46,12 @@ def safe_apply(original, new_text):
     from core.evidence import parse_citations
     if not new_text or not new_text.strip():
         return None
-    if set(parse_citations(original)) != set(parse_citations(new_text)):
+    original_refs = Counter(parse_citations(original)) + Counter(annotation_marker_sequence(original))
+    new_refs = Counter(parse_citations(new_text)) + Counter(annotation_marker_sequence(new_text))
+    if original_refs != new_refs:
         return None
-    orig_nums = set(re.findall(r"\d+(?:\.\d+)?%?", original))
-    new_nums = set(re.findall(r"\d+(?:\.\d+)?%?", new_text))
+    orig_nums = Counter(re.findall(r"\d+(?:\.\d+)?%?", original))
+    new_nums = Counter(re.findall(r"\d+(?:\.\d+)?%?", new_text))
     if orig_nums != new_nums:
         return None
     marker = "暂无足够可靠资料支持该观点"
@@ -140,4 +144,4 @@ def build_format_note(fmt):
 
 ALIGN_TEXT = {"justify": "两端对齐", "left": "左对齐", "center": "居中", "right": "右对齐"}
 
-# 版本: v2.0.0 (2026-08-16) 更新: 高级模式工作台
+# 版本: v2.2.0 (2026-08-18) 更新: 批注标记保护

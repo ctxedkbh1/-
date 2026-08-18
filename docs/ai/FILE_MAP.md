@@ -1,6 +1,6 @@
 # 项目文件地图（FILE_MAP）
 
-> 记录重要文件与作用（v2.0.0，依据真实源码）。省略无意义小文件。
+> 记录重要文件与作用（v2.2.0，依据真实源码）。省略无意义小文件。
 
 ## 入口与配置
 | 文件 | 作用 |
@@ -9,6 +9,7 @@
 | requirements.txt | 依赖：PySide6/requests/python-docx/python-pptx/reportlab/pyinstaller |
 | build.bat | 完整版打包（装依赖→自检→PyInstaller onedir→复制整个目录到桌面） |
 | build_share.bat | 分享版打包（PyInstaller onedir → ZIP → 复制桌面） |
+| scripts/copy_release_asset.ps1 | 生成统一中文 GitHub 单文件/完整版资产名 |
 | .gitignore | 忽略 __pycache__/build/dist/.venv/.env/paper_project 等 |
 | config/manager.py | API Key 配置（环境变量优先于 config.json；默认 DeepSeek deepseek-chat） |
 
@@ -27,6 +28,7 @@
 | core/project.py | 论文信息 project.json 读写 |
 | core/research.py | 研究方案、检索编排 |
 | core/evidence.py | 证据表 evidence.json（E001 编号体系） |
+| core/annotations.py | 批注记录、样式模板、证据同步、检索、删除与重新编号 |
 | core/outline.py | 大纲生成 outline.md |
 | core/writer.py | 分章节写作（强制只引用证据库） |
 | core/naturalizer.py | 自然化修改（事实/数字/引用/参考文献强制保护） |
@@ -70,6 +72,7 @@
 | gui/pages/auto_mode_page.py | 全自动模式界面 |
 | gui/pages/advanced_workspace.py | 高级工作台 |
 | gui/pages/history_page.py | 历史记录界面 |
+| gui/pages/annotation_page.py | 批注管理、详情编辑和样式模板管理 |
 | gui/pages/export_page.py | 导出界面 |
 | gui/pages/model_manager.py | 模型管理界面 |
 | gui/widgets.py | 公共控件 |
@@ -78,6 +81,7 @@
 | 文件 | 作用 |
 |---|---|
 | tests/dev_auto_test.py | 离线端到端全自动流水线测试 |
+| tests/dev_annotation_test.py | 批注存储、兼容编号、导出和安全改写回归 |
 | tests/dev_history_test.py | 历史功能测试 |
 | tests/dev_nat_test.py | 自然化修改测试 |
 | tests/dev_sett_test.py | 设置/模型测试 |

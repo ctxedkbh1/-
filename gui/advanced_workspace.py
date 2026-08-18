@@ -1334,8 +1334,10 @@ class AdvancedWorkspacePage(QWidget):
                  f"- 综合质量：{scores.get('综合质量', '—')}/100（程序内部启发式评估）",
                  "", "## 需要核实", ""]
         unverified = []
+        from core.annotations import ANNOTATION_MARKER_RE
         for i, p in enumerate(style_checker.split_paragraphs(full), 1):
-            if re.search(r"\d", p) and not re.search(r"\[E\d+\]", p):
+            data_text = ANNOTATION_MARKER_RE.sub("", p)
+            if re.search(r"\d", data_text) and not re.search(r"\[E[-_]?0*\d+\]", data_text):
                 unverified.append((i, p[:80]))
         if unverified:
             for i, p in unverified[:15]:
@@ -1677,4 +1679,4 @@ class AdvancedWorkspacePage(QWidget):
         self._load_export_defaults()
         self._refresh_chapter_combo()
 
-# 版本: v2.0.0 (2026-08-16) 更新: 高级模式工作台
+# 版本: v2.2.0 (2026-08-18) 更新: 兼容证据编号识别

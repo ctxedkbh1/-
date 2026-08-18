@@ -15,6 +15,10 @@ class TxtExporter:
         for block in doc.blocks:
             lines.append(block.get("text", ""))
             lines.append("")
+        if doc.annotations:
+            lines += ["批注说明", ""]
+            lines += doc.annotations
+            lines.append("")
         if doc.references:
             lines += ["参考文献", ""]
             lines += doc.references
@@ -27,4 +31,4 @@ class TxtExporter:
         with open(path, "w", encoding="utf-8") as f:
             f.write("\n".join(lines))
 
-# 版本: v2.0.0 (2026-08-16) 更新: 高级模式工作台
+# 版本: v2.2.0 (2026-08-18) 更新: 批注说明导出

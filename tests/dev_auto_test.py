@@ -84,7 +84,7 @@ assert r["target_met"] is True, r
 
 out_dir = paths.output_dir()
 for f in ("论文.docx", "论文.md", "资料核验报告.md", "证据表.json",
-          "论文质量报告.md", "全自动运行日志.md"):
+          "批注表.json", "批注表.md", "论文质量报告.md", "全自动运行日志.md"):
     p = os.path.join(out_dir, f)
     assert os.path.exists(p), f"缺少输出文件: {f}"
 print("输出文件检查通过")
@@ -125,4 +125,4 @@ print("空资料安全停止检查通过")
 
 print("\n=== 离线端到端全自动流水线测试通过 ===")
 
-# 版本: v2.1.2 (2026-08-18) 更新: 空资料安全停止回归测试
+# 版本: v2.2.0 (2026-08-18) 更新: 批注导出回归测试

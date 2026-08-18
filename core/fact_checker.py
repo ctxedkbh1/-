@@ -1,26 +1,36 @@
 import re
 
 from core import deepseek, log
+from core.annotations import AnnotationStore, parse_annotation_markers
 from core.evidence import SOURCE_TYPE_LABELS, canonical_id, parse_citations
 from core.prompts import FACTCHECK_JSON_SPEC, WRITER_SYSTEM
 
 
 def analyze(text, store):
     cited = parse_citations(text)
+    annotations = [
+        label for label in parse_annotation_markers(text)
+        if not re.fullmatch(r"E[-_]?0*\d+", label, re.IGNORECASE)
+    ]
     mapping, refs = {}, []
     for cid in cited:
         if cid not in mapping:
             mapping[cid] = len(mapping) + 1
             refs.append(cid)
-    valid = {e["id"] for e in store.all()}
+    valid = {canonical_id(e["id"]) for e in store.all()}
     unresolved = sorted({x for x in cited if x not in valid})
-    unused = [e["id"] for e in store.all() if e["id"] not in refs]
+    unused = [canonical_id(e["id"]) for e in store.all()
+              if canonical_id(e["id"]) not in refs]
     result = {
         "mapping": mapping,
         "refs": refs,
         "unresolved": unresolved,
         "unused": unused,
         "citation_count": len(cited),
+        "annotation_count": len(annotations),
+        "annotation_labels": list(dict.fromkeys(annotations)),
+        "unresolved_annotations": [],
+        "annotation_ok": True,
         "bidirectional_ok": not unresolved and not unused,
     }
     try:
@@ -39,6 +49,20 @@ def analyze(text, store):
             result["bidirectional_ok"] = result["bidirectional_ok"] and reference_analysis.ok
     except (OSError, ValueError, KeyError) as exc:
         log.get().warning("Reference Citation Mapping 检查失败: %s", exc)
+    try:
+        annotation_store = AnnotationStore()
+        annotation_store.sync_legacy_evidence(store)
+        unresolved_annotations = sorted({x for x in annotations if not annotation_store.get_by_label(x)})
+        result.update({
+            "annotation_labels": list(dict.fromkeys(annotations)),
+            "unresolved_annotations": unresolved_annotations,
+            "annotation_ok": not unresolved_annotations,
+        })
+        result["bidirectional_ok"] = result["bidirectional_ok"] and not unresolved_annotations
+    except (OSError, ValueError, KeyError, RuntimeError) as exc:
+        result["annotation_ok"] = False
+        result["bidirectional_ok"] = False
+        log.get().warning("Annotation Mapping 检查失败: %s", exc)
     return result
 
 
@@ -89,6 +113,8 @@ def build_report(project, store, analysis, ai_issues, chapter_count, total_words
     lines.append(f"- 已完成章节数：{chapter_count}")
     lines.append(f"- 全文字数（约）：{total_words}")
     lines.append(f"- 正文引用数量：{analysis.get('citation_count', 0)}")
+    lines.append(f"- 批注数量：{analysis.get('annotation_count', 0)}")
+    lines.append(f"- 批注登记检查：{'通过' if analysis.get('annotation_ok', True) else '未通过'}")
     lines.append(f"- 参考文献数量：{len(analysis.get('refs', []))}")
     lines.append(f"- 引用↔参考文献检查：{'通过' if analysis.get('bidirectional_ok') else '未通过'}")
     if analysis.get("unresolved"):
@@ -97,6 +123,8 @@ def build_report(project, store, analysis, ai_issues, chapter_count, total_words
         lines.append(f"  - 【提示】证据表中未在正文使用的证据：{analysis['unused']}")
     if analysis.get("unresolved_references"):
         lines.append(f"  - 【问题】证据缺少真实 Reference ID 映射：{analysis['unresolved_references']}")
+    if analysis.get("unresolved_annotations"):
+        lines.append(f"  - 【问题】正文出现未登记批注：{analysis['unresolved_annotations']}")
     lines += ["", "## 四、事实核查"]
     lines.append(f"- 事实核查：{'通过' if analysis.get('bidirectional_ok') and not ai_issues else '存在问题'}")
     lines.append("- 存在待核实内容：")
@@ -135,4 +163,4 @@ def _now():
     import datetime
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-# 版本: v2.0.1 (2026-08-17) 更新: Reference ID 引用映射检查
+# 版本: v2.2.0 (2026-08-18) 更新: 批注登记检查

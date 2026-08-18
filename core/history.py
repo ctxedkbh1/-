@@ -202,13 +202,12 @@ class HistoryManager:
             rec["duration_sec"] = 0
         files = list(rec.get("files") or [])
         known = {f.get("name") for f in files}
-        for key in ("docx", "md", "report"):
-            p = (result.get("paths") or {}).get(key)
+        for key, p in (result.get("paths") or {}).items():
             if p and os.path.exists(p) and os.path.basename(p) not in known:
                 files.append({"name": os.path.basename(p), "path": p, "format": key})
                 known.add(os.path.basename(p))
         from core import paths as _paths
-        for name in ("论文质量报告.md", "证据表.json", "全自动运行日志.md"):
+        for name in ("论文质量报告.md", "证据表.json", "批注表.json", "批注表.md", "全自动运行日志.md"):
             p = os.path.join(_paths.output_dir(), name)
             if os.path.exists(p) and name not in known:
                 files.append({"name": name, "path": p, "format": name.rsplit(".", 1)[-1]})
@@ -315,14 +314,20 @@ class HistoryManager:
         rec["repeat_risk"] = result.get("repeat_risk")
         rec["target_met"] = bool(result.get("target_met"))
         files = []
-        for key in ("docx", "md", "report"):
-            p = (result.get("paths") or {}).get(key)
+        for key, p in (result.get("paths") or {}).items():
             if p and os.path.exists(p):
                 files.append({"name": os.path.basename(p), "path": p, "format": key})
+        from core import paths as _paths
+        output_dir = os.path.dirname(next(iter((result.get("paths") or {}).values()), ""))
+        output_dir = output_dir or _paths.output_dir()
+        for name in ("论文质量报告.md", "证据表.json", "批注表.json", "批注表.md", "全自动运行日志.md"):
+            p = os.path.join(output_dir, name)
+            if os.path.exists(p) and os.path.basename(p) not in {item["name"] for item in files}:
+                files.append({"name": name, "path": p, "format": name.rsplit(".", 1)[-1]})
         rec["files"] = files
         self.archive_checkpoint(task_id, checkpoint_data)
         self.save()
         log.get().info("旧任务已迁移为历史记录 task_id=%s", task_id)
         return rec
 
-# 版本: v2.0.0 (2026-08-16) 更新: 高级模式工作台
+# 版本: v2.2.0 (2026-08-18) 更新: 动态导出文件归档

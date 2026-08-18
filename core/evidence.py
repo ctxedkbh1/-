@@ -16,13 +16,13 @@ SOURCE_TYPE_LABELS = {
 
 ARTICLE_TYPES = ("cnki", "openalex", "crossref")
 
-CITE_RE = re.compile(r"\[E(\d+)\]")
+CITE_RE = re.compile(r"\[E[-_]?0*(\d+)\]", re.IGNORECASE)
 
 
 def canonical_id(eid):
     if isinstance(eid, int):
         return "E%03d" % eid
-    m = re.fullmatch(r"E?0*(\d+)", str(eid))
+    m = re.fullmatch(r"(?:E[-_]?)?0*(\d+)", str(eid), re.IGNORECASE)
     return "E%03d" % int(m.group(1)) if m else str(eid)
 
 
@@ -37,20 +37,37 @@ class EvidenceStore:
                 with open(self.path, encoding="utf-8") as f:
                     d = json.load(f)
                     if isinstance(d, list):
-                        return d
+                        records = []
+                        used = set()
+                        next_number = 1
+                        for item in d:
+                            if not isinstance(item, dict):
+                                continue
+                            record = dict(item)
+                            eid = canonical_id(record.get("id")) if record.get("id") else ""
+                            if not eid or eid in used:
+                                while "E%03d" % next_number in used:
+                                    next_number += 1
+                                eid = "E%03d" % next_number
+                            used.add(eid)
+                            record["id"] = eid
+                            records.append(record)
+                        return records
             except Exception:
                 pass
         return []
 
     def save(self):
         os.makedirs(os.path.dirname(self.path), exist_ok=True)
-        with open(self.path, "w", encoding="utf-8") as f:
+        tmp = self.path + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
             json.dump(self.data, f, ensure_ascii=False, indent=2)
+        os.replace(tmp, self.path)
 
     def _next_id(self):
         nums = []
         for e in self.data:
-            m = re.fullmatch(r"E?0*(\d+)", str(e.get("id", "")))
+            m = re.fullmatch(r"(?:E[-_]?)?0*(\d+)", str(e.get("id", "")), re.IGNORECASE)
             if m:
                 nums.append(int(m.group(1)))
         return "E%03d" % (max(nums, default=0) + 1)
@@ -209,6 +226,6 @@ class EvidenceStore:
 
 
 def parse_citations(text):
-    return [canonical_id(int(m.group(1))) for m in CITE_RE.finditer(text or "")]
+    return [canonical_id(f"E{m.group(1)}") for m in CITE_RE.finditer(text or "")]
 
-# 版本: v1.4.0 (2026-08-16) 更新: 可自定义检测阈值
+# 版本: v2.2.0 (2026-08-18) 更新: 兼容证据编号解析

@@ -234,10 +234,17 @@ class EvidencePage(QWidget):
                 self.table.setItem(i, j, item)
         self.table.resizeColumnToContents(0)
 
+    def _sync_annotations(self):
+        from core.annotations import AnnotationStore
+        annotations = AnnotationStore()
+        annotations.sync_legacy_evidence(self.mw.evidence)
+        self.mw.annotations = annotations
+
     def on_add(self):
         dlg = EvidenceDialog(self)
         if dlg.exec() == QDialog.DialogCode.Accepted and dlg.record:
             eid = self.mw.evidence.add(dlg.record)
+            self._sync_annotations()
             from core import log
             log.get().info("证据已添加 id=%s", eid)
             msg_info(self, f"证据已加入证据库：{eid}")
@@ -252,6 +259,7 @@ class EvidencePage(QWidget):
         dlg = EvidenceDialog(self, record=rec)
         if dlg.exec() == QDialog.DialogCode.Accepted and dlg.record:
             self.mw.evidence.update(eid, dlg.record)
+            self._sync_annotations()
             from core import log
             log.get().info("证据已更新 id=%s", eid)
             self.refresh()
@@ -263,6 +271,12 @@ class EvidencePage(QWidget):
             return
         if ask_confirm(self, f"确定删除证据 {eid}？正文中若已引用该证据需重新检查。"):
             self.mw.evidence.delete(eid)
+            try:
+                from core.references.citations import CitationMap
+                CitationMap().unlink(eid)
+            except (OSError, ValueError):
+                pass
+            self._sync_annotations()
             from core import log
             log.get().info("证据已删除 id=%s", eid)
             self.refresh()
@@ -280,6 +294,7 @@ class EvidencePage(QWidget):
             log.get().info("证据已验证 id=%s", eid)
         else:
             self.mw.evidence.update(eid, {"verified": False})
+        self._sync_annotations()
         self.refresh()
 
     def on_open_source(self):
@@ -316,6 +331,7 @@ class EvidencePage(QWidget):
         added = []
         for rec in records:
             added.append(self.mw.evidence.add(rec))
+        self._sync_annotations()
         from core import log
         log.get().info("文献导入完成 条数=%d", len(added))
         msg_info(self, f"已导入 {len(added)} 条：{'、'.join(added)}")
@@ -348,4 +364,4 @@ class EvidencePage(QWidget):
             dlg = EvidenceDialog(self, record=rec, readonly=True)
             dlg.exec()
 
-# 版本: v1.9.0 (2026-08-16) 更新: 响应式窗口与DPI适配
+# 版本: v2.2.0 (2026-08-18) 更新: 证据批注同步

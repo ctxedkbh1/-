@@ -14,8 +14,11 @@ def chapter_file(index):
 
 def save_chapter(index, text):
     fname = chapter_file(index)
-    with open(fname, "w", encoding="utf-8") as f:
+    os.makedirs(os.path.dirname(fname), exist_ok=True)
+    tmp = fname + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
         f.write(text)
+    os.replace(tmp, fname)
     return fname
 
 
@@ -100,7 +103,7 @@ def cjk_count(text):
 
 def check_chapter(text, store, assigned_ids):
     cited = parse_citations(text)
-    valid_ids = {e["id"] for e in store.all()}
+    valid_ids = {canonical_id(e["id"]) for e in store.all()}
     unknown = sorted({x for x in cited if x not in valid_ids})
     used = sorted(set(cited))
     assigned = [canonical_id(x) for x in (assigned_ids or [])] or valid_ids
@@ -112,7 +115,7 @@ def check_chapter(text, store, assigned_ids):
     no_source = []
     for m in re.finditer(r"研究表明|大量研究证明|相关数据显示|专家普遍认为", text or ""):
         tail = text[m.end():m.end() + 20]
-        if not re.search(r"\[E\d+\]", tail):
+        if not parse_citations(tail):
             no_source.append(m.group(0))
     sentences = [s.strip() for s in re.split(r"[。！？；\n]", text or "") if len(s.strip()) >= 15]
     repeats = sorted({s for s in sentences if sentences.count(s) > 1})
@@ -139,4 +142,4 @@ def ai_review_chapter(text, store, sec_title):
     issues = data.get("issues") if isinstance(data.get("issues"), list) else []
     return {"ok": bool(data.get("ok", True)), "issues": issues}
 
-# 版本: v1.5.0 (2026-08-16) 更新: 多模型供应商系统
+# 版本: v2.2.0 (2026-08-18) 更新: 兼容引用检查

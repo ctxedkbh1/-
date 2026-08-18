@@ -5,7 +5,7 @@ Windows 桌面论文智能研究与写作助手：选题 → 权威资料检索 
 | | |
 |---|---|
 | 项目状态 | 维护中（个人项目，不定期更新） |
-| 当前版本 | v2.1.2（2026-08-18） |
+| 当前版本 | v2.2.0（2026-08-18） |
 | 平台 | Windows 10/11 x64 |
 | 许可证 | MIT |
 | 最新下载 | [Releases 页面](https://github.com/ctxedkbh1/paper-workbench/releases) |
@@ -16,6 +16,7 @@ Windows 桌面论文智能研究与写作助手：选题 → 权威资料检索 
 
 - [项目简介](#项目简介)
 - [核心功能](#核心功能)
+- [批注管理](#批注管理)
 - [三种写作模式](#三种写作模式)
 - [支持的 AI 模型](#支持的-ai-模型)
 - [联网资料检索](#联网资料检索)
@@ -54,6 +55,7 @@ Windows 桌面论文智能研究与写作助手：选题 → 权威资料检索 
 - **联网学术检索**：OpenAlex、Crossref（外文文献）、政府官网政策文献、通用网页搜索、CNKI 手动录入与 RIS/BibTeX 导入
 - **证据库**：检索结果统一整理为 E001、E002… 编号的证据表，写作时逐条引用
 - **参考文献中心**：独立 Reference ID、DOI/ISBN/PMID/Zotero 去重、RIS/BibTeX/CSL JSON/本地文档导入、引用映射
+- **批注管理**：独立批注 ID、自定义编号样式、证据编号同步、搜索筛选、批量删除、重新编号和批注表导出
 - **写作质量检测**：模板化/重复/句式单一/空洞表述自动分析，并给出质量报告
 - **自然化修改**：优化 AI 痕迹与表述，程序强制保护数字、事实、引用编号、参考文献不被改动
 - **定向修改**：对某一章、某一段单独提出修改要求，只改指定位置
@@ -81,6 +83,18 @@ Windows 桌面论文智能研究与写作助手：选题 → 权威资料检索 
 - 正文引用通过 Citation Mapping 映射到真实 Reference ID；缺少真实来源时不会自动补造
 - 预览样式：GB/T 7714、APA、MLA、Chicago、IEEE、Vancouver
 - 个人 NotebookLM 没有通用公开 API，使用合法文件导入；Gemini Notebook Enterprise 使用官方 Preview API
+
+## 批注管理
+
+从主侧边栏“批注管理”进入。旧 `E001` 证据编号会作为“证据引用”样式同步到批注库，证据数据本身仍由证据库管理。
+
+- 批注使用稳定的内部 `annotation_id`，显示编号可按样式生成，例如 `[N001]`、`[T001]`
+- 内置证据引用、普通批注、待办批注和术语说明样式，也可创建自定义前缀、分隔符、位数、颜色和类别
+- 支持搜索、按样式/状态筛选、批量删除和按样式重新编号；证据编号不能在批注页误改
+- 在分章节写作页选中正文后点击“添加批注”，软件会创建记录并把批注标记写回当前章节
+- 批注重新编号时会同步更新各章节中的对应标记，保持正文和批注表一致
+- 正文中的批注标记可点击查看详情，安全改写会保护批注标记不被 AI 删除
+- 全自动导出会附带 `批注表.json` 和 `批注表.md`，正文使用到的非证据批注会进入“批注说明”附录
 
 ## 三种写作模式
 
@@ -147,7 +161,7 @@ Windows 桌面论文智能研究与写作助手：选题 → 权威资料检索 
 ### 方式一：下载 EXE 或完整版 ZIP（小白可用）
 
 1. 打开 [Releases 页面](https://github.com/ctxedkbh1/paper-workbench/releases)
-2. 可选择单文件 `PaperAssistant-vX.Y.Z-windows-x64.exe`，或完整版 `PaperAssistant-vX.Y.Z-windows-x64.zip`
+2. 可选择单文件 `论文助手_vX.Y.Z_单文件版.exe`，或完整版 `论文助手_vX.Y.Z_完整版.zip`
 3. ZIP 需要完整解压并保留 `_internal` 文件夹；EXE 可直接运行
 
 > 若 Windows SmartScreen 提示"已保护你的电脑"，点"更多信息 → 仍要运行"即可（未签名软件的正常提示）。
@@ -212,6 +226,8 @@ paper_project\
 ├── config.json            # API Key 配置（本地保存，不进日志、不要上传）
 ├── project.json           # 论文信息/大纲/状态（自动保存）
 ├── evidence.json          # 证据表 E001、E002……
+├── annotations.json       # 批注记录与证据批注映射
+├── annotation_styles.json # 批注编号和显示样式模板
 ├── auto_checkpoint.json   # 全自动任务断点
 ├── research_plan.md       # 研究方案
 ├── outline.md             # 大纲
@@ -221,6 +237,7 @@ paper_project\
 └── output\                # 导出产物
     ├── 论文.docx / 论文.md / 论文.pdf / 论文.pptx / 论文.html / 论文.txt
     ├── 资料核验报告.md
+    ├── 批注表.json / 批注表.md
     ├── 论文质量报告.md
     └── 全自动运行日志.md
 ```
@@ -235,7 +252,7 @@ PySide6 图形界面（三模式 + 8 个阶段页面 + 模型管理）
     ├── 任务编排：auto_pipeline（全自动 21 步）/ advanced_state（高级工作台）
     ├── 写作引擎：writer / outline / naturalizer / targeted_edit
     ├── 质量体系：fact_checker / style_checker / quality_report
-    ├── 证据体系：evidence / research / checkpoint
+    ├── 证据与批注：evidence / annotations / research / checkpoint
     └── 文档引擎：document / exporter（6 种格式）
         │
         ▼
@@ -263,6 +280,7 @@ PaperAssistant/
 │   └── pages/                 # 首页/8个阶段页/全自动/高级工作台/历史/导出/模型管理
 ├── core/                      # 核心逻辑（见架构图）
 │   ├── ai/                    # 动态 Provider/Model/Discovery/AIService
+│   ├── annotations.py         # 批注记录、样式、证据同步与重新编号
 │   └── references/            # ReferenceStore/CitationMap/导入/样式
 ├── sources/                   # 5 个检索源
 ├── config/manager.py          # 配置兼容层与迁移
@@ -317,8 +335,9 @@ Key 无效或已过期。检查是否有多余空格、是否已充值/账户正
 
 ## 版本管理
 
-- 当前版本：**v2.1.2**（2026-08-18）
+- 当前版本：**v2.2.0**（2026-08-18）
 - 版本号统一定义在 `core/paths.py` 的 `VERSION` / `RELEASE_DATE`，首页与启动日志同步显示
+- 任何功能新增、Bug 修复、UI 改进、依赖或安全更新都必须视为一次版本更新；功能默认升 minor，修复默认升 patch
 - 每次更新后，改动文件末尾追加版本戳：`# 版本: vX.Y.Z (日期) 更新: 内容`
 - 更新记录见 [CHANGELOG.md](CHANGELOG.md)
 

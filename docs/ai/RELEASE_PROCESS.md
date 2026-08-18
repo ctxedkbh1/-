@@ -18,11 +18,11 @@
 ## 2. GitHub Release 格式
 
 每个正式版本至少提供两个版本化资产：
-- `PaperAssistant-vX.Y.Z-windows-x64.exe`
-- `PaperAssistant-vX.Y.Z-windows-x64.zip`
+- `论文助手_vX.Y.Z_单文件版.exe`
+- `论文助手_vX.Y.Z_完整版.zip`
 
 Release Notes 必须按客户语言编写。补丁版本默认只保留 `## 修复` 章节。
-Release 标题统一使用客户品牌 `论文助手 vX.Y.Z`；仓库名保持 `paper-workbench`，下载资产名保持英文兼容格式。
+Release 标题统一使用客户品牌 `论文助手 vX.Y.Z`；仓库名保持 `paper-workbench`；从 v2.2.0 起下载资产统一使用上述中文名称。
 
 ## 3. 桌面交付格式
 
@@ -59,6 +59,7 @@ Release 标题统一使用客户品牌 `论文助手 vX.Y.Z`；仓库名保持 `
 
 - 任何 Bug 修复、新功能、UI 改进、依赖升级或安全修复都视为一次更新，不允许以“未发布的小改动”长期留在桌面或 main 工作区。
 - Bug 修复默认递增 patch 版本；新功能默认递增 minor 版本；破坏性变更递增 major 版本。
+- 完成功能或修复的同一轮工作中必须先更新版本元数据和日志，再向用户报告完成；不能把版本号补录留到下一轮。
 - 每次更新必须同步 `core/paths.py`、README、根目录客户 CHANGELOG、`docs/ai` 内部日志、版本化 EXE/ZIP、Git Commit、Git Tag 和 GitHub Release。
 - 发布说明应尽可能详细：客户日志描述用户能看到的行为变化和使用方式；内部日志补充根因、迁移、修改范围、测试证据和残余风险。
 - GitHub Release 创建失败时不得宣称已发布；必须保留阻塞原因，并在权限恢复后补传同一版本资产。

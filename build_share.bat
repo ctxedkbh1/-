@@ -57,10 +57,11 @@ if errorlevel 1 (
 echo.
 echo [5/5] 压缩为分享包并复制到桌面...
 if exist "论文助手_v%APPVER%.zip" del /Q "论文助手_v%APPVER%.zip"
-tar -a -c -f "论文助手_v%APPVER%.zip" -C dist "%SHARENAME%"
+powershell -NoProfile -Command "Compress-Archive -LiteralPath 'dist\%SHARENAME%' -DestinationPath '论文助手_v%APPVER%.zip' -Force"
 if errorlevel 1 (
-    echo [警告] tar 压缩失败，改用 PowerShell 压缩...
-    powershell -NoProfile -Command "Compress-Archive -Path 'dist\%SHARENAME%' -DestinationPath '论文助手_v%APPVER%.zip' -Force"
+    echo [错误] ZIP 压缩失败。
+    if not defined PAPERASSISTANT_NO_PAUSE pause
+    exit /b 1
 )
 del /Q "%USERPROFILE%\Desktop\论文助手.zip" >nul 2>&1
 copy /Y "论文助手_v%APPVER%.zip" "%USERPROFILE%\Desktop\论文助手.zip" >nul
@@ -69,6 +70,11 @@ if errorlevel 1 (
 ) else (
     echo [完成] 分享包: %USERPROFILE%\Desktop\论文助手.zip
 )
+powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\copy_release_asset.ps1" -Version "%APPVER%" -Kind zip
+if errorlevel 1 (
+    echo [错误] GitHub 完整版资产生成失败。
+    exit /b 1
+)
 
 echo.
 echo 使用方法（接收方无需安装任何环境）:
@@ -76,6 +82,6 @@ echo   1. 把 ZIP 发给对方
 echo   2. 对方解压后，双击文件夹内的 exe 即可
 echo   3. 论文数据自动保存在 exe 同目录的 paper_project 文件夹中
 echo 注意: 请整包发送，不要只发文件夹里的 exe。
-REM Version: v2.0.1 (2026-08-17) Fix: enforce CRLF for cmd.exe
+REM Version: v2.2.0 (2026-08-18) Update: Chinese GitHub asset names
 if not defined PAPERASSISTANT_NO_PAUSE pause
 exit /b 0

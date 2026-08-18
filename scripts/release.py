@@ -162,6 +162,7 @@ def verify() -> None:
         (sys.executable, "tests/dev_ai_center_test.py"),
         (sys.executable, "tests/dev_openalex_test.py"),
         (sys.executable, "tests/dev_reference_center_test.py"),
+        (sys.executable, "tests/dev_annotation_test.py"),
         (sys.executable, "tests/dev_integrations_test.py"),
         (sys.executable, "tests/dev_sett_test.py"),
         (sys.executable, "tests/dev_release_test.py"),
@@ -182,6 +183,13 @@ def publish(confirm: str) -> None:
     verify()
     version = current_version()
     tag = f"v{version}"
+    assets = [
+        ROOT / "release_assets" / f"论文助手_v{version}_单文件版.exe",
+        ROOT / "release_assets" / f"论文助手_v{version}_完整版.zip",
+    ]
+    missing = [str(path) for path in assets if not path.is_file() or path.stat().st_size == 0]
+    if missing:
+        raise ReleaseError("缺少中文发布资产: " + ", ".join(missing))
     if run("git", "tag", "-l", tag):
         raise ReleaseError(f"Tag 已存在: {tag}")
     run("git", "add", "-A")
@@ -189,7 +197,9 @@ def publish(confirm: str) -> None:
     run("git", "tag", "-a", tag, "-m", f"论文助手 {tag}")
     run("git", "push", "origin", "main")
     run("git", "push", "origin", tag)
-    print(f"PUBLISHED {tag}; Release title: {release_title(version)}; GitHub Actions will build EXE + ZIP")
+    run("gh", "release", "create", tag, *(str(path) for path in assets),
+        "--title", release_title(version), "--notes-file", str(ROOT / "RELEASE_NOTES.md"))
+    print(f"PUBLISHED {tag}; Release title: {release_title(version)}; uploaded {len(assets)} Chinese assets")
 
 
 def main() -> None:
@@ -216,4 +226,4 @@ if __name__ == "__main__":
         print(f"RELEASE BLOCKED: {exc}", file=sys.stderr)
         raise SystemExit(2) from None
 
-# 版本: v2.1.2 (2026-08-18) 更新: OpenAlex 与空资料回归发布门
+# 版本: v2.2.0 (2026-08-18) 更新: 推送并上传中文 Release 资产

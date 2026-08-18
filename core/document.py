@@ -9,6 +9,7 @@ class Document:
         self.abstract = ""
         self.keywords = []
         self.blocks = []
+        self.annotations = []
         self.references = []
         self.data_sources = []
 
@@ -21,6 +22,7 @@ def document_from_text(final_text, meta=None, format_note=""):
     doc = Document()
     doc.meta = dict(meta or {})
     doc.meta.setdefault("format_note", format_note)
+    in_annotations = False
     in_refs = False
     for raw in (final_text or "").splitlines():
         line = raw.rstrip()
@@ -37,8 +39,16 @@ def document_from_text(final_text, meta=None, format_note=""):
         if m:
             doc.keywords = [k.strip() for k in re.split(r"[；;,，]", m.group(1)) if k.strip()]
             continue
-        if line.startswith("## 参考文献"):
+        if line == "## 批注说明":
+            in_annotations = True
+            in_refs = False
+            continue
+        if line == "## 参考文献":
+            in_annotations = False
             in_refs = True
+            continue
+        if in_annotations:
+            doc.annotations.append(line.strip())
             continue
         if in_refs:
             if re.match(r"^\[\d+\]\s", line):
@@ -52,4 +62,4 @@ def document_from_text(final_text, meta=None, format_note=""):
             doc.blocks.append({"kind": "paragraph", "text": line.strip()})
     return doc
 
-# 版本: v2.0.0 (2026-08-16) 更新: 高级模式工作台
+# 版本: v2.2.0 (2026-08-18) 更新: 批注说明文档模型

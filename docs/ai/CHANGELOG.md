@@ -1,7 +1,19 @@
 # 开发日志（docs/ai/CHANGELOG）
 
 > 本文件记录**开发过程**层面的变更（文档体系、工程操作等）。
-> **产品功能**版本记录以仓库根目录的 CHANGELOG.md 为准（v2.1.2 / v2.1.1 / v2.1.0 / v2.0.1 / v2.0.0 / v1.6.0 / v1.5.0）。
+> **产品功能**版本记录以仓库根目录的 CHANGELOG.md 为准（v2.2.0 / v2.1.2 / v2.1.1 / v2.1.0 / v2.0.1 / v2.0.0 / v1.6.0 / v1.5.0）。
+
+## 2026-08-18
+- v2.2.0：新增独立批注系统；版本源已从 v2.1.2 升为 v2.2.0，源码与中文 EXE/ZIP 资产已验证，尚未提交、创建 Tag 或发布。
+- 数据层：新增 `AnnotationStore`、`AnnotationStyleStore`、`annotations.json` 和 `annotation_styles.json`；内部 `annotation_id` 与显示编号分离。
+- 兼容层：旧 `[E001]` 证据无损同步为证据批注；解析兼容 `[E001]`、`[E-001]`、`[E_001]`，证据库仍是事实来源的唯一所有者。
+- UI：主侧边栏新增批注管理页，支持搜索、样式/状态筛选、新增编辑、批量删除、按样式重新编号、样式模板管理和批注导出；写作页支持选中文本后创建批注并写回章节。
+- 一致性：按样式重新编号后，同步替换各章节中的对应批注标记，避免 registry 与正文断链。
+- 写作与质量：正文批注标记可点击；写作检查报告未登记批注；自然化与定向修改同时保护证据引用和普通批注。
+- 导出：统一 Document 增加批注说明，DOCX/PDF/PPTX/TXT/Markdown/HTML 全部支持；全自动模式输出批注表 JSON/Markdown，历史记录读取动态输出路径。
+- 测试：`tests/dev_annotation_test.py`、参考文献回归、离线全自动测试、批注页离屏刷新、`py_compile` 和 `main.py --selfcheck` 均通过。
+- 发布门：`scripts/release.py verify` 已加入批注回归测试；中文单文件 EXE 与完整版 ZIP 内 EXE 的 `--selfcheck` 已通过，GitHub Release 尚未执行。
+- 资产命名：从 v2.2.0 起 GitHub 资产固定为 `论文助手_vX.Y.Z_单文件版.exe` 与 `论文助手_vX.Y.Z_完整版.zip`；打包脚本直接写入 `release_assets`。
 
 ## 2026-08-18
 - v2.1.2：OpenAlex 429 限流修复。
@@ -45,4 +57,4 @@
 - 建立 AI 项目知识库 docs/ai/（PROJECT_CONTEXT / ARCHITECTURE / FEATURES / CURRENT_STATUS / DEVELOPMENT_RULES / CHANGELOG / TODO / KNOWN_ISSUES / FILE_MAP / AI_HANDOFF）
 - 项目封存：暂停新功能开发，建立基线（git tag v2.0.0 → 最新提交，本地 backup 快照）
 - 完成 GitHub 公开发布：仓库 paper-workbench、Release v2.0.0（EXE+ZIP）、README/CHANGELOG/LICENSE
-- 教训记录：GitHub 不支持中文仓库名/附件名；Windows 命令行传中文需用文件方式
+- 教训记录：Windows 命令行传中文曾损坏仓库/附件名称；中文请求体需使用 UTF-8 文件或 API 工具，Release 资产可使用中文并需上传后核对

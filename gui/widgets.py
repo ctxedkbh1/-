@@ -6,6 +6,9 @@ from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (QComboBox, QHBoxLayout, QMessageBox,
                                QSpinBox, QTextBrowser, QWidget)
 
+from core.annotations import ANNOTATION_MARKER_RE, normalize_label
+from core.evidence import canonical_id
+
 RISK_PRESETS = [5, 10, 20, 30, 40, 50, 60]
 
 
@@ -102,7 +105,16 @@ def ask_confirm(parent, text, title="确认"):
 
 
 def linkify(text):
-    return re.sub(r"\[E(\d+)\]", r'<a href="eid://E\1">[E\1]</a>', html.escape(text or ""))
+    escaped = html.escape(text or "")
+
+    def sub(m):
+        label = normalize_label(m.group(1))
+        if re.fullmatch(r"E[-_]?0*\d+", label, re.IGNORECASE):
+            target = canonical_id(label)
+            return f'<a href="eid:///{html.escape(target)}">[{html.escape(label)}]</a>'
+        return f'<a href="aid:///{html.escape(label)}">[{html.escape(label)}]</a>'
+
+    return ANNOTATION_MARKER_RE.sub(sub, escaped)
 
 
 def md_to_html(text):
@@ -145,8 +157,8 @@ class LinkBrowser(QTextBrowser):
         self.anchorClicked.connect(self._on_anchor)
 
     def _on_anchor(self, url):
-        if url.scheme() == "eid":
-            self.link_clicked.emit(url.path().lstrip("/"))
+        if url.scheme() in ("eid", "aid"):
+            self.link_clicked.emit(url.host() or url.path().lstrip("/"))
         elif url.scheme() in ("http", "https"):
             open_url(url.toString())
 
@@ -156,4 +168,4 @@ class LinkBrowser(QTextBrowser):
     def show_rich(self, text):
         self.setHtml(to_rich_text(text))
 
-# 版本: v1.4.0 (2026-08-16) 更新: 可自定义检测阈值
+# 版本: v2.2.0 (2026-08-18) 更新: 通用批注链接

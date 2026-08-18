@@ -1,24 +1,26 @@
 # Codex 项目上下文
 
 ## 当前版本
-v2.1.2（2026-08-18）
+v2.2.0（2026-08-18，源码已更新，尚未打包/提交/发布）
 
 ## 当前状态
-- 分支：`feat/dynamic-model-center`
-- 工作目标：增量实现 AI 模型中心、参考文献中心、UI 统一与自动发布
+- 分支：`main`
+- 工作目标：完成独立批注系统并保持旧证据引用兼容
 - 兼容要求：现有普通/全自动/高级模式、EvidenceStore、导出和用户数据不得破坏
 
 ## 已有主要功能
 - 三种论文模式、多 Provider 模型路由、联网检索、EvidenceStore、防编造检查
+- AnnotationStore、批注样式模板、证据批注同步、批量管理和批注导出
 - DOCX/PDF/PPTX/TXT/Markdown/HTML 导出
 - 历史记录、断点恢复、完整版本地部署、GitHub Release
 
 ## 当前任务
-Phase 2 完成；v2.1.2 已通过 OpenAlex/空资料安全测试、完成桌面构建并发布 GitHub Release；Actions 文件仍等待 OAuth `workflow` scope。
+v2.2.0 批注系统代码、文档、回归测试和中文 EXE/ZIP 资产已完成并验证；尚未提交、创建 Tag 或发布 GitHub Release。最新已发布版本仍为 v2.1.2；Actions 文件仍等待 OAuth `workflow` scope。
 
 ## 下一步
-1. 用户授权 `workflow` scope 后同步 `.github/workflows/release.yml`
-2. 后续每个 bug/功能/UI 改动均按 RELEASE_PROCESS.md 递增版本发布
+1. 用户明确要求发布后，为 v2.2.0 执行完整发布门、构建 EXE/ZIP、提交、Tag 与 GitHub Release
+2. 用户授权 `workflow` scope 后同步 `.github/workflows/release.yml`
+3. 后续每个 bug/功能/UI 改动均按 RELEASE_PROCESS.md 递增版本发布
 
 ## 重要文件
 - `core/paths.py`：版本唯一来源
@@ -27,6 +29,7 @@ Phase 2 完成；v2.1.2 已通过 OpenAlex/空资料安全测试、完成桌面�
 - `core/references/`：ReferenceStore、导入、去重、CitationMap、样式
 - `core/llm.py`, `core/deepseek.py`：现有 AI 调用链
 - `core/evidence.py`, `core/fact_checker.py`：证据与引用约束
+- `core/annotations.py`, `gui/pages/annotation_page.py`：批注数据、样式与管理 UI
 - `core/exporter.py`, `core/exporters/`：统一导出
 - `gui/main_window.py`：应用壳层
 - `DESIGN.md`：UI 唯一视觉契约

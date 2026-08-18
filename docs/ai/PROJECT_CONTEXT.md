@@ -44,15 +44,15 @@ AI 辅助写作 + 资料整理 + 文档生成工具，不代替用户思考，�
 - CNKI：仅手动录入 + RIS/BibTeX 导入（不绕过登录/验证码/付费墙）
 
 ## 主要功能
-三种模式（普通 8 步 / 全自动 21 步 / 高级工作台 6 阶段）、证据库防编造、写作质量检测与自然化修改、事实核查（最多 3 轮）、定向修改、6 格式导出（DOCX/PPTX/PDF/TXT/MD/HTML）、历史记录、断点恢复、自定义输出目录。详见 FEATURES.md。
+三种模式（普通 8 步 / 全自动 21 步 / 高级工作台 6 阶段）、证据库防编造、独立批注与样式管理、写作质量检测与自然化修改、事实核查（最多 3 轮）、定向修改、6 格式导出（DOCX/PPTX/PDF/TXT/MD/HTML）、历史记录、断点恢复、自定义输出目录。详见 FEATURES.md。
 
 ## 当前开发阶段
-v2.1.2 已完成 OpenAlex 限流恢复、空资料安全停止、测试、桌面构建和 GitHub Release（2026-08-18）；Actions workflow 权限仍待恢复。
+v2.2.0 已完成批注管理系统和源码测试（2026-08-18），尚未打包、提交或发布；最新已发布版本为 v2.1.2。Actions workflow 权限仍待恢复。
 
 ## 项目目录
 - 源码根目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`
 - GitHub：https://github.com/ctxedkbh1/paper-workbench
-- 运行数据目录（仓库外，禁止上传）：默认 `<app目录>\paper_project\` 或 `~\paper_project\`，可用环境变量 `PAPER_PROJECT_DIR` 覆盖。内含 config.json（API Key）、project.json、evidence.json、auto_checkpoint.json、chapters/、logs/、output/ 等。
+- 运行数据目录（仓库外，禁止上传）：默认 `<app目录>\paper_project\` 或 `~\paper_project\`，可用环境变量 `PAPER_PROJECT_DIR` 覆盖。内含 config.json（API Key）、project.json、evidence.json、annotations.json、annotation_styles.json、auto_checkpoint.json、chapters/、logs/、output/ 等。
 
 ## 重要文件
 | 文件 | 作用 |
@@ -61,6 +61,7 @@ v2.1.2 已完成 OpenAlex 限流恢复、空资料安全停止、测试、桌面
 | core/paths.py | APP_NAME / VERSION / RELEASE_DATE 统一定义、数据目录路径 |
 | core/llm.py | 全部 AI Provider 实现 |
 | core/auto_pipeline.py | 全自动模式控制器（21 步、断点恢复） |
+| core/annotations.py | 批注记录、样式模板、证据同步与重新编号 |
 | config/manager.py | API Key 配置管理（环境变量 > config.json） |
 | gui/main_window.py | 主窗口 |
 | build.bat / build_share.bat | 完整版目录打包 / 分享版 ZIP 打包 |

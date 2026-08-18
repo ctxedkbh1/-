@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import shutil
 
 from core import log, paths
 
@@ -222,6 +223,10 @@ class VersionManager:
                         open(os.path.join(vdir, name), "w", encoding="utf-8") as dst:
                     dst.write(src.read())
                 count += 1
+        for name in ("annotations.json", "annotation_styles.json"):
+            source = os.path.join(paths.data_dir(), name)
+            if os.path.exists(source):
+                shutil.copy2(source, os.path.join(vdir, name))
         if self.state is not None:
             self.state.add_version(vid, note)
         log.get().info("版本已保存 vid=%s chapters=%d", vid, count)
@@ -239,6 +244,10 @@ class VersionManager:
                         open(os.path.join(chapters_dir, name), "w", encoding="utf-8") as dst:
                     dst.write(src.read())
                 restored += 1
+        for name in ("annotations.json", "annotation_styles.json"):
+            source = os.path.join(vdir, name)
+            if os.path.exists(source):
+                shutil.copy2(source, os.path.join(paths.data_dir(), name))
         log.get().info("版本已恢复 vid=%s chapters=%d", vid, restored)
         return True
 
@@ -256,4 +265,4 @@ class VersionManager:
             self.state.remove_version(vid)
         log.get().info("版本已删除 vid=%s", vid)
 
-# 版本: v2.0.0 (2026-08-16) 更新: 高级模式工作台
+# 版本: v2.2.0 (2026-08-18) 更新: 版本快照包含批注数据

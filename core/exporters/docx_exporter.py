@@ -120,6 +120,13 @@ class DocxExporter:
             else:
                 para(text, rsize=size, p_indent=True)
 
+        if doc.annotations:
+            d.add_page_break()
+            para("批注说明", rsize=fmt.get("h1_size", 15), bold=True, p_indent=False,
+                 font_cn=fmt.get("h1_font", "黑体"))
+            for line in doc.annotations:
+                para(line, rsize=10.5, p_indent=False, hanging=True)
+
         if doc.references:
             d.add_page_break()
             para("参考文献", rsize=fmt.get("h1_size", 15), bold=True, p_indent=False,
@@ -150,4 +157,4 @@ class DocxExporter:
                 run._element.rPr.rFonts.set(qn("w:eastAsia"), font)
         d.save(path)
 
-# 版本: v2.0.0 (2026-08-16) 更新: 高级模式工作台
+# 版本: v2.2.0 (2026-08-18) 更新: 批注说明导出

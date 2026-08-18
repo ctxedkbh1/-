@@ -65,7 +65,7 @@ def assign_evidence(outline, store):
                          temperature=0.2, json_mode=True, task="analysis")
     data = deepseek.extract_json(resp) or {}
     assignments = data.get("assignments") if isinstance(data.get("assignments"), list) else []
-    valid = {e["id"] for e in store.all()}
+    valid = {canonical_id(e["id"]) for e in store.all()}
     for a in assignments:
         idx = int(a.get("index", 0))
         ids = [canonical_id(x) for x in a.get("evidence_ids", []) if canonical_id(x) in valid]
@@ -150,4 +150,4 @@ def outline_markdown(outline, store):
         lines.append(f"- {e['id']}：{(e.get('title') or '（无标题）')[:60]}")
     return "\n".join(lines)
 
-# 版本: v1.5.0 (2026-08-16) 更新: 多模型供应商系统
+# 版本: v2.2.0 (2026-08-18) 更新: 规范证据编号校验

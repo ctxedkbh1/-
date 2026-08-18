@@ -7,6 +7,7 @@ from PySide6.QtCore import QObject, Signal
 from config.manager import ConfigManager
 from core import detector, exporter, fact_checker, log, naturalizer, outline as outline_mod, \
     quality_report, research, style_checker, writer as writer_mod
+from core.annotations import AnnotationStore
 from core.checkpoint import AutoCheckpoint
 
 STAGE_LABELS = [
@@ -710,10 +711,26 @@ class AutoPipelineEngine(QObject):
                                           self.checkpoint.get("chapter_checks") or {},
                                           out_dir=out_dir)
         out_dir = os.path.dirname(paths_out["md"])
-        with open(os.path.join(out_dir, "证据表.json"), "w", encoding="utf-8") as f:
+        evidence_json = os.path.join(out_dir, "证据表.json")
+        with open(evidence_json, "w", encoding="utf-8") as f:
             f.write(self.store.export_json())
-        with open(os.path.join(out_dir, "全自动运行日志.md"), "w", encoding="utf-8") as f:
+        annotations = AnnotationStore()
+        annotations.sync_legacy_evidence(self.store)
+        annotation_json = os.path.join(out_dir, "批注表.json")
+        annotation_md = os.path.join(out_dir, "批注表.md")
+        with open(annotation_json, "w", encoding="utf-8") as f:
+            f.write(annotations.export_json())
+        with open(annotation_md, "w", encoding="utf-8") as f:
+            f.write(annotations.export_markdown())
+        paths_out.update({
+            "evidence_json": evidence_json,
+            "annotations_json": annotation_json,
+            "annotations_md": annotation_md,
+        })
+        run_log_path = os.path.join(out_dir, "全自动运行日志.md")
+        with open(run_log_path, "w", encoding="utf-8") as f:
             f.write(self.checkpoint.build_log_markdown())
+        paths_out["run_log"] = run_log_path
         style = self.checkpoint.get("style") or style_checker.analyze(self._full_text())
         ai_style = self.checkpoint.get("style_ai") or []
         structure_stats = self.checkpoint.get("structure_stats") or {}
@@ -739,13 +756,15 @@ class AutoPipelineEngine(QObject):
                                   ai_limit=self.ai_limit,
                                   repeat_limit=self.repeat_limit,
                                   max_rounds=self.max_rounds)
-        with open(os.path.join(out_dir, "论文质量报告.md"), "w", encoding="utf-8") as f:
+        quality_report_path = os.path.join(out_dir, "论文质量报告.md")
+        with open(quality_report_path, "w", encoding="utf-8") as f:
             f.write(qr)
+        paths_out["quality_report"] = quality_report_path
         report_path = paths_out["report"]
         with open(report_path, "a", encoding="utf-8") as f:
             f.write("\n\n---\n\n" + qr)
         self.checkpoint.set("export_paths", paths_out)
-        self.log("已生成：论文.docx、论文.md、资料核验报告.md、证据表.json、论文质量报告.md、全自动运行日志.md")
+        self.log("已生成：论文.docx、论文.md、资料核验报告.md、证据表.json、批注表.json、批注表.md、论文质量报告.md、全自动运行日志.md")
 
     def _step_done(self):
         self.log("全自动流程全部步骤完成。")
@@ -763,7 +782,8 @@ class AutoPipelineEngine(QObject):
         elif style.get("template_score") == "中":
             quality = "一般"
         final_status = "可以导出"
-        if analysis.get("unresolved"):
+        if analysis.get("unresolved") or analysis.get("unresolved_annotations") \
+                or analysis.get("annotation_ok") is False:
             final_status = "需人工检查"
         return {
             "paths": self.checkpoint.get("export_paths") or {},
@@ -771,7 +791,7 @@ class AutoPipelineEngine(QObject):
             "verified": self.store.verified_count(),
             "pending": pending,
             "factcheck_ok": not (self.checkpoint.get("issues2") or self.checkpoint.get("issues")),
-            "citations_ok": not analysis.get("unresolved"),
+            "citations_ok": not analysis.get("unresolved") and bool(analysis.get("annotation_ok", True)),
             "references_ok": bool(analysis.get("bidirectional_ok")),
             "style_level": style.get("template_score", "低"),
             "quality": quality,
@@ -793,4 +813,4 @@ class AutoPipelineEngine(QObject):
             "detection_source": detector.source_label(detection) if detection else "",
         }
 
-# 版本: v2.1.2 (2026-08-18) 更新: 空资料安全停止
+# 版本: v2.2.0 (2026-08-18) 更新: 批注表自动导出

@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (QComboBox, QDialog, QDialogButtonBox,
 from config.manager import ConfigManager
 from core import log, paths
 from core.checkpoint import AutoCheckpoint
+from core.annotations import AnnotationStore
 from core.evidence import EvidenceStore
 from core.project import Project
 from gui.about_dialog import AboutDialog
@@ -24,6 +25,7 @@ from gui.pages.history_page import HistoryPage
 from gui.pages.home_page import HomePage
 from gui.pages.info_page import InfoPage
 from gui.pages.outline_page import OutlinePage
+from gui.pages.annotation_page import AnnotationPage
 from gui.pages.research_page import ResearchPage
 from gui.pages.search_page import SearchPage
 from gui.pages.writing_page import WritingPage
@@ -173,6 +175,7 @@ class MainWindow(QMainWindow):
         self.config = ConfigManager()
         self.project = Project()
         self.evidence = EvidenceStore()
+        self.annotations = AnnotationStore()
         self.data_dir = paths.data_dir()
 
         central = QWidget()
@@ -187,7 +190,7 @@ class MainWindow(QMainWindow):
         self.sidebar.addItems(["首页", "全自动模式", "高级模式", "论文历史",
                                "1 论文信息", "2 选题解析 / 检索方案", "3 资料检索",
                                "4 证据库", "5 AI 大纲", "6 分章节写作",
-                               "7 事实核查", "8 最终输出", "参考文献中心"])
+                               "7 事实核查", "8 最终输出", "参考文献中心", "批注管理"])
 
         self.stack = QStackedWidget()
         self.pages = [
@@ -195,6 +198,7 @@ class MainWindow(QMainWindow):
             HistoryPage(self), InfoPage(self), ResearchPage(self), SearchPage(self),
             EvidencePage(self), OutlinePage(self), WritingPage(self),
             FactCheckPage(self), ExportPage(self), ReferenceCenterPage(self),
+            AnnotationPage(self),
         ]
         for p in self.pages:
             self.stack.addWidget(p)
@@ -314,6 +318,13 @@ class MainWindow(QMainWindow):
                     pass
         self.evidence.data = []
         self.evidence.save()
+        for f in ("annotations.json", "annotation_styles.json"):
+            p = os.path.join(self.data_dir, f)
+            if os.path.exists(p):
+                try:
+                    os.remove(p)
+                except OSError:
+                    pass
         log.get().info("已开始新论文项目")
         self.refresh()
 
@@ -383,4 +394,4 @@ class MainWindow(QMainWindow):
         SettingsDialog(self, self.config).exec()
         self.refresh()
 
-# 版本: v2.0.1 (2026-08-17) 更新: AI 模型中心、参考文献中心与 About
+# 版本: v2.2.0 (2026-08-18) 更新: 批注管理入口与项目重置

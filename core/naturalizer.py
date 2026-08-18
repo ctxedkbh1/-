@@ -1,5 +1,7 @@
 import re
+from collections import Counter
 
+from core.annotations import annotation_marker_sequence
 from core import deepseek, log
 from core.evidence import parse_citations
 from core.prompts import WRITER_SYSTEM
@@ -79,10 +81,12 @@ def safe_rewrite(original, rewritten):
     """事实安全校验：引用编号、数字集合、'证据不足'标注均不得变化，否则返回 None（撤销修改）。"""
     if not rewritten or not rewritten.strip():
         return None
-    if set(parse_citations(original)) != set(parse_citations(rewritten)):
+    original_refs = Counter(parse_citations(original)) + Counter(annotation_marker_sequence(original))
+    rewritten_refs = Counter(parse_citations(rewritten)) + Counter(annotation_marker_sequence(rewritten))
+    if original_refs != rewritten_refs:
         return None
-    orig_nums = set(re.findall(r"\d+(?:\.\d+)?%?", original or ""))
-    new_nums = set(re.findall(r"\d+(?:\.\d+)?%?", rewritten or ""))
+    orig_nums = Counter(re.findall(r"\d+(?:\.\d+)?%?", original or ""))
+    new_nums = Counter(re.findall(r"\d+(?:\.\d+)?%?", rewritten or ""))
     if orig_nums != new_nums:
         return None
     marker = "暂无足够可靠资料支持该观点"
@@ -90,4 +94,4 @@ def safe_rewrite(original, rewritten):
         return None
     return rewritten
 
-# 版本: v1.5.0 (2026-08-16) 更新: 多模型供应商系统
+# 版本: v2.2.0 (2026-08-18) 更新: 批注标记保护

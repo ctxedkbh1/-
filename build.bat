@@ -83,9 +83,14 @@ if errorlevel 1 (
 ) else (
     echo [完成] 单文件 EXE 已更新: %USERPROFILE%\Desktop\论文智能研究与写作助手.exe
 )
+powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\copy_release_asset.ps1" -Version "%APPVER%" -Kind exe
+if errorlevel 1 (
+    echo [错误] GitHub 单文件资产生成失败。
+    exit /b 1
+)
 
 echo.
 echo 桌面完整版文件夹已包含 EXE 和完整运行环境, 请保留整个文件夹.
-REM Version: v2.0.1 (2026-08-17) Fix: enforce CRLF for cmd.exe
+REM Version: v2.2.0 (2026-08-18) Update: Chinese GitHub asset names
 if not defined PAPERASSISTANT_NO_PAUSE pause
 exit /b 0

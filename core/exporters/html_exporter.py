@@ -49,6 +49,12 @@ class HtmlExporter:
                 parts.append(f"<h3>{text}</h3>")
             else:
                 parts.append(f"<p>{text}</p>")
+        if doc.annotations:
+            parts.append("<h2>批注说明</h2>")
+            parts.append('<div class="refs">')
+            for line in doc.annotations:
+                parts.append(f"<p>{html_lib.escape(line)}</p>")
+            parts.append("</div>")
         if doc.references:
             parts.append("<h2>参考文献</h2>")
             parts.append('<div class="refs">')
@@ -68,4 +74,4 @@ class HtmlExporter:
         with open(path, "w", encoding="utf-8") as f:
             f.write("\n".join(parts))
 
-# 版本: v2.0.0 (2026-08-16) 更新: 高级模式工作台
+# 版本: v2.2.0 (2026-08-18) 更新: 批注说明导出

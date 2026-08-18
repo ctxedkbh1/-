@@ -34,11 +34,11 @@
 
 ## 平台/工程层面（经验记录，已解决）
 
-### 5. GitHub 不支持中文仓库名与 Release 附件名
-- 问题：中文名会被剥除，仓库名曾变成 "-"，附件名变成 "_v2.0.0.exe"
-- 原因：GitHub 平台限制（名称仅允许 ASCII 字母数字及 . _ -）
-- 解决方案：仓库名 paper-workbench；附件名 PaperAssistant-vX.Y.Z-windows-x64.*；中文品牌放在仓库描述、Release 标题、附件 label（均支持中文）
-- 状态：已解决（2026-08-16）
+### 5. Windows 命令行编码曾损坏 GitHub 中文名称
+- 问题：早期通过命令行传中文时，仓库名曾变成 "-"，附件名曾变成 "_v2.0.0.exe"
+- 原因：Windows 控制台参数编码不一致，不是 GitHub Release 资产本身禁止中文
+- 解决方案：仓库名保持 `paper-workbench`；从 v2.2.0 起 Release 资产使用 `论文助手_vX.Y.Z_单文件版.exe` 和 `论文助手_vX.Y.Z_完整版.zip`，上传后通过 GitHub API 核对名称
+- 状态：已解决（2026-08-18）
 
 ### 6. Windows PowerShell 命令行传中文给 git/gh 会被编码损坏
 - 问题：中文参数乱码导致仓库创建名错误等

@@ -56,6 +56,12 @@ class PdfExporter:
             else:
                 story.append(Paragraph(escape(text), body_style))
 
+        if doc.annotations:
+            story.append(Spacer(1, 12))
+            story.append(Paragraph(escape("批注说明"), h1_style))
+            for line in doc.annotations:
+                story.append(Paragraph(escape(line), ref_style))
+
         if doc.references:
             story.append(Spacer(1, 12))
             story.append(Paragraph(escape("参考文献"), h1_style))
@@ -63,4 +69,4 @@ class PdfExporter:
                 story.append(Paragraph(escape(ref), ref_style))
         d.build(story)
 
-# 版本: v1.6.0 (2026-08-16) 更新: 多格式导出系统
+# 版本: v2.2.0 (2026-08-18) 更新: 批注说明导出

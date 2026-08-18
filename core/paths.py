@@ -2,7 +2,7 @@ import os
 import sys
 
 APP_NAME = "论文智能研究与写作助手"
-VERSION = "2.1.2"
+VERSION = "2.2.0"
 RELEASE_DATE = "2026-08-18"
 
 
@@ -73,6 +73,14 @@ def evidence_file() -> str:
     return os.path.join(default_data_dir(), "evidence.json")
 
 
+def annotations_file() -> str:
+    return os.path.join(default_data_dir(), "annotations.json")
+
+
+def annotation_styles_file() -> str:
+    return os.path.join(default_data_dir(), "annotation_styles.json")
+
+
 def outline_md() -> str:
     return os.path.join(default_data_dir(), "outline.md")
 
@@ -88,4 +96,4 @@ def ensure_all_dirs():
     subdir("logs")
     subdir("cache")
 
-# 版本: v2.1.2 (2026-08-18) 更新: 正式版本发布
+# 版本: v2.2.0 (2026-08-18) 更新: 批注管理系统
