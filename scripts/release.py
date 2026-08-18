@@ -8,6 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 VERSION_FILE = ROOT / "core" / "paths.py"
+RELEASE_TITLE_PREFIX = "论文助手"
 TEXT_SUFFIXES = {".py", ".md", ".txt", ".json", ".yml", ".yaml", ".bat", ".ps1"}
 SECRET_PATTERNS = (
     re.compile(r"sk-[A-Za-z0-9_-]{20,}"),
@@ -39,6 +40,10 @@ def current_version() -> str:
     if not match:
         raise ReleaseError("core/paths.py 中未找到 VERSION")
     return match.group(1)
+
+
+def release_title(version: str) -> str:
+    return f"{RELEASE_TITLE_PREFIX} v{version}"
 
 
 def bump_version(version: str, bump: str) -> str:
@@ -184,7 +189,7 @@ def publish(confirm: str) -> None:
     run("git", "tag", "-a", tag, "-m", f"论文助手 {tag}")
     run("git", "push", "origin", "main")
     run("git", "push", "origin", tag)
-    print(f"PUBLISHED {tag}; GitHub Actions will build EXE + ZIP")
+    print(f"PUBLISHED {tag}; Release title: {release_title(version)}; GitHub Actions will build EXE + ZIP")
 
 
 def main() -> None:

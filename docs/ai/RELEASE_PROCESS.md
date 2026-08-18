@@ -22,6 +22,7 @@
 - `PaperAssistant-vX.Y.Z-windows-x64.zip`
 
 Release Notes 必须按客户语言编写。补丁版本默认只保留 `## 修复` 章节。
+Release 标题统一使用客户品牌 `论文助手 vX.Y.Z`；仓库名保持 `paper-workbench`，下载资产名保持英文兼容格式。
 
 ## 3. 桌面交付格式
 
