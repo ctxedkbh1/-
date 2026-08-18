@@ -6,7 +6,7 @@
 v2.1.2（2026-08-18）
 
 ## 当前开发阶段
-v2.1.2 已完成 OpenAlex 限流修复、空资料安全停止、测试和桌面构建；GitHub Release 待上传，GitHub Actions workflow 仍因 OAuth scope 尚未写入远程。
+v2.1.2 已完成 OpenAlex 限流修复、空资料安全停止、测试、桌面构建和 GitHub Release；GitHub Actions workflow 仍因 OAuth scope 尚未写入远程。
 
 ## 最近完成
 1. 高级模式工作台（六阶段流程化指导）——v2.0.0 核心功能
@@ -15,10 +15,10 @@ v2.1.2 已完成 OpenAlex 限流修复、空资料安全停止、测试和桌面
 4. 修复 Windows 批处理、用户数据迁移和 Release 资产格式；桌面固定名称覆盖，GitHub 提供版本化 EXE + ZIP
 
 ## 当前正在处理
-OpenAlex 限流恢复、空资料安全停止、AI 模型中心、参考文献中心、发布脚本和 v2.1.2 桌面构建均已验证；待完成项是上传 v2.1.2 Release 和远程 workflow 权限。
+OpenAlex 限流恢复、空资料安全停止、AI 模型中心、参考文献中心、发布脚本、v2.1.2 桌面构建和 Release 资产均已验证；待完成项只有远程 workflow 权限。
 
 ## 下一步
-下一步：完成 v2.1.2 GitHub Release 上传；用户重新授权 GitHub OAuth `workflow` scope 后，将本地 `.github/workflows/release.yml` 写入远程。
+下一步：用户重新授权 GitHub OAuth `workflow` scope 后，将本地 `.github/workflows/release.yml` 写入远程；后续每个 bug/功能按发布规则递增版本。
 
 ## 当前已知 Bug
 无未修复的致命或功能性 Bug。已知限制见 KNOWN_ISSUES.md（均属设计限制或外部环境问题）。
