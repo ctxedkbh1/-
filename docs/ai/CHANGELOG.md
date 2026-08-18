@@ -13,7 +13,7 @@
 - 导出：统一 Document 增加批注说明，DOCX/PDF/PPTX/TXT/Markdown/HTML 全部支持；全自动模式输出批注表 JSON/Markdown，历史记录读取动态输出路径。
 - 测试：`tests/dev_annotation_test.py`、参考文献回归、离线全自动测试、批注页离屏刷新、`py_compile` 和 `main.py --selfcheck` 均通过。
 - 发布门：`scripts/release.py verify` 已加入批注回归测试；中文单文件 EXE 与完整版 ZIP 内 EXE 的 `--selfcheck` 已通过，GitHub Release 尚未执行。
-- 资产命名：从 v2.2.0 起 GitHub 资产固定为 `论文助手_vX.Y.Z_单文件版.exe` 与 `论文助手_vX.Y.Z_完整版.zip`；打包脚本直接写入 `release_assets`。
+- 资产命名：GitHub 强制规范化非 ASCII 文件名；从 v2.2.0 起上传脚本使用 ASCII 传输名并设置中文 label `论文助手_vX.Y.Z_单文件版` / `论文助手_vX.Y.Z_完整版`，打包脚本仍在本地 `release_assets` 保留中文文件。
 
 ## 2026-08-18
 - v2.1.2：OpenAlex 429 限流修复。

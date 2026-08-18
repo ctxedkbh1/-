@@ -107,4 +107,4 @@ AI Provider 层（core/llm.py + core/deepseek.py + core/model_presets.py）
 - `sources/zotero.py` 支持官方 Local/Web 增量读取；`sources/notebook.py` 支持本地文件和 Notebook Enterprise 官方写入。
 - `gui/model_center.py`、`gui/reference_center.py`、`gui/about_dialog.py` 已接入主窗口；全自动/高级模型选择已使用稳定 ModelRef。
 - `core/annotations.py` 与 `gui/pages/annotation_page.py` 已提供独立批注 registry、样式 registry、证据同步、批量管理、正文跳转和导出附录。
-- v2.2.0 已通过源码回归、自检和中文 EXE/ZIP 资产验证，尚未提交或发布；最新已发布版本为 v2.1.2。Actions workflow 因 OAuth scope 暂未远程写入。
+- v2.2.0 已通过源码回归、自检、中文资产和远程 Release label 验证；Actions workflow 因 OAuth scope 暂未远程写入。

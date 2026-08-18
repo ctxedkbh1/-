@@ -1,7 +1,7 @@
 # Codex 项目上下文
 
 ## 当前版本
-v2.2.0（2026-08-18，源码已更新，尚未打包/提交/发布）
+v2.2.0（2026-08-18，已发布）
 
 ## 当前状态
 - 分支：`main`
@@ -15,12 +15,11 @@ v2.2.0（2026-08-18，源码已更新，尚未打包/提交/发布）
 - 历史记录、断点恢复、完整版本地部署、GitHub Release
 
 ## 当前任务
-v2.2.0 批注系统代码、文档、回归测试和中文 EXE/ZIP 资产已完成并验证；尚未提交、创建 Tag 或发布 GitHub Release。最新已发布版本仍为 v2.1.2；Actions 文件仍等待 OAuth `workflow` scope。
+v2.2.0 批注系统代码、文档、回归测试和中文 Release label 资产已完成并验证；main、Tag 和 GitHub Release 均已发布。Actions 文件仍等待 OAuth `workflow` scope。
 
 ## 下一步
-1. 用户明确要求发布后，为 v2.2.0 执行完整发布门、构建 EXE/ZIP、提交、Tag 与 GitHub Release
-2. 用户授权 `workflow` scope 后同步 `.github/workflows/release.yml`
-3. 后续每个 bug/功能/UI 改动均按 RELEASE_PROCESS.md 递增版本发布
+1. 用户授权 `workflow` scope 后同步 `.github/workflows/release.yml`
+2. 后续每个 bug/功能/UI 改动均按 RELEASE_PROCESS.md 递增版本发布
 
 ## 重要文件
 - `core/paths.py`：版本唯一来源

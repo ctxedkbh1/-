@@ -37,7 +37,7 @@
 ### 5. Windows 命令行编码曾损坏 GitHub 中文名称
 - 问题：早期通过命令行传中文时，仓库名曾变成 "-"，附件名曾变成 "_v2.0.0.exe"
 - 原因：Windows 控制台参数编码不一致，不是 GitHub Release 资产本身禁止中文
-- 解决方案：仓库名保持 `paper-workbench`；从 v2.2.0 起 Release 资产使用 `论文助手_vX.Y.Z_单文件版.exe` 和 `论文助手_vX.Y.Z_完整版.zip`，上传后通过 GitHub API 核对名称
+- 解决方案：仓库名保持 `paper-workbench`；从 v2.2.0 起使用 ASCII 传输名并通过 GitHub API 设置中文 label `论文助手_vX.Y.Z_单文件版` / `论文助手_vX.Y.Z_完整版`，上传后核对远程显示名
 - 状态：已解决（2026-08-18）
 
 ### 6. Windows PowerShell 命令行传中文给 git/gh 会被编码损坏

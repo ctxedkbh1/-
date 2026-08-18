@@ -18,11 +18,11 @@
 ## 2. GitHub Release 格式
 
 每个正式版本至少提供两个版本化资产：
-- `论文助手_vX.Y.Z_单文件版.exe`
-- `论文助手_vX.Y.Z_完整版.zip`
+- 传输文件：`paperassistant-vX.Y.Z-single.exe`、`paperassistant-vX.Y.Z-full.zip`
+- GitHub 中文显示名（label）：`论文助手_vX.Y.Z_单文件版`、`论文助手_vX.Y.Z_完整版`
 
 Release Notes 必须按客户语言编写。补丁版本默认只保留 `## 修复` 章节。
-Release 标题统一使用客户品牌 `论文助手 vX.Y.Z`；仓库名保持 `paper-workbench`；从 v2.2.0 起下载资产统一使用上述中文名称。
+Release 标题统一使用客户品牌 `论文助手 vX.Y.Z`；仓库名保持 `paper-workbench`。GitHub 会强制规范化非 ASCII 文件名，因此从 v2.2.0 起由上传 API 设置稳定的中文 label，页面显示名统一为上述中文名称。
 
 ## 3. 桌面交付格式
 

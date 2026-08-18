@@ -20,7 +20,7 @@
 Windows 桌面论文智能研究与写作助手（品牌名：论文助手）。选题 → 权威资料检索 → 证据库 → AI 大纲 → 分章节写作 → 事实核查 → 多格式导出。**防编造是最高优先级设计**：AI 只能引用检索到的真实证据。
 
 ## 当前版本
-v2.2.0（2026-08-18，源码已更新，尚未发布）
+v2.2.0（2026-08-18，已发布）
 
 ## 当前Baseline
 - 日期：2026-08-17
@@ -32,7 +32,7 @@ v2.2.0（2026-08-18，源码已更新，尚未发布）
 Python 3.10+ / PySide6 / requests / python-docx / python-pptx / reportlab / PyInstaller。Windows 10/11 x64。无数据库（本地 JSON + Markdown）。
 
 ## 当前状态
-维护中：v2.2.0 批注系统代码、文档、源码回归测试和中文 EXE/ZIP 资产已完成并验证，尚未提交、创建 Tag 或发布 GitHub Release。最新已发布版本仍为 v2.1.2。源码目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`。
+维护中：v2.2.0 批注系统代码、文档、源码回归测试和中文 Release label 资产已完成并验证，main、Tag 和 GitHub Release 均已发布。源码目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`。
 
 ## 已完成
 - 三种模式：普通 8 步 / 全自动 21 步（断点恢复）/ 高级工作台 6 阶段
@@ -47,7 +47,7 @@ Python 3.10+ / PySide6 / requests / python-docx / python-pptx / reportlab / PyIn
 - GitHub 发布：公开仓库 + 最新 Release v2.1.2（EXE + ZIP）+ README/CHANGELOG/LICENSE + docs/ai 知识库
 
 ## 正在开发
-v2.2.0 已完成开发、源码测试和桌面资产构建，当前正在执行提交与 GitHub 发布。
+v2.2.0 已完成开发、源码测试、桌面资产构建和 GitHub 发布。
 
 ## 下一步
 见 TODO.md。P0/P1 均为空或可选；任何任务开始前需用户确认。
@@ -99,7 +99,7 @@ OpenAlex / Crossref（公开学术 API）；政府官网与通用网页（公开
 - python main.py --selfcheck：打包前已通过
 - `tests/dev_annotation_test.py`、`tests/dev_reference_center_test.py`、`tests/dev_auto_test.py`、批注页离屏刷新和语法编译均通过
 - v2.1.2 完整版目录 EXE 与桌面单文件 EXE：`--selfcheck` 返回 0；分享 ZIP 无私人数据
-- v2.2.0 中文单文件 EXE 与完整版 ZIP 内 EXE 的 `--selfcheck` 均返回 0；尚未提交或发布
+- v2.2.0 中文本地资产与 Release 内两个中文 label 均已核对；单文件 EXE 与完整版 ZIP 内 EXE 的 `--selfcheck` 均返回 0
 
 ## 不要修改的内容
 - 防编造机制（evidence/writer/naturalizer/fact_checker 约束逻辑）

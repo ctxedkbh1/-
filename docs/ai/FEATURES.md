@@ -70,10 +70,11 @@
 - Windows Credential Manager 旧顶层凭据解析、桌面单文件 EXE 同步构建和 DeepSeek `/models` 刷新修复
 - OpenAlex 429 退避重试、礼貌访问参数和空资料安全停止，避免生成 0 资料/0 文献论文
 
-## v2.2.0 开发完成，待发布
+## v2.2.0 已发布
 
 - AnnotationStore 与 AnnotationStyleStore 独立持久化，旧 E-ID 通过兼容层同步
 - 批注管理页、样式模板页、正文批注链接和未登记批注检查
 - 安全改写保护批注标记；统一 Document 和六种导出器支持批注说明
 - 全自动输出批注表，历史记录关联完整导出文件
 - 批注、参考文献、全自动、GUI 刷新、语法编译和主自检均通过
+- GitHub Release `论文助手 v2.2.0` 已发布，资产页面使用中文 label 区分单文件版和完整版

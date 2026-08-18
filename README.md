@@ -161,7 +161,7 @@ Windows 桌面论文智能研究与写作助手：选题 → 权威资料检索 
 ### 方式一：下载 EXE 或完整版 ZIP（小白可用）
 
 1. 打开 [Releases 页面](https://github.com/ctxedkbh1/paper-workbench/releases)
-2. 可选择单文件 `论文助手_vX.Y.Z_单文件版.exe`，或完整版 `论文助手_vX.Y.Z_完整版.zip`
+2. 可选择 Release 页面标记为“论文助手_vX.Y.Z_单文件版”的单文件 EXE，或标记为“论文助手_vX.Y.Z_完整版”的完整 ZIP（GitHub 下载链接的实际文件名可能使用 ASCII 兼容名）
 3. ZIP 需要完整解压并保留 `_internal` 文件夹；EXE 可直接运行
 
 > 若 Windows SmartScreen 提示"已保护你的电脑"，点"更多信息 → 仍要运行"即可（未签名软件的正常提示）。

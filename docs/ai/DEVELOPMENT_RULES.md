@@ -26,7 +26,7 @@
 - **版本戳约定**：每次改动文件末尾追加 `# 版本: vX.Y.Z (日期) 更新: 内容`
 - **Git 提交规范**：feat: / fix: / docs: / refactor: / style: / chore:
 - **中文命令行坑（重要教训）**：Windows PowerShell 向 git/gh 传中文参数会被编码损坏（曾导致 GitHub 仓库名变成 "-"）。凡需要中文的提交信息、API 请求体，一律写进 UTF-8 文件再用 `git commit -F 文件`、`gh api --input 文件` 传递
-- **GitHub 资产命名**：仓库名保持 `paper-workbench`；从 v2.2.0 起 Release 资产统一使用中文名 `论文助手_vX.Y.Z_单文件版.exe` 与 `论文助手_vX.Y.Z_完整版.zip`，上传后必须核对远程名称
+- **GitHub 资产命名**：仓库名保持 `paper-workbench`；GitHub 文件名强制 ASCII 兼容，但从 v2.2.0 起 Release label 必须统一为中文 `论文助手_vX.Y.Z_单文件版` 与 `论文助手_vX.Y.Z_完整版`，上传后必须核对远程 label
 - **敏感信息**：paper_project/config.json 含 API Key，已被 .gitignore 忽略；任何提交前自查不要带入 .env、密钥、个人数据
 - **禁止 push --force**（分支）；移动标签需用户明确同意
 - **打包**：发版用 build.bat（需 Python 3.10+ 环境），产物复制到桌面

@@ -5,6 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import requests
+
 
 ROOT = Path(__file__).resolve().parent.parent
 VERSION_FILE = ROOT / "core" / "paths.py"
@@ -156,6 +158,57 @@ def scan_secrets() -> None:
         raise ReleaseError("发现疑似敏感文件/凭据: " + ", ".join(sorted(set(forbidden))))
 
 
+def upload_release_assets(version: str) -> None:
+    """Upload ASCII transport names with Chinese canonical labels.
+
+    GitHub normalizes non-ASCII asset filenames, so the user-facing label is
+    the stable Chinese name while the transport filename remains ASCII-safe.
+    """
+    assets = [
+        (ROOT / "release_assets" / f"论文助手_v{version}_单文件版.exe",
+         f"paperassistant-v{version}-single.exe", f"论文助手_v{version}_单文件版"),
+        (ROOT / "release_assets" / f"论文助手_v{version}_完整版.zip",
+         f"paperassistant-v{version}-full.zip", f"论文助手_v{version}_完整版"),
+    ]
+    for path, _name, _label in assets:
+        if not path.is_file() or path.stat().st_size == 0:
+            raise ReleaseError(f"缺少发布资产: {path}")
+    token = run("gh", "auth", "token")
+    api_headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    api_root = "https://api.github.com/repos/ctxedkbh1/paper-workbench"
+    response = requests.get(f"{api_root}/releases/tags/v{version}",
+                            headers=api_headers, timeout=30)
+    if response.status_code != 200:
+        raise ReleaseError(f"读取 GitHub Release 失败: HTTP {response.status_code}")
+    release = response.json()
+    for old in release.get("assets", []):
+        deleted = requests.delete(old["url"], headers=api_headers, timeout=30)
+        if deleted.status_code not in (204, 404):
+            raise ReleaseError(f"删除旧 Release 资产失败: HTTP {deleted.status_code}")
+    upload_url = str(release.get("upload_url") or "").split("{", 1)[0]
+    if not upload_url:
+        raise ReleaseError("GitHub Release 缺少 upload_url")
+    for path, name, label in assets:
+        content_type = "application/zip" if path.suffix.lower() == ".zip" else "application/vnd.microsoft.portable-executable"
+        with path.open("rb") as stream:
+            uploaded = requests.post(
+                upload_url,
+                params={"name": name, "label": label},
+                headers={**api_headers, "Content-Type": content_type},
+                data=stream,
+                timeout=(30, 900),
+            )
+        if uploaded.status_code != 201:
+            raise ReleaseError(f"上传 Release 资产失败 {label}: HTTP {uploaded.status_code} {uploaded.text[:200]}")
+        returned = uploaded.json()
+        if returned.get("label") != label:
+            raise ReleaseError(f"GitHub 未保留中文资产标签: {returned.get('label')!r}")
+
+
 def verify() -> None:
     scan_secrets()
     commands = [
@@ -183,13 +236,11 @@ def publish(confirm: str) -> None:
     verify()
     version = current_version()
     tag = f"v{version}"
-    assets = [
-        ROOT / "release_assets" / f"论文助手_v{version}_单文件版.exe",
-        ROOT / "release_assets" / f"论文助手_v{version}_完整版.zip",
-    ]
+    assets = [ROOT / "release_assets" / f"论文助手_v{version}_单文件版.exe",
+              ROOT / "release_assets" / f"论文助手_v{version}_完整版.zip"]
     missing = [str(path) for path in assets if not path.is_file() or path.stat().st_size == 0]
     if missing:
-        raise ReleaseError("缺少中文发布资产: " + ", ".join(missing))
+        raise ReleaseError("缺少本地中文发布资产: " + ", ".join(missing))
     if run("git", "tag", "-l", tag):
         raise ReleaseError(f"Tag 已存在: {tag}")
     run("git", "add", "-A")
@@ -197,9 +248,10 @@ def publish(confirm: str) -> None:
     run("git", "tag", "-a", tag, "-m", f"论文助手 {tag}")
     run("git", "push", "origin", "main")
     run("git", "push", "origin", tag)
-    run("gh", "release", "create", tag, *(str(path) for path in assets),
-        "--title", release_title(version), "--notes-file", str(ROOT / "RELEASE_NOTES.md"))
-    print(f"PUBLISHED {tag}; Release title: {release_title(version)}; uploaded {len(assets)} Chinese assets")
+    run("gh", "release", "create", tag, "--title", release_title(version),
+        "--notes-file", str(ROOT / "RELEASE_NOTES.md"))
+    upload_release_assets(version)
+    print(f"PUBLISHED {tag}; Release title: {release_title(version)}; uploaded {len(assets)} Chinese-labeled assets")
 
 
 def main() -> None:
@@ -226,4 +278,4 @@ if __name__ == "__main__":
         print(f"RELEASE BLOCKED: {exc}", file=sys.stderr)
         raise SystemExit(2) from None
 
-# 版本: v2.2.0 (2026-08-18) 更新: 推送并上传中文 Release 资产
+# 版本: v2.2.0 (2026-08-18) 更新: UTF-8 中文 Release 标签上传
