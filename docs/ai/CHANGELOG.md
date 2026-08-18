@@ -11,6 +11,7 @@
 - 更新系统：新增 `core/updater.py`、`gui/update_check.py`、About 检查按钮和帮助菜单入口；GitHub latest Release 请求在线程内执行，校验 SemVer，返回真实 Release URL/资产和 HTTP/网络错误。
 - 稳定性：`auto_pipeline.py` 显式导入 `paths`，不可用自定义输出目录回退分支已有本地回归；新增 Claude/Gemini 假 HTTP 请求测试，断言模型 ID、系统提示、消息角色和认证头。
 - 发布自动化：新增 `.github/workflows/release.yml`，Tag 触发 Windows 测试、PyInstaller EXE/ZIP 构建和 GitHub Release；`build.bat/build_share.bat` 改用系统 PowerShell 与 ASCII 传输名；补充 `workflow` scope 后已成功推送 workflow。
+- 发布回归修复：修复 job 级测试目录错误使用不可用 `runner.temp` 导致 workflow 启动失败的问题；修复 Windows PowerShell 传递中文资产 label 被截断的问题，改为 ASCII JSON Unicode 转义后通过 GitHub API 更新 label。手动 workflow run `32163898669` 的测试、编译、打包和 Release 上传全部成功，两个中文 label 已远程核对。
 - 文档接管：新增根目录 `AGENTS.md`、`docs/ai/CHANGE_HISTORY.md`、`DEVELOPMENT_GUIDE.md`，同步 23 阶段、稳定数据、自动质量门、两类日志受众和每次修复必须发版上传的规则。
 - 测试与发布：`dev_known_issues_test.py`、`dev_auto_test.py`、AI Center、Reference Center、Annotation、Integrations、Settings、`py_compile`、`main.py --selfcheck`、`--ui-check`、两个 Windows 资产自检和 ZIP 私人数据扫描均通过；main 提交 `b84746b` 已创建 Tag `v2.3.0`，Release 已发布，两个资产状态为 `uploaded`，中文 label 已核对。
 
