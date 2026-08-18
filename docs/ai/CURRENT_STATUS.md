@@ -35,10 +35,10 @@ v2.3.0 已完成自动质量门、无损统一数据目录与迁移、GitHub Rel
 - 2026-08-18 使用 CRLF 批处理重新打包 v2.1.2；源码和两个 EXE 的 `--selfcheck` 均通过
 - 2026-08-18 v2.3.0 通过已知问题离线回归、Provider 假 HTTP、数据迁移、全自动、AI 中心、参考文献、批注、集成、设置、语法编译、`--selfcheck` 和 `--ui-check`
 - 完整版目录 EXE、桌面单文件 EXE 与分享 ZIP 均已构建；ZIP 结构和私人文件扫描通过
-- GitHub main 分支已推送至提交 `bd2be1b`；Tag `v2.3.0` 指向发布提交 `b84746b`；Release `v2.3.0` 已创建并包含两个已上传资产，中文 label 已核对；workflow run `32163898669` 已成功完成 Windows 测试、打包和上传
+- GitHub main 分支已推送至提交 `8550fb7`；Tag `v2.3.0` 指向发布提交 `b84746b`；Release `v2.3.0` 已创建并包含两个已上传资产，中文 label 已核对；workflow run `32163898669` 已成功完成 Windows 测试、打包和上传
 
 ## Baseline 信息
 - 日期：2026-08-19
-- Commit：`29bcaa5`（发布后客户日志去重确认）
+- Commit：`8550fb7`（发布后日志清理与自动 workflow 验证）
 - Branch：`main`
 - Tag/Release：远程最新为 `v2.3.0`；Release URL：`https://github.com/ctxedkbh1/paper-workbench/releases/tag/v2.3.0`
