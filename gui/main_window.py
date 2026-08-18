@@ -221,6 +221,9 @@ class MainWindow(QMainWindow):
         view_menu.addAction(self.toggle_sidebar_action)
 
         help_menu = self.menuBar().addMenu("帮助")
+        update_action = QAction("检查更新…", self)
+        update_action.triggered.connect(self._open_update_check)
+        help_menu.addAction(update_action)
         about_action = QAction("关于论文助手", self)
         about_action.triggered.connect(lambda: AboutDialog(self).exec())
         help_menu.addAction(about_action)
@@ -230,7 +233,26 @@ class MainWindow(QMainWindow):
         self.refresh()
         self._sync_history_on_startup()
         QTimer.singleShot(400, self._maybe_resume_auto)
+        QTimer.singleShot(2500, self._check_updates_silently)
         self._load_geometry()
+
+    def _open_update_check(self):
+        AboutDialog(self, auto_check=True).exec()
+
+    def _check_updates_silently(self):
+        from gui.update_check import UpdateCheckThread
+
+        self._update_worker = UpdateCheckThread(self)
+        self._update_worker.result_ready.connect(self._on_background_update_result)
+        self._update_worker.error.connect(
+            lambda message: log.get().warning("后台检查更新失败: %s", message))
+        self._update_worker.start()
+
+    def _on_background_update_result(self, result):
+        if result.get("update_available"):
+            self.statusBar().showMessage(
+                f"发现新版本 v{result['latest_version']}，可在“帮助 → 检查更新”中下载。",
+                15000)
 
     def _sync_history_on_startup(self):
         from core.checkpoint import AutoCheckpoint
@@ -394,4 +416,4 @@ class MainWindow(QMainWindow):
         SettingsDialog(self, self.config).exec()
         self.refresh()
 
-# 版本: v2.2.0 (2026-08-18) 更新: 批注管理入口与项目重置
+# 版本: v2.3.0 (2026-08-19) 更新: GitHub Release 更新检查入口

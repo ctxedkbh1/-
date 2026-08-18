@@ -1,7 +1,18 @@
 # 开发日志（docs/ai/CHANGELOG）
 
 > 本文件记录**开发过程**层面的变更（文档体系、工程操作等）。
-> **产品功能**版本记录以仓库根目录的 CHANGELOG.md 为准（v2.2.0 / v2.1.2 / v2.1.1 / v2.1.0 / v2.0.1 / v2.0.0 / v1.6.0 / v1.5.0）。
+> **产品功能**版本记录以仓库根目录的 CHANGELOG.md 为准；本文件只记录开发者需要的根因、文件、迁移、测试和发布证据。
+
+## 2026-08-19 — v2.3.0
+
+- 自动质量门：新增 `core/quality_gate.py`，`core/auto_pipeline.py` 统一汇总事实核查状态、引用/参考文献双向关系、结构、字数、资料不足、风险阈值和高优先级质量问题。导出结果新增 `requirements_ok` 与 `requirement_failures`；失败/跳过/未执行统一为“自动判定未达标”。
+- 事实核查修复：`factcheck2` 优先于 `factcheck`；跳过状态不再因空 `issues` 被当成通过。`core/quality_report.py`、`gui/auto_mode_page.py` 和离线全自动测试使用同一语义。
+- 用户数据：`core/paths.py` 默认目录迁移到 `%LOCALAPPDATA%\\PaperAssistant\\paper_project`；`core/data_migration.py` 复制桌面单文件版、完整版和旧程序目录，配置只补齐缺失字段，冲突保留备份，报告不含 Key 内容。实际迁移扫描到两套旧目录、复制 24 个文件、备份 7 个冲突、合并 148 个配置字段、错误 0 个。
+- 更新系统：新增 `core/updater.py`、`gui/update_check.py`、About 检查按钮和帮助菜单入口；GitHub latest Release 请求在线程内执行，校验 SemVer，返回真实 Release URL/资产和 HTTP/网络错误。
+- 稳定性：`auto_pipeline.py` 显式导入 `paths`，不可用自定义输出目录回退分支已有本地回归；新增 Claude/Gemini 假 HTTP 请求测试，断言模型 ID、系统提示、消息角色和认证头。
+- 发布自动化：新增 `.github/workflows/release.yml`，Tag 触发 Windows 测试、PyInstaller EXE/ZIP 构建和 GitHub Release；`build.bat/build_share.bat` 改用系统 PowerShell 与 ASCII 传输名；OAuth scope 阻塞从“文件缺失”变为需远程 Actions 执行验证。
+- 文档接管：新增根目录 `AGENTS.md`、`docs/ai/CHANGE_HISTORY.md`、`DEVELOPMENT_GUIDE.md`，同步 23 阶段、稳定数据、自动质量门、两类日志受众和每次修复必须发版上传的规则。
+- 测试：`dev_known_issues_test.py`、`dev_auto_test.py`、AI Center、Reference Center、Annotation、Integrations、Settings、`py_compile`、`main.py --selfcheck`、`--ui-check` 已通过；尚未执行 v2.3.0 Windows EXE 构建和远程 Release。
 
 ## 2026-08-18
 - v2.2.0：新增独立批注系统；版本源已从 v2.1.2 升为 v2.2.0，源码与中文 EXE/ZIP 资产已验证，尚未提交、创建 Tag 或发布。

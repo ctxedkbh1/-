@@ -1,0 +1,99 @@
+name: Windows Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    env:
+      QT_QPA_PLATFORM: offscreen
+      PAPER_PROJECT_DIR: ${{ runner.temp }}\paperassistant-test-data
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        shell: pwsh
+        run: python -m pip install -r requirements.txt
+      - name: Compile
+        shell: pwsh
+        run: python -m compileall -q config core gui sources main.py
+      - name: Run offline tests
+        shell: pwsh
+        run: |
+          $tests = @(
+            "tests/dev_ai_center_test.py",
+            "tests/dev_openalex_test.py",
+            "tests/dev_reference_center_test.py",
+            "tests/dev_annotation_test.py",
+            "tests/dev_integrations_test.py",
+            "tests/dev_known_issues_test.py",
+            "tests/dev_auto_test.py",
+            "tests/dev_history_test.py",
+            "tests/dev_nat_test.py",
+            "tests/dev_sett_test.py",
+            "tests/dev_release_test.py",
+            "tests/dev_visual_test.py"
+          )
+          foreach ($test in $tests) { python $test; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE } }
+      - name: Application self checks
+        shell: pwsh
+        run: |
+          python main.py --selfcheck
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python main.py --ui-check
+
+  package:
+    needs: verify
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        shell: pwsh
+        run: python -m pip install -r requirements.txt
+      - name: Build release assets
+        shell: pwsh
+        run: |
+          $version = python -c "from core import paths; print(paths.VERSION)"
+          $single = "paperassistant-v$version-single"
+          $full = "paperassistant-v$version-full"
+          python -m PyInstaller --noconfirm --clean --onefile --windowed --name $single main.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m PyInstaller --noconfirm --clean --onedir --windowed --name $full main.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          New-Item -ItemType Directory -Force release_assets | Out-Null
+          Copy-Item "dist\$single.exe" "release_assets\$single.exe" -Force
+          Compress-Archive -Path "dist\$full" -DestinationPath "release_assets\$full.zip" -Force
+          "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Publish GitHub Release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $tag = $env:GITHUB_REF_NAME
+          if (-not $tag.StartsWith("v")) { $tag = "v$env:VERSION" }
+          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag --repo $env:GITHUB_REPOSITORY --title "论文助手 v$env:VERSION" --notes-file RELEASE_NOTES.md
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+          gh release upload $tag --repo $env:GITHUB_REPOSITORY --clobber `
+            "release_assets\paperassistant-v$env:VERSION-single.exe#论文助手_v$env:VERSION_单文件版" `
+            "release_assets\paperassistant-v$env:VERSION-full.zip#论文助手_v$env:VERSION_完整版"
+
+# Version: v2.3.0 (2026-08-19) Update: Windows test/package/tag release workflow

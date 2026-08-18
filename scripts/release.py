@@ -118,6 +118,19 @@ def prepare(bump: str, customer_notes: Path, internal_notes: Path) -> str:
         ROOT / "docs" / "ai" / "AI_HANDOFF.md",
     ):
         replace_once(path, r"^v\d+\.\d+\.\d+（[^\n]+）", f"v{new_version}（{date}）")
+    for path in (
+        ROOT / "AGENTS.md",
+        ROOT / "docs" / "ai" / "CHANGE_HISTORY.md",
+        ROOT / "docs" / "ai" / "DEVELOPMENT_GUIDE.md",
+    ):
+        replace_once(path, r"^# 版本: v\d+\.\d+\.\d+ \([^\n]+\)",
+                     f"# 版本: v{new_version} ({date}) 更新: 正式版本发布")
+    for path in (
+        ROOT / "docs" / "ai" / "ARCHITECTURE.md",
+        ROOT / "docs" / "ai" / "FEATURES.md",
+        ROOT / "docs" / "ai" / "FILE_MAP.md",
+    ):
+        replace_once(path, r"v\d+\.\d+\.\d+", f"v{new_version}")
 
     changelog = ROOT / "CHANGELOG.md"
     text = changelog.read_text("utf-8")
@@ -165,9 +178,9 @@ def upload_release_assets(version: str) -> None:
     the stable Chinese name while the transport filename remains ASCII-safe.
     """
     assets = [
-        (ROOT / "release_assets" / f"论文助手_v{version}_单文件版.exe",
+        (ROOT / "release_assets" / f"paperassistant-v{version}-single.exe",
          f"paperassistant-v{version}-single.exe", f"论文助手_v{version}_单文件版"),
-        (ROOT / "release_assets" / f"论文助手_v{version}_完整版.zip",
+        (ROOT / "release_assets" / f"paperassistant-v{version}-full.zip",
          f"paperassistant-v{version}-full.zip", f"论文助手_v{version}_完整版"),
     ]
     for path, _name, _label in assets:
@@ -217,6 +230,10 @@ def verify() -> None:
         (sys.executable, "tests/dev_reference_center_test.py"),
         (sys.executable, "tests/dev_annotation_test.py"),
         (sys.executable, "tests/dev_integrations_test.py"),
+        (sys.executable, "tests/dev_known_issues_test.py"),
+        (sys.executable, "tests/dev_auto_test.py"),
+        (sys.executable, "tests/dev_history_test.py"),
+        (sys.executable, "tests/dev_nat_test.py"),
         (sys.executable, "tests/dev_sett_test.py"),
         (sys.executable, "tests/dev_release_test.py"),
         (sys.executable, "tests/dev_visual_test.py"),
@@ -236,11 +253,11 @@ def publish(confirm: str) -> None:
     verify()
     version = current_version()
     tag = f"v{version}"
-    assets = [ROOT / "release_assets" / f"论文助手_v{version}_单文件版.exe",
-              ROOT / "release_assets" / f"论文助手_v{version}_完整版.zip"]
+    assets = [ROOT / "release_assets" / f"paperassistant-v{version}-single.exe",
+              ROOT / "release_assets" / f"paperassistant-v{version}-full.zip"]
     missing = [str(path) for path in assets if not path.is_file() or path.stat().st_size == 0]
     if missing:
-        raise ReleaseError("缺少本地中文发布资产: " + ", ".join(missing))
+        raise ReleaseError("缺少本地发布资产: " + ", ".join(missing))
     if run("git", "tag", "-l", tag):
         raise ReleaseError(f"Tag 已存在: {tag}")
     run("git", "add", "-A")
@@ -278,4 +295,4 @@ if __name__ == "__main__":
         print(f"RELEASE BLOCKED: {exc}", file=sys.stderr)
         raise SystemExit(2) from None
 
-# 版本: v2.2.0 (2026-08-18) 更新: UTF-8 中文 Release 标签上传
+# 版本: v2.3.0 (2026-08-19) 更新: 自动发布门、日志同步与新增回归测试

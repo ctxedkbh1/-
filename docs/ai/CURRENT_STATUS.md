@@ -3,26 +3,27 @@
 > 本文件是项目状态的**单一事实来源**。每次改动代码后必须同步更新本文件。
 
 ## 当前版本
-v2.2.0（2026-08-18，已发布）
+v2.3.0（2026-08-19，待本轮正式发布）
 
 ## 当前开发阶段
-v2.2.0 已完成批注数据层、样式模板、证据同步、批量管理、正文跳转、安全改写保护和多格式导出接入。源码回归测试、中文资产验证、main 推送、Tag 和 GitHub Release 均已完成。
+v2.3.0 已完成自动质量门、无损统一数据目录与迁移、GitHub Release 更新检查、导出回退修复、Provider 请求回归测试和 Windows Release workflow；客户/开发者日志已分离更新，待本轮构建并发布。
 
 ## 最近完成
 1. 高级模式工作台（六阶段流程化指导）——v2.0.0 核心功能
-2. GitHub 公开发布：仓库 paper-workbench、Release v2.0.0（EXE + ZIP 两个安装包）、README/CHANGELOG/LICENSE 文档体系
-3. 建立 AI 项目知识库 docs/ai/（本目录）
-4. 修复 Windows 批处理、用户数据迁移和 Release 资产格式；桌面固定名称覆盖，GitHub 提供版本化 EXE + ZIP
-5. 新增独立 AnnotationStore 和批注管理页，兼容旧 E-ID 并输出批注附录/批注表
+2. AI 模型中心、动态发现、参考文献/Zotero/Notebook、独立 AnnotationStore——v2.1.0/v2.2.0
+3. 全自动 23 阶段流水线、统一自动质量门：自动判定“可以导出”或“自动判定未达标”
+4. 稳定数据目录 `%LOCALAPPDATA%\PaperAssistant\paper_project` 和旧版无损复制/冲突备份
+5. GitHub Release 异步更新检查、真实错误展示和下载页入口
+6. Claude/Gemini 请求回归测试、导出回退修复、Windows Tag Release workflow
 
 ## 当前正在处理
-v2.2.0 功能代码、版本文档和发布资产已完成并发布；远程 workflow 权限仍未恢复。
+v2.3.0 源码和离线验证已完成；正在构建 Windows EXE/ZIP 并执行 GitHub Tag/Release 发布。
 
 ## 下一步
-下一步：用户重新授权 GitHub OAuth `workflow` scope 后，将本地 `.github/workflows/release.yml` 写入远程。后续每个 bug/功能按发布规则递增版本。
+下一步：完成 v2.3.0 发布门、推送 main、创建 Tag/Release 并核对资产 label；以后每个修复/功能都自动递增版本并同步两类日志后发布。
 
 ## 当前已知 Bug
-无未修复的致命或功能性 Bug。已知限制见 KNOWN_ISSUES.md（均属设计限制或外部环境问题）。
+未发现新的核心崩溃。政府检索、CNKI 登录和长论文耗时仍是外部环境/设计限制，见 KNOWN_ISSUES.md；v2.3.0 发布动作在本文件更新时尚未完成。
 
 ## 当前不能修改的模块
 - **防编造机制相关**（core/evidence.py、core/writer.py、core/naturalizer.py、core/fact_checker.py 的约束逻辑）：项目最高优先级，任何改动不得削弱
@@ -32,12 +33,12 @@ v2.2.0 功能代码、版本文档和发布资产已完成并发布；远程 wor
 ## 最后一次正常运行状态
 - 桌面仅保留固定名称的完整版目录、单文件 EXE 和分享 ZIP；旧版本源码归档到 backup/releases
 - 2026-08-18 使用 CRLF 批处理重新打包 v2.1.2；源码和两个 EXE 的 `--selfcheck` 均通过
-- 2026-08-18 v2.2.0 源码通过批注回归、参考文献回归、离线全自动测试、GUI 刷新检查、语法编译和 `main.py --selfcheck`；中文单文件 EXE 与 ZIP 内完整版 `--selfcheck` 均返回 0
+- 2026-08-18 v2.3.0 通过已知问题离线回归、Provider 假 HTTP、数据迁移、全自动、AI 中心、参考文献、批注、集成、设置、语法编译、`--selfcheck` 和 `--ui-check`
 - 完整版目录 EXE、桌面单文件 EXE 与分享 ZIP 均已构建；ZIP 结构和私人文件扫描通过
 - GitHub main 分支、Tag v2.2.0 和 Release v2.2.0 已验证正常
 
 ## Baseline 信息
-- 日期：2026-08-17
-- Commit：v2.0.1 标签指向的提交（见 git log）
-- Tag：v2.0.1
-- 本地备份：`Default Project\backup\project-baseline-2026-08-17-v2.0.1\`
+- 日期：2026-08-18
+- Commit：本轮发布前以 `git log -1` 为准
+- Branch：`main`
+- Tag/Release：当前远程最新为 `v2.2.0`；v2.3.0 待本轮发布

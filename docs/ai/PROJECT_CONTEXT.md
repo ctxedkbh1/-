@@ -44,15 +44,15 @@ AI 辅助写作 + 资料整理 + 文档生成工具，不代替用户思考，�
 - CNKI：仅手动录入 + RIS/BibTeX 导入（不绕过登录/验证码/付费墙）
 
 ## 主要功能
-三种模式（普通 8 步 / 全自动 21 步 / 高级工作台 6 阶段）、证据库防编造、独立批注与样式管理、写作质量检测与自然化修改、事实核查（最多 3 轮）、定向修改、6 格式导出（DOCX/PPTX/PDF/TXT/MD/HTML）、历史记录、断点恢复、自定义输出目录。详见 FEATURES.md。
+三种模式（普通 8 步 / 全自动 23 步 / 高级工作台 6 阶段）、证据库防编造、独立批注与样式管理、写作质量检测与自然化修改、自动质量门、事实核查（最多 3 轮）、定向修改、6 格式导出（DOCX/PPTX/PDF/TXT/MD/HTML）、历史记录、断点恢复、自定义输出目录、GitHub Release 更新检查。详见 FEATURES.md。
 
 ## 当前开发阶段
-v2.2.0 已完成批注管理系统、源码测试、中文 Release label 资产构建并发布（2026-08-18）。Actions workflow 权限仍待恢复。
+v2.3.0 已完成自动质量门、稳定数据迁移、更新检查、Provider 回归和 Windows workflow 源码测试（2026-08-19）；EXE/ZIP 与 Tag/Release 待本轮发布。
 
 ## 项目目录
 - 源码根目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`
 - GitHub：https://github.com/ctxedkbh1/paper-workbench
-- 运行数据目录（仓库外，禁止上传）：默认 `<app目录>\paper_project\` 或 `~\paper_project\`，可用环境变量 `PAPER_PROJECT_DIR` 覆盖。内含 config.json（API Key）、project.json、evidence.json、annotations.json、annotation_styles.json、auto_checkpoint.json、chapters/、logs/、output/ 等。
+- 运行数据目录（仓库外，禁止上传）：默认 `%LOCALAPPDATA%\PaperAssistant\paper_project\`，可用环境变量 `PAPER_PROJECT_DIR` 覆盖。首次升级从旧桌面目录无损复制并保留冲突备份；内含 config.json（API Key）、project.json、evidence.json、annotations.json、annotation_styles.json、auto_checkpoint.json、chapters/、logs/、output/ 等。
 
 ## 重要文件
 | 文件 | 作用 |
@@ -60,7 +60,10 @@ v2.2.0 已完成批注管理系统、源码测试、中文 Release label 资产�
 | main.py | 入口（含 --selfcheck 自检） |
 | core/paths.py | APP_NAME / VERSION / RELEASE_DATE 统一定义、数据目录路径 |
 | core/llm.py | 全部 AI Provider 实现 |
-| core/auto_pipeline.py | 全自动模式控制器（21 步、断点恢复） |
+| core/auto_pipeline.py | 全自动模式控制器（23 步、断点恢复、自动质量门） |
+| core/quality_gate.py | 起始要求自动判定 |
+| core/data_migration.py | 稳定数据目录与旧版无损迁移 |
+| core/updater.py / gui/update_check.py | GitHub Release 更新检查 |
 | core/annotations.py | 批注记录、样式模板、证据同步与重新编号 |
 | config/manager.py | API Key 配置管理（环境变量 > config.json） |
 | gui/main_window.py | 主窗口 |

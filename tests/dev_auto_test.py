@@ -77,7 +77,9 @@ print("结果:", {k: r[k] for k in ("evidence_count", "references_ok", "final_st
                                 "ai_risk", "repeat_risk", "target_met", "rounds")})
 assert r["evidence_count"] == 2
 assert r["references_ok"] is True
-assert r["final_status"] == "可以导出", r
+assert r["final_status"] == "自动判定未达标", r
+assert r["factcheck_status"] == "skipped", r
+assert r["factcheck_ok"] is False, r
 assert r["ai_risk"] is not None and r["repeat_risk"] is not None
 assert r["ai_limit"] == 20 and r["repeat_limit"] == 20 and r["max_rounds"] == 3
 assert r["target_met"] is True, r
@@ -91,6 +93,9 @@ print("输出文件检查通过")
 
 report = open(os.path.join(out_dir, "资料核验报告.md"), encoding="utf-8").read()
 assert "引用↔参考文献检查" in report
+quality = open(os.path.join(out_dir, "论文质量报告.md"), encoding="utf-8").read()
+assert "事实核查：未完成" in quality
+assert "事实核查：✓ 通过" not in quality
 print("核验报告内容检查通过")
 log_md = open(os.path.join(out_dir, "全自动运行日志.md"), encoding="utf-8").read()
 assert "步骤记录" in log_md
@@ -125,4 +130,4 @@ print("空资料安全停止检查通过")
 
 print("\n=== 离线端到端全自动流水线测试通过 ===")
 
-# 版本: v2.2.0 (2026-08-18) 更新: 批注导出回归测试
+# 版本: v2.3.0 (2026-08-19) 更新: 自动质量门与事实核查状态回归测试

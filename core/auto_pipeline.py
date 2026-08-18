@@ -6,7 +6,7 @@ from PySide6.QtCore import QObject, Signal
 
 from config.manager import ConfigManager
 from core import detector, exporter, fact_checker, log, naturalizer, outline as outline_mod, \
-    quality_report, research, style_checker, writer as writer_mod
+    paths, quality_gate, quality_report, research, style_checker, writer as writer_mod
 from core.annotations import AnnotationStore
 from core.checkpoint import AutoCheckpoint
 
@@ -755,7 +755,11 @@ class AutoPipelineEngine(QObject):
                                   detection=detection,
                                   ai_limit=self.ai_limit,
                                   repeat_limit=self.repeat_limit,
-                                  max_rounds=self.max_rounds)
+                                  max_rounds=self.max_rounds,
+                                  factcheck_status=self._factcheck_status(),
+                                  factcheck_issue_count=len(issues),
+                                  requirement_failures=self._requirement_failures(
+                                      analysis, style, detection))
         quality_report_path = os.path.join(out_dir, "论文质量报告.md")
         with open(quality_report_path, "w", encoding="utf-8") as f:
             f.write(qr)
@@ -769,6 +773,41 @@ class AutoPipelineEngine(QObject):
     def _step_done(self):
         self.log("全自动流程全部步骤完成。")
 
+    def _factcheck_status(self):
+        """Return the status of the latest fact check that applies to exported text."""
+        missing = object()
+        second_issues = self.checkpoint.get("issues2", missing)
+        second_status = self.checkpoint.status("factcheck2")
+        if second_status != "pending" or second_issues is not missing:
+            if second_status in ("failed", "skipped"):
+                return "skipped"
+            if second_status == "done" or second_issues is not missing:
+                return "issues" if second_issues else "passed"
+
+        first_issues = self.checkpoint.get("issues", missing)
+        first_status = self.checkpoint.status("factcheck")
+        if first_status in ("failed", "skipped"):
+            return "skipped"
+        if first_status == "done" or first_issues is not missing:
+            return "issues" if first_issues else "passed"
+        return "not_run"
+
+    def _requirement_failures(self, analysis, style, detection):
+        factcheck_status = self._factcheck_status()
+        citations_ok = not analysis.get("unresolved") and \
+            analysis.get("annotation_ok", True) is not False
+        references_ok = bool(analysis.get("bidirectional_ok"))
+        target_met = self._target_met(detection) if detection else None
+        return quality_gate.evaluate(
+            factcheck_status, citations_ok, references_ok,
+            structure_stats=self.checkpoint.get("structure_stats") or {},
+            wordcount=self.checkpoint.get("wordcount") or {},
+            insufficient=self.checkpoint.get("insufficient_chapters") or [],
+            target_met=target_met,
+            style=style,
+            ai_style_issues=self.checkpoint.get("style_ai") or [],
+        )
+
     def _result(self):
         analysis = self.checkpoint.get("analysis2") or self.checkpoint.get("analysis") or {}
         style = self.checkpoint.get("style") or {}
@@ -781,16 +820,16 @@ class AutoPipelineEngine(QObject):
             quality = "较差"
         elif style.get("template_score") == "中":
             quality = "一般"
-        final_status = "可以导出"
-        if analysis.get("unresolved") or analysis.get("unresolved_annotations") \
-                or analysis.get("annotation_ok") is False:
-            final_status = "需人工检查"
+        factcheck_status = self._factcheck_status()
+        failures = self._requirement_failures(analysis, style, detection)
+        final_status = "可以导出" if not failures else "自动判定未达标"
         return {
             "paths": self.checkpoint.get("export_paths") or {},
             "evidence_count": len(self.store.all()),
             "verified": self.store.verified_count(),
             "pending": pending,
-            "factcheck_ok": not (self.checkpoint.get("issues2") or self.checkpoint.get("issues")),
+            "factcheck_ok": factcheck_status == "passed",
+            "factcheck_status": factcheck_status,
             "citations_ok": not analysis.get("unresolved") and bool(analysis.get("annotation_ok", True)),
             "references_ok": bool(analysis.get("bidirectional_ok")),
             "style_level": style.get("template_score", "低"),
@@ -798,6 +837,8 @@ class AutoPipelineEngine(QObject):
             "rounds": self.checkpoint.get("quality_rounds") or 0,
             "insufficient": self.checkpoint.get("insufficient_chapters") or [],
             "final_status": final_status,
+            "requirements_ok": not failures,
+            "requirement_failures": failures,
             "scores": scores,
             "structure_stats": self.checkpoint.get("structure_stats") or {},
             "wordcount": self.checkpoint.get("wordcount") or {},
@@ -813,4 +854,4 @@ class AutoPipelineEngine(QObject):
             "detection_source": detector.source_label(detection) if detection else "",
         }
 
-# 版本: v2.2.0 (2026-08-18) 更新: 批注表自动导出
+# 版本: v2.3.0 (2026-08-19) 更新: 自动质量门、事实核查状态和导出回退

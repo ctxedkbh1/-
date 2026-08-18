@@ -69,7 +69,7 @@ if errorlevel 1 (
 echo.
 echo [5/5] 复制完整版文件夹和单文件 EXE 到桌面...
 set "DESKTOP_FULL=%USERPROFILE%\Desktop\论文智能研究与写作助手_完整版"
-powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\deploy_full_version.ps1" ^
+"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -File "scripts\deploy_full_version.ps1" ^
     -SourceDir "dist\%FULLNAME%" -DestinationDir "%DESKTOP_FULL%" ^
     -DesktopDir "%USERPROFILE%\Desktop"
 if errorlevel 1 (
@@ -83,7 +83,7 @@ if errorlevel 1 (
 ) else (
     echo [完成] 单文件 EXE 已更新: %USERPROFILE%\Desktop\论文智能研究与写作助手.exe
 )
-powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\copy_release_asset.ps1" -Version "%APPVER%" -Kind exe
+"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -File "scripts\copy_release_asset.ps1" -Version "%APPVER%" -Kind exe
 if errorlevel 1 (
     echo [错误] GitHub 单文件资产生成失败。
     exit /b 1
@@ -91,6 +91,6 @@ if errorlevel 1 (
 
 echo.
 echo 桌面完整版文件夹已包含 EXE 和完整运行环境, 请保留整个文件夹.
-REM Version: v2.2.0 (2026-08-18) Update: Chinese GitHub asset names
+REM Version: v2.3.0 (2026-08-19) Update: stable Windows PowerShell invocation
 if not defined PAPERASSISTANT_NO_PAUSE pause
 exit /b 0

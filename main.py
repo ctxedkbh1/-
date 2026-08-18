@@ -200,7 +200,8 @@ def run_selfcheck():
     qr = quality_report.build(proj, store, analysis, style, 1, [], 0, [],
                               structure_stats=stats, wordcount={"required": 2000, "actual": 100, "ok": False},
                               scores=scores, modification_log=[
-                                  {"round": 1, "paragraphs_modified": 3, "chapters": [1], "expand": False}])
+                                  {"round": 1, "paragraphs_modified": 3, "chapters": [1], "expand": False}],
+                              factcheck_status="passed", requirement_failures=[])
     assert "最终状态" in qr and "可以导出" in qr
     assert "综合质量" in qr and "第 1 轮：修改 3 个段落" in qr
 
@@ -460,4 +461,4 @@ def _any_model_key(cfg):
 if __name__ == "__main__":
     main()
 
-# 版本: v2.0.0 (2026-08-16) 更新: 高级模式工作台
+# 版本: v2.3.0 (2026-08-19) 更新: 自动质量门自检契约

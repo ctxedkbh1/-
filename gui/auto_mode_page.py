@@ -559,6 +559,19 @@ class AutoModePage(QWidget):
 
     # ---------- 结束逻辑 ----------
 
+    @staticmethod
+    def _factcheck_text(result):
+        status = result.get("factcheck_status")
+        labels = {
+            "passed": "✓ 通过",
+            "issues": "发现问题",
+            "skipped": "未完成（AI 调用失败或步骤被跳过）",
+            "not_run": "未执行",
+        }
+        if status in labels:
+            return labels[status]
+        return "✓ 通过" if result.get("factcheck_ok") else "存在问题"
+
     def _on_finished(self, result):
         self.btn_start.setEnabled(True)
         self.btn_cancel.setEnabled(True)
@@ -580,14 +593,15 @@ class AutoModePage(QWidget):
                     f"资料：{result['evidence_count']} 条\n"
                     f"已验证证据：{result['verified']} 条\n"
                     f"待完善文献：{result['pending']} 条\n"
-                    f"事实核查：{'✓ 通过' if result['factcheck_ok'] else '存在问题'}\n"
+                    f"事实核查：{self._factcheck_text(result)}\n"
                     f"引用检查：{'✓ 通过' if result['citations_ok'] else '存在问题'}\n"
                     f"参考文献检查：{'✓ 通过' if result['references_ok'] else '未通过'}\n"
                     f"AI文本风险：{result.get('ai_risk', '—')}% / 目标 ≤ {result.get('ai_limit', '—')}% "
                     f"{'✓' if ai_ok else '✗'}\n"
                     f"重复/相似内容风险：{result.get('repeat_risk', '—')}% / 目标 ≤ {result.get('repeat_limit', '—')}% "
                     f"{'✓' if rep_ok else '✗'}\n"
-                    f"状态：{'✓ 满足用户设置的输出条件' if result.get('target_met') else '✗ 未完全达到用户设置的条件'}")
+                    f"自动判定：{result.get('final_status', '未知')}\n"
+                    f"原因：{'；'.join(result.get('requirement_failures') or []) or '全部起始要求均已满足'}")
         btn_folder = box.addButton("打开输出文件夹", QMessageBox.ButtonRole.ActionRole)
         btn_paper = box.addButton("打开论文", QMessageBox.ButtonRole.ActionRole)
         btn_report = box.addButton("查看核验报告", QMessageBox.ButtonRole.ActionRole)
@@ -624,7 +638,7 @@ class AutoModePage(QWidget):
     def _show_summary(self, r):
         self._last_result = r
         marks = lambda ok: "✓ 通过" if ok else "存在问题"
-        self.sum_labels["factcheck"].setText(f"事实核查：{marks(r['factcheck_ok'])}")
+        self.sum_labels["factcheck"].setText(f"事实核查：{self._factcheck_text(r)}")
         self.sum_labels["citations"].setText(f"引用完整性：{marks(r['citations_ok'])}")
         self.sum_labels["references"].setText(f"参考文献对应：{marks(r['references_ok'])}")
         self.sum_labels["trace"].setText(f"证据可追溯：{marks(r['citations_ok'] and r['references_ok'])}")
@@ -649,12 +663,15 @@ class AutoModePage(QWidget):
             f"{'✓' if ai_ok else '✗'}　|　"
             f"重复/相似内容风险：{r.get('repeat_risk', '—')}% / 目标 ≤ {r.get('repeat_limit', '—')}% "
             f"{'✓' if rep_ok else '✗'}\n" + src_note)
-        if target_met:
-            self.sum_status.setText("状态：✓ 满足用户设置的输出条件")
+        requirements_ok = bool(r.get("requirements_ok", target_met))
+        if requirements_ok:
+            self.sum_status.setText("自动判定：✓ 满足起始要求，可直接使用输出")
             self.sum_status.setStyleSheet("font-weight: bold; color: #039855;")
         else:
             reached = r.get("rounds", 0) >= r.get("max_rounds", 0) > 0
-            self.sum_status.setText("状态：✗ 未完全达到用户设置的条件" +
+            reasons = "；".join(r.get("requirement_failures") or [])
+            self.sum_status.setText("自动判定：✗ 未达标" +
+                                    (f"（{reasons}）" if reasons else "") +
                                     ("（自动优化已达到最大次数）" if reached else ""))
             self.sum_status.setStyleSheet("font-weight: bold; color: #d92d20;")
         self.btn_continue.setVisible(not target_met)
@@ -721,4 +738,4 @@ class AutoModePage(QWidget):
         else:
             msg_warn(self, "文件不存在。")
 
-# 版本: v2.0.0 (2026-08-16) 更新: 高级模式工作台
+# 版本: v2.3.0 (2026-08-19) 更新: 自动判定结果与质量门反馈

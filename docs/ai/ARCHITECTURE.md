@@ -1,6 +1,6 @@
 # 项目架构（ARCHITECTURE）
 
-> 依据：真实源码分析（2026-08-18，v2.2.0）。若与源码不符，以源码为准。
+> 依据：真实源码分析（2026-08-19，v2.3.0）。若与源码不符，以源码为准。
 
 ## 分层架构
 
@@ -11,13 +11,13 @@ PySide6 图形界面（gui/）
         │
         ▼
 应用层（core/）
-    ├── 任务编排：auto_pipeline.py（全自动 Controller/Engine，21 步，断点恢复）
+    ├── 任务编排：auto_pipeline.py（全自动 Controller/Engine，23 步，断点恢复）
     │             advanced_state.py（高级工作台 6 阶段状态机）
     ├── 写作引擎：writer.py / outline.py / naturalizer.py / targeted_edit.py
     ├── 质量体系：fact_checker.py / style_checker.py / quality_report.py / detector.py
     ├── 证据与批注：evidence.py / annotations.py / research.py / checkpoint.py
     ├── 文档引擎：document.py（统一模型）/ exporter.py（6 格式导出）
-    └── 基础设施：paths.py / log.py / history.py / output_location.py / prompts.py / project.py
+    └── 基础设施：paths.py / data_migration.py / updater.py / quality_gate.py / log.py / history.py / output_location.py / prompts.py / project.py
         │
         ▼
 AI Provider 层（core/llm.py + core/deepseek.py + core/model_presets.py）
@@ -33,7 +33,7 @@ AI Provider 层（core/llm.py + core/deepseek.py + core/model_presets.py）
         │
         ▼
 存储层（本地文件，无数据库）
-    paper_project\（config.json / project.json / evidence.json / annotations.json /
+    %LOCALAPPDATA%\PaperAssistant\paper_project\（config.json / project.json / evidence.json / annotations.json /
                     annotation_styles.json / auto_checkpoint.json /
                     research_plan.md / outline.md / chapters\ / logs\ / cache\ / output\）
 ```
@@ -57,7 +57,7 @@ AI Provider 层（core/llm.py + core/deepseek.py + core/model_presets.py）
 | AI | core/deepseek.py | DeepSeek 专用（旧版兼容，主要逻辑已并入 llm.py） |
 | AI | core/model_presets.py | 模型预设方案 |
 | AI | core/prompts.py | 全部提示词 |
-| 编排 | core/auto_pipeline.py | 全自动 21 步；自动重试；on_fail=skip；断点恢复 |
+| 编排 | core/auto_pipeline.py | 全自动 23 步；自动重试；on_fail=skip；断点恢复；自动质量门 |
 | 编排 | core/advanced_state.py | 高级工作台状态 |
 | 编排 | core/checkpoint.py | 断点数据 auto_checkpoint.json |
 | 写作 | core/writer.py | 分章节写作（只能引用证据 [E001]） |
@@ -75,6 +75,9 @@ AI Provider 层（core/llm.py + core/deepseek.py + core/model_presets.py）
 | 文档 | core/exporter.py | DOCX/PPTX/PDF/TXT/MD/HTML 导出 + 验证 |
 | 检索 | sources/openalex.py, crossref.py, government.py, websearch.py, cnki.py | 5 个检索源 |
 | 基础设施 | core/paths.py | 版本号、数据目录（**版本号唯一来源**） |
+| 基础设施 | core/data_migration.py | 旧版单文件/完整版数据无损复制、冲突备份和迁移报告 |
+| 基础设施 | core/quality_gate.py | 统一自动判定起始要求是否满足 |
+| 基础设施 | core/updater.py / gui/update_check.py | GitHub Release 版本检查与异步线程 |
 | 基础设施 | core/log.py | 日志（不含 API Key） |
 | 基础设施 | core/history.py | 历史任务归档 |
 | 基础设施 | core/output_location.py | 自定义输出目录 |
@@ -90,7 +93,8 @@ AI Provider 层（core/llm.py + core/deepseek.py + core/model_presets.py）
 4. 写作：writer.py 携带证据编号调用 AI → 引用只能来自 evidence.json
 5. 质量循环：style_checker → naturalizer（保护事实与批注标记）→ fact_checker（最多 3 轮）
 6. exporter.py 从统一 Document 模型导出 6 格式、批注说明和批注表并验证
-7. 全自动模式：auto_pipeline.py 按 21 步串行执行，checkpoint.py 每步落盘断点
+7. 全自动模式：auto_pipeline.py 按 23 步串行执行，checkpoint.py 每步落盘断点，quality_gate.py 统一计算自动判定结果
+8. 更新检查：启动后台线程或帮助菜单手动触发 → GitHub latest Release API → SemVer 比较 → 显示真实版本、Release URL 或 HTTP/网络错误
 
 ## 防编造机制（最高优先级，禁止削弱）
 
@@ -100,11 +104,11 @@ AI Provider 层（core/llm.py + core/deepseek.py + core/model_presets.py）
 4. 输出前执行引用 ↔ 参考文献双向检查 + 逐句事实核查（最多 3 轮）
 5. 著录信息不全的文献标记“待完善”，不自动猜测补全
 
-## v2.2.0 当前实现状态
+## v2.3.0 当前实现状态
 
 - `core/ai/` 已提供 Provider/Model 数据域、官方发现、缓存、Credential Manager、Registry、AIService；`core/deepseek.py` 保持旧入口兼容。
 - `core/references/` 已提供 ReferenceStore、RIS/BibTeX/CSL JSON、本地文件、CitationMap 和样式入口。
 - `sources/zotero.py` 支持官方 Local/Web 增量读取；`sources/notebook.py` 支持本地文件和 Notebook Enterprise 官方写入。
 - `gui/model_center.py`、`gui/reference_center.py`、`gui/about_dialog.py` 已接入主窗口；全自动/高级模型选择已使用稳定 ModelRef。
 - `core/annotations.py` 与 `gui/pages/annotation_page.py` 已提供独立批注 registry、样式 registry、证据同步、批量管理、正文跳转和导出附录。
-- v2.2.0 已通过源码回归、自检、中文资产和远程 Release label 验证；Actions workflow 因 OAuth scope 暂未远程写入。
+- v2.3.0 已通过源码回归、自检、中文资产和远程 Release label 基线验证；本地 `.github/workflows/release.yml` 已补齐 Windows 测试、打包和 Tag Release。

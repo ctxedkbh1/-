@@ -1,12 +1,14 @@
 import datetime
 
-from core import detector
+from core import detector, quality_gate
 
 
 def build(project, store, analysis, style, rounds, insufficient, naturalized_count,
           ai_style_issues, structure_stats=None, wordcount=None, scores=None,
           modification_log=None, reverted_count=0, detection=None,
-          ai_limit=None, repeat_limit=None, max_rounds=None):
+          ai_limit=None, repeat_limit=None, max_rounds=None,
+          factcheck_status="not_run", factcheck_issue_count=0,
+          requirement_failures=None):
     info = project.info()
     pending = store.pending_count()
     structure_stats = structure_stats or {}
@@ -16,7 +18,13 @@ def build(project, store, analysis, style, rounds, insufficient, naturalized_cou
     ok_citations = not analysis.get("unresolved")
     ok_references = analysis.get("bidirectional_ok", False)
     ok_trace = ok_citations and ok_references
-    fact_ok = ok_references and not analysis.get("unresolved")
+    fact_labels = {
+        "passed": "✓ 通过",
+        "issues": f"发现问题（{factcheck_issue_count} 处）",
+        "skipped": "未完成（AI 调用失败或步骤被跳过）",
+        "not_run": "未执行",
+    }
+    fact_label = fact_labels.get(factcheck_status, "状态未知")
 
     if style.get("template_score") == "低" and not style.get("repeats") and not style.get("empties"):
         quality = "良好"
@@ -25,22 +33,34 @@ def build(project, store, analysis, style, rounds, insufficient, naturalized_cou
     else:
         quality = "一般"
 
-    final_status = "可以导出"
+    if requirement_failures is None:
+        target_met = None
+        if detection:
+            ai_risk = detection.get("ai_risk")
+            repeat_risk = detection.get("repeat_risk")
+            target_met = ai_risk is not None and repeat_risk is not None and \
+                (ai_limit is None or ai_risk <= ai_limit) and \
+                (repeat_limit is None or repeat_risk <= repeat_limit)
+        requirement_failures = quality_gate.evaluate(
+            factcheck_status, ok_citations, ok_references,
+            structure_stats=structure_stats, wordcount=wordcount,
+            insufficient=insufficient, target_met=target_met, style=style,
+            ai_style_issues=ai_style_issues)
+    final_status = "可以导出" if not requirement_failures else "自动判定未达标"
     problems = []
     if not ok_citations:
         problems.append("正文引用存在未知编号")
     if analysis.get("unresolved"):
         problems.append(f"引用异常: {analysis['unresolved']}")
+    problems.extend(requirement_failures)
     high_issues = [i for i in ai_style_issues if i.get("severity") == "高"]
-    if high_issues:
+    if high_issues and not any("高优先级" in item for item in problems):
         problems.append(f"高优先级质量问题 {len(high_issues)} 处")
-    if problems:
-        final_status = "需人工检查"
 
     lines = ["# 论文质量报告", "", f"生成时间：{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
              f"论文题目：{info.get('topic') or '（未填写）'}", ""]
     lines += ["## 一、质量状态", ""]
-    lines.append(f"- 事实核查：{'✓ 通过' if fact_ok else '存在问题'}")
+    lines.append(f"- 事实核查：{fact_label}")
     lines.append(f"- 引用完整性：{'✓ 通过' if ok_citations else '未通过'}")
     lines.append(f"- 参考文献对应：{'✓ 通过' if ok_references else '未通过'}")
     lines.append(f"- 证据可追溯：{'✓ 通过' if ok_trace else '未通过'}")
@@ -53,7 +73,7 @@ def build(project, store, analysis, style, rounds, insufficient, naturalized_cou
         lines.append("- 资料不足章节：" + "、".join(insufficient))
     lines.append(f"- 最终状态：{final_status}")
     if problems:
-        lines += ["", "## 二、需要人工处理的问题"]
+        lines += ["", "## 二、自动判定未通过的原因"]
         for p in problems:
             lines.append(f"- {p}")
 
@@ -131,4 +151,4 @@ def build(project, store, analysis, style, rounds, insufficient, naturalized_cou
                          f"（{it.get('location', '')}）：{it.get('suggestion', '')}")
     return "\n".join(lines)
 
-# 版本: v1.4.0 (2026-08-16) 更新: 可自定义检测阈值
+# 版本: v2.3.0 (2026-08-19) 更新: 自动质量门和事实核查状态报告

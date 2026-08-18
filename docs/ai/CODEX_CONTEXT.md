@@ -1,11 +1,11 @@
 # Codex 项目上下文
 
 ## 当前版本
-v2.2.0（2026-08-18，已发布）
+v2.3.0（2026-08-19，源码完成，待正式发布）
 
 ## 当前状态
 - 分支：`main`
-- 工作目标：完成独立批注系统并保持旧证据引用兼容
+- 工作目标：完成自动质量门、稳定用户数据、更新检查和正式发布；保持既有批注/证据兼容
 - 兼容要求：现有普通/全自动/高级模式、EvidenceStore、导出和用户数据不得破坏
 
 ## 已有主要功能
@@ -15,14 +15,18 @@ v2.2.0（2026-08-18，已发布）
 - 历史记录、断点恢复、完整版本地部署、GitHub Release
 
 ## 当前任务
-v2.2.0 批注系统代码、文档、回归测试和中文 Release label 资产已完成并验证；main、Tag 和 GitHub Release 均已发布。Actions 文件仍等待 OAuth `workflow` scope。
+v2.3.0 自动质量门、数据迁移、更新检查、Provider 回归和 workflow 已完成源码与离线验证；main/Tag/Release 待本轮构建发布。
 
 ## 下一步
-1. 用户授权 `workflow` scope 后同步 `.github/workflows/release.yml`
-2. 后续每个 bug/功能/UI 改动均按 RELEASE_PROCESS.md 递增版本发布
+1. 构建 v2.3.0 EXE/ZIP，运行发布门并核对无私人数据
+2. 推送 main、创建 Tag/Release、上传两个资产并核对中文 label
+3. 后续每个 bug/功能/UI 改动均按 RELEASE_PROCESS.md 递增版本并自动上传
 
 ## 重要文件
 - `core/paths.py`：版本唯一来源
+- `core/quality_gate.py`：统一自动判定起始要求
+- `core/data_migration.py`：稳定目录与旧数据无损迁移
+- `core/updater.py`、`gui/update_check.py`：GitHub Release 异步更新检查
 - `config/manager.py`：现有配置与旧模型迁移入口
 - `core/ai/`：动态 Provider、Model、Discovery、Registry、Credential、AIService
 - `core/references/`：ReferenceStore、导入、去重、CitationMap、样式
