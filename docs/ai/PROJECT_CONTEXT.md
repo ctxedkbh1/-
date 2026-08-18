@@ -47,7 +47,7 @@ AI 辅助写作 + 资料整理 + 文档生成工具，不代替用户思考，�
 三种模式（普通 8 步 / 全自动 23 步 / 高级工作台 6 阶段）、证据库防编造、独立批注与样式管理、写作质量检测与自然化修改、自动质量门、事实核查（最多 3 轮）、定向修改、6 格式导出（DOCX/PPTX/PDF/TXT/MD/HTML）、历史记录、断点恢复、自定义输出目录、GitHub Release 更新检查。详见 FEATURES.md。
 
 ## 当前开发阶段
-v2.3.0 已完成自动质量门、稳定数据迁移、更新检查、Provider 回归和 Windows workflow 源码测试（2026-08-19）；EXE/ZIP 与 Tag/Release 待本轮发布。
+v2.3.0 已完成自动质量门、稳定数据迁移、更新检查、Provider 回归和 Windows workflow 源码测试（2026-08-19）；EXE/ZIP、Tag 和 Release 均已发布并核对。
 
 ## 项目目录
 - 源码根目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`

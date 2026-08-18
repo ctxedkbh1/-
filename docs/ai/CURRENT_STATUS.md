@@ -3,10 +3,10 @@
 > 本文件是项目状态的**单一事实来源**。每次改动代码后必须同步更新本文件。
 
 ## 当前版本
-v2.3.0（2026-08-19，待本轮正式发布）
+v2.3.0（2026-08-19，已正式发布）
 
 ## 当前开发阶段
-v2.3.0 已完成自动质量门、无损统一数据目录与迁移、GitHub Release 更新检查、导出回退修复、Provider 请求回归测试和 Windows Release workflow；客户/开发者日志已分离更新，待本轮构建并发布。
+v2.3.0 已完成自动质量门、无损统一数据目录与迁移、GitHub Release 更新检查、导出回退修复、Provider 请求回归测试和 Windows Release workflow；客户/开发者日志已分离更新，已完成正式发布。
 
 ## 最近完成
 1. 高级模式工作台（六阶段流程化指导）——v2.0.0 核心功能
@@ -17,13 +17,13 @@ v2.3.0 已完成自动质量门、无损统一数据目录与迁移、GitHub Rel
 6. Claude/Gemini 请求回归测试、导出回退修复、Windows Tag Release workflow
 
 ## 当前正在处理
-v2.3.0 源码和离线验证已完成；正在构建 Windows EXE/ZIP 并执行 GitHub Tag/Release 发布。
+无 v2.3.0 发布遗留动作。后续修复、功能、UI、依赖或安全更新必须按本项目规则递增版本、同步两类日志、测试、打包并发布。
 
 ## 下一步
-下一步：完成 v2.3.0 发布门、推送 main、创建 Tag/Release 并核对资产 label；以后每个修复/功能都自动递增版本并同步两类日志后发布。
+等待下一项用户明确需求；任何新变更都必须先阅读本文件、架构和相关源码，再按发布规则递增版本并同步两类日志。
 
 ## 当前已知 Bug
-未发现新的核心崩溃。政府检索、CNKI 登录和长论文耗时仍是外部环境/设计限制，见 KNOWN_ISSUES.md；v2.3.0 发布动作在本文件更新时尚未完成。
+未发现新的核心崩溃。政府检索、CNKI 登录和长论文耗时仍是外部环境/设计限制，见 KNOWN_ISSUES.md。
 
 ## 当前不能修改的模块
 - **防编造机制相关**（core/evidence.py、core/writer.py、core/naturalizer.py、core/fact_checker.py 的约束逻辑）：项目最高优先级，任何改动不得削弱
@@ -35,10 +35,10 @@ v2.3.0 源码和离线验证已完成；正在构建 Windows EXE/ZIP 并执行 G
 - 2026-08-18 使用 CRLF 批处理重新打包 v2.1.2；源码和两个 EXE 的 `--selfcheck` 均通过
 - 2026-08-18 v2.3.0 通过已知问题离线回归、Provider 假 HTTP、数据迁移、全自动、AI 中心、参考文献、批注、集成、设置、语法编译、`--selfcheck` 和 `--ui-check`
 - 完整版目录 EXE、桌面单文件 EXE 与分享 ZIP 均已构建；ZIP 结构和私人文件扫描通过
-- GitHub main 分支、Tag v2.2.0 和 Release v2.2.0 已验证正常
+- GitHub main 分支已推送至提交 `29bcaa5`；Tag `v2.3.0` 指向发布提交 `b84746b`；Release `v2.3.0` 已创建并包含两个已上传资产，中文 label 已核对
 
 ## Baseline 信息
-- 日期：2026-08-18
-- Commit：本轮发布前以 `git log -1` 为准
+- 日期：2026-08-19
+- Commit：`29bcaa5`（发布后客户日志去重确认）
 - Branch：`main`
-- Tag/Release：当前远程最新为 `v2.2.0`；v2.3.0 待本轮发布
+- Tag/Release：远程最新为 `v2.3.0`；Release URL：`https://github.com/ctxedkbh1/paper-workbench/releases/tag/v2.3.0`

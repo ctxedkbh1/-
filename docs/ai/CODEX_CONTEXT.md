@@ -1,7 +1,7 @@
 # Codex 项目上下文
 
 ## 当前版本
-v2.3.0（2026-08-19，源码完成，待正式发布）
+v2.3.0（2026-08-19，已正式发布）
 
 ## 当前状态
 - 分支：`main`
@@ -15,12 +15,12 @@ v2.3.0（2026-08-19，源码完成，待正式发布）
 - 历史记录、断点恢复、完整版本地部署、GitHub Release
 
 ## 当前任务
-v2.3.0 自动质量门、数据迁移、更新检查、Provider 回归和 workflow 已完成源码与离线验证；main/Tag/Release 待本轮构建发布。
+v2.3.0 自动质量门、数据迁移、更新检查、Provider 回归和 workflow 已完成源码与离线验证；main、Tag、Release 和两个下载资产均已发布并核对。
 
 ## 下一步
-1. 构建 v2.3.0 EXE/ZIP，运行发布门并核对无私人数据
-2. 推送 main、创建 Tag/Release、上传两个资产并核对中文 label
-3. 后续每个 bug/功能/UI 改动均按 RELEASE_PROCESS.md 递增版本并自动上传
+1. 等待下一项用户明确需求
+2. 新增 bug/功能/UI 改动均按 RELEASE_PROCESS.md 递增版本并自动上传
+3. 每次发布后核对 Tag、Release URL、资产状态和中文 label
 
 ## 重要文件
 - `core/paths.py`：版本唯一来源

@@ -20,7 +20,7 @@
 Windows 桌面论文智能研究与写作助手（品牌名：论文助手）。选题 → 权威资料检索 → 证据库 → AI 大纲 → 分章节写作 → 事实核查 → 多格式导出。**防编造是最高优先级设计**：AI 只能引用检索到的真实证据。
 
 ## 当前版本
-v2.3.0（2026-08-19，源码完成，待正式发布）
+v2.3.0（2026-08-19，已正式发布）
 
 ## 当前Baseline
 - 日期：2026-08-17
@@ -32,7 +32,7 @@ v2.3.0（2026-08-19，源码完成，待正式发布）
 Python 3.10+ / PySide6 / requests / python-docx / python-pptx / reportlab / PyInstaller。Windows 10/11 x64。无数据库（本地 JSON + Markdown）。
 
 ## 当前状态
-维护中：v2.3.0 自动质量门、稳定数据目录、更新检查、Provider 回归和 workflow 已完成源码与离线验证，源码目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`；EXE/ZIP 与 Tag/Release 待本轮发布。
+维护中：v2.3.0 自动质量门、稳定数据目录、更新检查、Provider 回归和 workflow 已完成源码与离线验证并正式发布；源码目录：`C:\Users\Administrator\Documents\Default Project\PaperAssistant`。
 
 ## 已完成
 - 三种模式：普通 8 步 / 全自动 23 步（断点恢复与自动质量门）/ 高级工作台 6 阶段
@@ -44,10 +44,10 @@ Python 3.10+ / PySide6 / requests / python-docx / python-pptx / reportlab / PyIn
 - 导出：DOCX/PPTX/PDF/TXT/MD/HTML 6 格式 + 验证重生成；自定义输出目录
 - 历史记录、断点恢复、日志脱敏、响应式 UI/DPI
 - 工程：--selfcheck、离线测试、build.bat 完整版目录与单文件 EXE、build_share.bat 分享 ZIP 打包
-- GitHub 发布：公开仓库 + v2.2.0 基线 Release（EXE + ZIP）+ README/CHANGELOG/LICENSE + docs/ai 知识库；v2.3.0 待发布
+- GitHub 发布：公开仓库 + v2.3.0 Release（EXE + ZIP，中文 label）+ README/CHANGELOG/LICENSE + docs/ai 知识库
 
 ## 正在开发
-v2.3.0 已完成开发和源码测试；桌面资产构建与 GitHub 发布是当前收尾步骤。
+当前无 v2.3.0 遗留发布步骤；等待下一项用户明确需求。
 
 ## 下一步
 见 TODO.md。P0/P1 均为空或可选；任何任务开始前需用户确认。
@@ -90,7 +90,7 @@ OpenAlex / Crossref（公开学术 API）；政府官网与通用网页（公开
 - output\：论文.docx/.md/.pdf/.pptx/.html/.txt、资料核验报告.md、批注表.json/.md、论文质量报告.md、全自动运行日志.md
 
 ## 最近修改
-2026-08-18：完成 v2.3.0 自动质量门、稳定数据迁移、GitHub 更新检查、Provider 回归、Windows workflow 和两类日志规则；源码回归通过，桌面构建与正式发布待执行。
+2026-08-19：完成 v2.3.0 自动质量门、稳定数据迁移、GitHub 更新检查、Provider 回归、Windows workflow 和两类日志规则；源码回归、EXE/ZIP 自检和正式 GitHub Release 均已通过。
 
 ## 修改原因
 用户要求项目封存：建立任何 AI 都能读取的项目知识库，防止未来因上下文不足而误改代码。
@@ -99,7 +99,7 @@ OpenAlex / Crossref（公开学术 API）；政府官网与通用网页（公开
 - python main.py --selfcheck：打包前已通过
 - `tests/dev_annotation_test.py`、`tests/dev_reference_center_test.py`、`tests/dev_auto_test.py`、批注页离屏刷新和语法编译均通过
 - v2.1.2 完整版目录 EXE 与桌面单文件 EXE：`--selfcheck` 返回 0；分享 ZIP 无私人数据
-- v2.3.0 源码测试、迁移、更新检查、Provider 假 HTTP、`--selfcheck`、`--ui-check` 均通过；EXE/ZIP 尚未构建
+- v2.3.0 源码测试、迁移、更新检查、Provider 假 HTTP、`--selfcheck`、`--ui-check`、EXE/ZIP 自检和 ZIP 私人数据扫描均通过
 
 ## 不要修改的内容
 - 防编造机制（evidence/writer/naturalizer/fact_checker 约束逻辑）

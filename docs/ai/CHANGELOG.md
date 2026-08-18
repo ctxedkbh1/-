@@ -10,9 +10,9 @@
 - 用户数据：`core/paths.py` 默认目录迁移到 `%LOCALAPPDATA%\\PaperAssistant\\paper_project`；`core/data_migration.py` 复制桌面单文件版、完整版和旧程序目录，配置只补齐缺失字段，冲突保留备份，报告不含 Key 内容。实际迁移扫描到两套旧目录、复制 24 个文件、备份 7 个冲突、合并 148 个配置字段、错误 0 个。
 - 更新系统：新增 `core/updater.py`、`gui/update_check.py`、About 检查按钮和帮助菜单入口；GitHub latest Release 请求在线程内执行，校验 SemVer，返回真实 Release URL/资产和 HTTP/网络错误。
 - 稳定性：`auto_pipeline.py` 显式导入 `paths`，不可用自定义输出目录回退分支已有本地回归；新增 Claude/Gemini 假 HTTP 请求测试，断言模型 ID、系统提示、消息角色和认证头。
-- 发布自动化：新增 `.github/workflows/release.yml`，Tag 触发 Windows 测试、PyInstaller EXE/ZIP 构建和 GitHub Release；`build.bat/build_share.bat` 改用系统 PowerShell 与 ASCII 传输名；OAuth scope 阻塞从“文件缺失”变为需远程 Actions 执行验证。
+- 发布自动化：新增 `.github/workflows/release.yml`，Tag 触发 Windows 测试、PyInstaller EXE/ZIP 构建和 GitHub Release；`build.bat/build_share.bat` 改用系统 PowerShell 与 ASCII 传输名；补充 `workflow` scope 后已成功推送 workflow。
 - 文档接管：新增根目录 `AGENTS.md`、`docs/ai/CHANGE_HISTORY.md`、`DEVELOPMENT_GUIDE.md`，同步 23 阶段、稳定数据、自动质量门、两类日志受众和每次修复必须发版上传的规则。
-- 测试：`dev_known_issues_test.py`、`dev_auto_test.py`、AI Center、Reference Center、Annotation、Integrations、Settings、`py_compile`、`main.py --selfcheck`、`--ui-check` 已通过；尚未执行 v2.3.0 Windows EXE 构建和远程 Release。
+- 测试与发布：`dev_known_issues_test.py`、`dev_auto_test.py`、AI Center、Reference Center、Annotation、Integrations、Settings、`py_compile`、`main.py --selfcheck`、`--ui-check`、两个 Windows 资产自检和 ZIP 私人数据扫描均通过；main 提交 `b84746b` 已创建 Tag `v2.3.0`，Release 已发布，两个资产状态为 `uploaded`，中文 label 已核对。
 
 ## 2026-08-18
 - v2.2.0：新增独立批注系统；版本源已从 v2.1.2 升为 v2.2.0，源码与中文 EXE/ZIP 资产已验证，尚未提交、创建 Tag 或发布。
